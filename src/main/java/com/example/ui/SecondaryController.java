@@ -1,4 +1,4 @@
-package com.example;
+package com.example.ui;
 
 import java.io.IOException;
 import javafx.fxml.FXML;
