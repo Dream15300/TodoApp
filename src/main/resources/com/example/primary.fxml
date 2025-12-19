@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.PrimaryController">
+
+    <top>
+        <ToolBar>
+            <Label text="To-Do Liste"/>
+            <Separator/>
+            <Button text="Secondary" onAction="#openSecondary"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <Label text="GUI laeuft. Naechster Schritt: TableView + CRUD."/>
+    </center>
+
+</BorderPane>
