@@ -1,5 +1,6 @@
 package com.example.domain;
 
-public class TodoStatus {
-
+public enum TodoStatus {
+    OPEN,
+    DONE
 }

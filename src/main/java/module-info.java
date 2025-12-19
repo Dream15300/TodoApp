@@ -8,6 +8,7 @@ module com.example {
     requires java.sql;
     requires org.xerial.sqlitejdbc;
 
+    opens com.example to javafx.fxml;
     opens com.example.ui to javafx.fxml;
 
     exports com.example;
