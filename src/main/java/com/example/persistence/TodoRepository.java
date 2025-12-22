@@ -1,5 +1,3 @@
-// verantworlich für Datenzugriff (Persistence Layer, kapselt)
-
 package com.example.persistence;
 
 import com.example.domain.TodoItem;
@@ -15,26 +13,56 @@ import java.util.List;
 
 public class TodoRepository {
 
-    public List<TodoItem> findByCategory(int categoryId) {
-        String sql = """
-                SELECT Id, CategoryId, Title, DueDate, Status
-                FROM TodoItems
-                WHERE CategoryId = ?
-                ORDER BY CASE WHEN Status = 1 THEN 1 ELSE 0 END, DueDate IS NULL, DueDate, Id
-                """;
+    public boolean hasTodos(int categoryId) {
+        String sql = "SELECT 1 FROM TodoItems WHERE CategoryId = ? LIMIT 1";
 
-        List<TodoItem> out = new ArrayList<>(); // Liste für gemappte Todo-Objekte
-
-        try (Connection c = Db.open(); // Db.open() --> siehe Db.java-Datei
+        try (Connection c = Db.open();
                 PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setInt(1, categoryId); // setzt ersten Platzhalter (?) und bindet Kategorie-ID sicher ins SQL
+            ps.setInt(1, categoryId);
 
-            try (ResultSet rs = ps.executeQuery()) { // Führt SQL-Query aus
-                while (rs.next()) {
-                    out.add(map(rs)); // Wandelt eine DB-Zeile in ein TodoItem (siehe Funktion map() unten)
-                }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
             }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Todo-Existenz pruefen fehlgeschlagen", e);
+        }
+    }
+
+    public List<TodoItem> findOpenByCategory(int categoryId) {
+        String sql = """
+                SELECT Id, CategoryId, Title, DueDate, Status, Priority
+                FROM TodoItems
+                WHERE CategoryId = ? AND Status = 0
+                ORDER BY Priority DESC, DueDate IS NULL, DueDate, Id
+                """;
+        return queryList(sql, categoryId);
+    }
+
+    public List<TodoItem> findDoneByCategory(int categoryId) {
+        String sql = """
+                SELECT Id, CategoryId, Title, DueDate, Status, Priority
+                FROM TodoItems
+                WHERE CategoryId = ? AND Status = 1
+                ORDER BY DueDate IS NULL, DueDate DESC, Id DESC
+                """;
+        return queryList(sql, categoryId);
+    }
+
+    private List<TodoItem> queryList(String sql, int categoryId) {
+        List<TodoItem> out = new ArrayList<>();
+
+        try (Connection c = Db.open();
+                PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setInt(1, categoryId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next())
+                    out.add(map(rs));
+            }
+
             return out;
 
         } catch (Exception e) {
@@ -42,22 +70,21 @@ public class TodoRepository {
         }
     }
 
-    public int insert(TodoItem item) { // fügt neues TodoItem ein
-        String sql = "INSERT INTO TodoItems (CategoryId, Title, DueDate, Status) VALUES (?, ?, ?, ?)";
+    public int insert(TodoItem item) {
+        String sql = "INSERT INTO TodoItems (CategoryId, Title, DueDate, Status, Priority) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) { // aktiviert Rückgabe
-                                                                                                   // von Auto-ID
+                PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setInt(1, item.getCategoryId()); // setzt FK usw.
+            ps.setInt(1, item.getCategoryId());
             ps.setString(2, item.getTitle());
-            ps.setString(3, item.getDueDate() == null ? null : item.getDueDate().toString()); // wandelt Datum in
-                                                                                              // ISO-String
+            ps.setString(3, item.getDueDate() == null ? null : item.getDueDate().toString());
             ps.setInt(4, toDbStatus(item.getStatus()));
+            ps.setInt(5, item.getPriority());
 
-            ps.executeUpdate(); // führt insert aus
+            ps.executeUpdate();
 
-            try (ResultSet keys = ps.getGeneratedKeys()) { // liest automatisch generierte IDs
+            try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next())
                     return keys.getInt(1);
             }
@@ -68,13 +95,13 @@ public class TodoRepository {
         }
     }
 
-    public void updateStatus(int todoId, TodoStatus status) { // aktualisiert Status eines Todos
+    public void updateStatus(int todoId, TodoStatus status) {
         String sql = "UPDATE TodoItems SET Status = ? WHERE Id = ?";
 
-        try (Connection c = Db.open(); // Db.open() --> siehe Db.java-Datei
+        try (Connection c = Db.open();
                 PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setInt(1, toDbStatus(status)); // Enum zu DB-Wert
+            ps.setInt(1, toDbStatus(status));
             ps.setInt(2, todoId);
             ps.executeUpdate();
 
@@ -83,25 +110,25 @@ public class TodoRepository {
         }
     }
 
-    private TodoItem map(ResultSet rs) throws Exception { // Mapping-Methode, wandelt DB-Zeile zu Domain-Objekt
-        int id = rs.getInt("Id"); // liest PK
-        int catId = rs.getInt("CategoryId"); // liest FK usw
+    private TodoItem map(ResultSet rs) throws Exception {
+        int id = rs.getInt("Id");
+        int catId = rs.getInt("CategoryId");
         String title = rs.getString("Title");
         String due = rs.getString("DueDate");
         int status = rs.getInt("Status");
+        int priority = rs.getInt("Priority");
 
-        LocalDate dueDate = (due == null || due.isBlank()) ? null : LocalDate.parse(due); // wandelt String zu LocalDate
-        TodoStatus st = fromDbStatus(status); // DB-Wert zu Enum
+        LocalDate dueDate = (due == null || due.isBlank()) ? null : LocalDate.parse(due);
+        TodoStatus st = fromDbStatus(status);
 
-        return new TodoItem(id, catId, title, dueDate, st); // erzeugt vollstaendiges Domain-Objekt
+        return new TodoItem(id, catId, title, dueDate, st, priority);
     }
 
-    private int toDbStatus(TodoStatus s) { // Enum zu DB-Wert
-        // Annahme: 0 = OPEN, 1 = DONE
-        return (s == TodoStatus.DONE) ? 1 : 0; // Mapping Definition
+    private int toDbStatus(TodoStatus s) {
+        return (s == TodoStatus.DONE) ? 1 : 0;
     }
 
-    private TodoStatus fromDbStatus(int v) { // DB-Wert zu Enum
-        return (v == 1) ? TodoStatus.DONE : TodoStatus.OPEN; // Rueckwandlung
+    private TodoStatus fromDbStatus(int v) {
+        return (v == 1) ? TodoStatus.DONE : TodoStatus.OPEN;
     }
 }

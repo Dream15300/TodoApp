@@ -1,72 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ui.PrimaryController">
+<BorderPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.ui.PrimaryController"
+            stylesheets="@style.css">
 
-    <top>
-        <ToolBar>
-            <Label text="To-Do Liste" />
-            <Separator />
-            <Button onAction="#openSecondary" text="Secondary" />
-        </ToolBar>
-    </top>
+
     <center>
         <SplitPane dividerPositions="0.28">
-            <!-- LINKS: Listen -->
+
+            <!-- LINKS: LISTEN -->
             <VBox spacing="10.0">
                 <padding>
                     <Insets top="12" right="12" bottom="12" left="12"/>
                 </padding>
-                <HBox spacing="8.0">
-                    <Label text="Listen" />
-                    <HBox HBox.hgrow="ALWAYS"/>
-                    <Button text="+" onAction="#onNewList"/>
-                    <Button text="Bearbeiten" onAction="#onEditSelectedList"/>
-                </HBox>
 
-                <ListView fx:id="listsView" VBox.vgrow="ALWAYS"/>
+                <Label text="Listen"/>
+
+                <!-- Weisser Container: Kategorien + Plus unten (Plus volle Breite) -->
+                <VBox spacing="6.0"
+                      styleClass="category-container"
+                      VBox.vgrow="ALWAYS">
+
+                    <ListView fx:id="listsView" VBox.vgrow="ALWAYS"/>
+
+                    <!-- Plus-Button: immer volle Breite der Spalte -->
+                    <Button text="+ Neue Liste"
+                            onAction="#onNewList"
+                            maxWidth="Infinity"
+                            styleClass="category-add-full"/>
+                </VBox>
             </VBox>
 
-            <!-- RECHTS: Aufgaben -->
+            <!-- RECHTS: AUFGABEN -->
             <VBox spacing="10.0">
                 <padding>
                     <Insets top="12" right="12" bottom="12" left="12"/>
                 </padding>
+
                 <HBox spacing="8.0">
-                    <Label text="Aufgaben" />
+                    <Label text="Aufgaben"/>
                     <HBox HBox.hgrow="ALWAYS"/>
-                    <Button text="Erledigt" onAction="#onMarkSelectedTaskDone"/>
                 </HBox>
 
-                <ListView fx:id="tasksView" VBox.vgrow="ALWAYS"/>
+                <!-- Weisser Container: Tasks + Erledigt eingebettet -->
+                <VBox spacing="6.0"
+                    styleClass="tasks-container"
+                    VBox.vgrow="ALWAYS">
 
-                <!-- Eingabe unten -->
-                <HBox spacing="8.0">
+                    <ListView fx:id="tasksView" VBox.vgrow="ALWAYS"/>
+
+                    <!-- Erledigt Button: eingebettet unten im weissen Container -->
+                    <Button fx:id="btnHistory"
+                            text="› Erledigt"
+                            onAction="#onToggleHistory"
+                            maxWidth="Infinity"
+                            styleClass="tasks-footer-btn"/>
+                </VBox>
+
+                <!-- Eingabezeile (verschmolzen) -->
+                <HBox spacing="0.0" styleClass="todo-input">
                     <padding>
-                        <Insets top="8" right="8" bottom="8" left="8"/>
+                        <Insets top="6" right="6" bottom="6" left="6"/>
                     </padding>
-                    <Button text="+" onAction="#onAddTask"/>
-                    <TextField fx:id="txtNewTaskTitle" promptText="Neue Aufgabe..." HBox.hgrow="ALWAYS"/>
-                    <DatePicker fx:id="dpNewTaskDueDate"/>
+
+                    <Button text="+" onAction="#onAddTask" styleClass="todo-input-btn"/>
+
+                    <TextField fx:id="txtNewTaskTitle"
+                            promptText="Neue Aufgabe..."
+                            HBox.hgrow="ALWAYS"
+                            styleClass="todo-input-field"/>
+
+                    <DatePicker fx:id="dpNewTaskDueDate"
+                                styleClass="todo-input-date"/>
                 </HBox>
+
             </VBox>
+
+
         </SplitPane>
     </center>
 

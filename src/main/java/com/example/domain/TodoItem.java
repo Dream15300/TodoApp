@@ -8,16 +8,18 @@ public class TodoItem {
     private String title;
     private LocalDate dueDate;
     private TodoStatus status;
+    private int priority;
 
     public TodoItem() {
     }
 
-    public TodoItem(int id, int categoryId, String title, LocalDate dueDate, TodoStatus status) {
+    public TodoItem(int id, int categoryId, String title, LocalDate dueDate, TodoStatus status, int priority) {
         this.id = id;
         this.categoryId = categoryId;
         this.title = title;
         this.dueDate = dueDate;
         this.status = status;
+        this.priority = priority;
     }
 
     public int getId() {
@@ -58,6 +60,19 @@ public class TodoItem {
 
     public void setStatus(TodoStatus status) {
         this.status = status;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public String toDisplayString() {
+        String d = (dueDate == null) ? "" : " (" + dueDate + ")";
+        return title + d;
     }
 
     @Override
