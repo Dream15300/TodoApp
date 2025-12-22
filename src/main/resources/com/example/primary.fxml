@@ -56,20 +56,39 @@
                     <HBox HBox.hgrow="ALWAYS"/>
                 </HBox>
 
-                <!-- Weisser Container: Tasks + Erledigt eingebettet -->
+                <!-- Weisser Container: Tasks + Footer (2 Buttons) -->
                 <VBox spacing="6.0"
                     styleClass="tasks-container"
                     VBox.vgrow="ALWAYS">
 
                     <ListView fx:id="tasksView" VBox.vgrow="ALWAYS"/>
 
-                    <!-- Erledigt Button: eingebettet unten im weissen Container -->
-                    <Button fx:id="btnHistory"
+                    <!-- Footer: Zurueck + Alle erledigten loeschen -->
+                    <HBox spacing="8.0">
+                    <Button fx:id="btnShowDone"
                             text="› Erledigt"
-                            onAction="#onToggleHistory"
+                            onAction="#onShowHistory"
                             maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
                             styleClass="tasks-footer-btn"/>
+
+                    <Button fx:id="btnBack"
+                            text="‹ Zurück"
+                            onAction="#onBackFromHistory"
+                            maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            styleClass="tasks-footer-btn"/>
+
+                    <Button fx:id="btnClearDone"
+                            text="Alle erledigten löschen"
+                            onAction="#onClearDone"
+                            maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            styleClass="tasks-footer-btn-danger"/>
+                    </HBox>
+
                 </VBox>
+
 
                 <!-- Eingabezeile (verschmolzen) -->
                 <HBox spacing="0.0" styleClass="todo-input">

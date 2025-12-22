@@ -13,8 +13,6 @@ import java.time.LocalDate;
 import java.sql.Types;
 import java.util.List;
 
-import org.sqlite.core.DB;
-
 public class TodoService {
 
     private final CategoryRepository categoryRepo = new CategoryRepository();
@@ -99,7 +97,42 @@ public class TodoService {
         }
     }
 
+    public void deleteDoneTodosByCategory(int categoryId) {
+        String sql = """
+                DELETE FROM TodoItems
+                WHERE Status = ? AND CategoryId = ?
+                """;
+
+        try (var c = Db.open();
+                var ps = c.prepareStatement(sql)) {
+
+            ps.setInt(1, 1); // DONE
+            ps.setInt(2, categoryId);
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("deleteDoneTodosByCategory fehlgeschlagen", e);
+        }
+    }
+
+    // Todos erledigt / nicht erledigt
     public void markDone(int todoId) {
         todoRepo.updateStatus(todoId, TodoStatus.DONE);
     }
+
+    public void markOpen(int todoId) {
+        String sql = "UPDATE TodoItems SET Status = ? WHERE Id = ?";
+
+        try (var c = Db.open();
+                var ps = c.prepareStatement(sql)) {
+
+            ps.setInt(1, 0); // OPEN
+            ps.setInt(2, todoId);
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("markOpen fehlgeschlagen", e);
+        }
+    }
+
 }

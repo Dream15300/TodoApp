@@ -256,3 +256,7 @@ Das Projekt To-Do-Liste erfuellt die Anforderungen der Aufgabenstellung durch ei
 # **ERM-Modell**
 
 ![[assets/ERM-Modell-ToDoListe.drawio.svg]]
+
+# **Farbpalette**
+
+https://paletton.com/#uid=13b0u0kllllaFw0g0qFqFg0w0aF
