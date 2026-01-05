@@ -109,7 +109,7 @@
     -fx-background-color: #6EA498;
     -fx-background-radius: 10;
     -fx-border-width: 0;
-    -fx-padding: 0;
+    -fx-padding: 6;
 }
 
 .list-view:focused {
@@ -126,15 +126,24 @@
     -fx-background-color: transparent;
     -fx-text-fill: #1f2a44;
     -fx-padding: 10 12;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-background-insets: 1 0 1 0;
 }
 
 .list-view .list-cell:filled:hover {
     -fx-background-color: #8fb8af;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-background-insets: 1 0 1 0;
 }
 
 .list-view .list-cell:filled:selected {
     -fx-background-color: #8fb8af;
     -fx-text-fill: #0f1c3a;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-background-insets: 1 0 1 0;
 }
 
 .list-view .text-field {
@@ -142,6 +151,30 @@
     -fx-border-width: 0;
     -fx-padding: 0;
 }
+
+.tasks-view .list-cell:filled {
+    -fx-background-color: transparent;
+    -fx-padding: 10 12;
+    -fx-background-insets: 0 0 8 0;
+    -fx-border-insets: 0 0 8 0;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.25) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.tasks-view .list-cell:filled:hover,
+.tasks-view .list-cell:filled:selected {
+    -fx-background-insets: 0 0 8 0;
+    -fx-border-insets: 0 0 8 0;
+}
+
+/* Leere Zellen: keine Linie */
+.tasks-view .list-cell:empty {
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    
+}
+
 
 /* =====================================
    Todo Text (Titel + Faelligkeit)

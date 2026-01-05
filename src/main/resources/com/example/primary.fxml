@@ -61,7 +61,7 @@
                     styleClass="tasks-container"
                     VBox.vgrow="ALWAYS">
 
-                    <ListView fx:id="tasksView" VBox.vgrow="ALWAYS"/>
+                    <ListView fx:id="tasksView" styleClass="tasks-view" VBox.vgrow="ALWAYS"/>
 
                     <!-- Footer: Zurueck + Alle erledigten loeschen -->
                     <HBox spacing="8.0">
