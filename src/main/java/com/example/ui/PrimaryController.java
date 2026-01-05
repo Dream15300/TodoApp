@@ -13,11 +13,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,6 +47,8 @@ public class PrimaryController {
 
     private final TodoService service = new TodoService(); // Instanzierung der Service-Schicht
     private boolean showingDone = false; // false = offene Tasks anzeigen, true = erledigte anzeigen
+
+    private static final DateTimeFormatter DUE_FMT = DateTimeFormatter.ofPattern("EEE, d. MMM", Locale.GERMAN);
 
     // ------------------------------------------------------------
     // Navigation
@@ -237,16 +242,25 @@ public class PrimaryController {
         tasksView.setCellFactory(listsView -> new ListCell<>() {
 
             private final CheckBox checkBox = new CheckBox();
-            private final Label label = new Label();
+            private final Label title = new Label();
+            private final Label due = new Label();
+            private final VBox textBox = new VBox(2, title, due);
             private final TextField editor = new TextField();
 
             private final Region spacer = new Region();
-            private final HBox root = new HBox(8, checkBox, label, spacer);
+            private final HBox root = new HBox(8, checkBox, textBox, spacer);
 
             {
                 HBox.setHgrow(spacer, Priority.ALWAYS);
                 root.setAlignment(Pos.CENTER_LEFT);
-                label.setWrapText(true);
+                title.setWrapText(true);
+                title.getStyleClass().add("todo-title");
+
+                due.getStyleClass().add("todo-due");
+                due.setManaged(false);
+                due.setVisible(false);
+
+                textBox.getStyleClass().add("todo-textbox");
 
                 // DONE <-> OPEN
                 checkBox.setOnAction(e -> {
@@ -310,7 +324,7 @@ public class PrimaryController {
             @Override
             public void cancelEdit() {
                 super.cancelEdit();
-                root.getChildren().set(1, label);
+                root.getChildren().set(1, textBox);
             }
 
             @Override
@@ -325,15 +339,20 @@ public class PrimaryController {
 
                 checkBox.setSelected(item.getStatus() == TodoStatus.DONE);
 
-                String dueDate = (item.getDueDate() == null) ? "" : " (" + item.getDueDate() + ")"; // Baut einen
-                                                                                                    // Suffix-Stringfür
-                                                                                                    // DueDate
-                label.setText(item.getTitle() + dueDate);
+                title.setText(item.getTitle());
+                if (item.getDueDate() != null) {
+                    due.setText("📅 " + item.getDueDate().format(DUE_FMT));
+                    due.setManaged(true);
+                    due.setVisible(true);
+                } else {
+                    due.setManaged(false);
+                    due.setVisible(false);
+                }
 
                 if (isEditing()) {
                     root.getChildren().set(1, editor);
                 } else {
-                    root.getChildren().set(1, label);
+                    root.getChildren().set(1, textBox);
                 }
 
                 setText(null);

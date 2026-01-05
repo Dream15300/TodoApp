@@ -143,6 +143,22 @@
     -fx-padding: 0;
 }
 
+/* =====================================
++   Todo Text (Titel + Faelligkeit)
++   ===================================== */
+.todo-textbox {
+    -fx-spacing: 2;
+}
+
+.todo-title {
+    -fx-text-fill: #1f2a44;
+}
+
+.todo-due {
+    -fx-font-size: 10px;
+    -fx-text-fill: rgba(31,42,68,0.70);
+}
+
 /* =========================
    "Neue Liste" (volle Breite)
    ========================= */
