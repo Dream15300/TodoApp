@@ -15,43 +15,45 @@ import java.util.List;
 
 public class TodoService {
 
-    private final CategoryRepository categoryRepo = new CategoryRepository();
-    private final TodoRepository todoRepo = new TodoRepository();
+    private final CategoryRepository categoryRepo = new CategoryRepository(); // Repository-Instanz für Kategorien
+    private final TodoRepository todoRepo = new TodoRepository(); // Repository-Instanz für TodoItems
 
-    public List<Category> getCategories() {
+    public List<Category> getCategories() { // Holt alle Kategorien
         return categoryRepo.findAll();
     }
 
-    public int createCategory(String name) {
+    public int createCategory(String name) { // Erstellt eine neue Kategorie und gibt die generierte ID zurück
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name ist Pflicht");
         }
         return categoryRepo.insert(name.trim());
     }
 
-    public void renameCategory(int id, String newName) {
+    public void renameCategory(int id, String newName) { // Benennt eine Kategorie um
         if (newName == null || newName.trim().isEmpty()) {
             throw new IllegalArgumentException("Name ist Pflicht");
         }
         categoryRepo.updateName(id, newName.trim());
     }
 
-    public void deleteCategory(int categoryId) {
+    public void deleteCategory(int categoryId) { // Löscht eine Kategorie, nur möglich, wenn keine Todos mehr vorhanden
+                                                 // sind
         if (todoRepo.hasTodos(categoryId)) {
-            throw new IllegalStateException("Liste enthaelt noch Todos. Erst Todos loeschen/verschieben.");
+            throw new IllegalStateException("Liste enthält noch Todos. Erst Todos löschen/verschieben.");
         }
         categoryRepo.delete(categoryId);
     }
 
-    public List<TodoItem> getOpenTodosForCategory(int categoryId) {
+    public List<TodoItem> getOpenTodosForCategory(int categoryId) { // Holt offene Todos für eine Kategorie
         return todoRepo.findOpenByCategory(categoryId);
     }
 
-    public List<TodoItem> getDoneTodosForCategory(int categoryId) {
+    public List<TodoItem> getDoneTodosForCategory(int categoryId) { // Holt erledigte Todos für eine Kategorie
         return todoRepo.findDoneByCategory(categoryId);
     }
 
-    public int addTodo(int categoryId, String title, LocalDate dueDate) {
+    public int addTodo(int categoryId, String title, LocalDate dueDate) { // Fügt ein neues Todo hinzu und gibt die
+                                                                          // generierte ID zurück
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Titel ist Pflicht");
         }
@@ -67,51 +69,52 @@ public class TodoService {
         return todoRepo.insert(item);
     }
 
-    public void updateTodo(int todoId, String newTitle, LocalDate newDueDate) {
+    public void updateTodo(int todoId, String newTitle, LocalDate newDueDate) { // Aktualisiert Titel und
+                                                                                // Fälligkeitsdatum eines Todos
         if (newTitle == null || newTitle.trim().isEmpty()) {
-            throw new IllegalArgumentException("Title darf nicht leer sein");
+            throw new IllegalArgumentException("Titel darf nicht leer sein");
         }
 
         String sql = "UPDATE TodoItems SET Title = ?, DueDate = ? WHERE Id = ?";
 
-        try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setString(1, newTitle.trim());
+            preparedStatement.setString(1, newTitle.trim());
 
             // DueDate ist TEXT: yyyy-MM-dd oder NULL
             if (newDueDate == null) {
-                ps.setNull(2, Types.VARCHAR);
+                preparedStatement.setNull(2, Types.VARCHAR);
             } else {
-                ps.setString(2, newDueDate.toString());
+                preparedStatement.setString(2, newDueDate.toString());
             }
 
-            ps.setInt(3, todoId);
+            preparedStatement.setInt(3, todoId);
 
-            int affected = ps.executeUpdate();
+            int affected = preparedStatement.executeUpdate();
             if (affected == 0) {
                 throw new IllegalStateException("Todo nicht gefunden: Id=" + todoId);
             }
-        } catch (Exception e) {
-            throw new RuntimeException("updateTodo fehlgeschlagen", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("updateTodo fehlgeschlagen", exception);
         }
     }
 
-    public void deleteDoneTodosByCategory(int categoryId) {
+    public void deleteDoneTodosByCategory(int categoryId) { // Löscht alle erledigten Todos einer Kategorie
         String sql = """
                 DELETE FROM TodoItems
                 WHERE Status = ? AND CategoryId = ?
                 """;
 
-        try (var c = Db.open();
-                var ps = c.prepareStatement(sql)) {
+        try (var connection = Db.open();
+                var preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, 1); // DONE
-            ps.setInt(2, categoryId);
+            preparedStatement.setInt(1, 1); // DONE
+            preparedStatement.setInt(2, categoryId);
 
-            ps.executeUpdate();
-        } catch (Exception e) {
-            throw new RuntimeException("deleteDoneTodosByCategory fehlgeschlagen", e);
+            preparedStatement.executeUpdate();
+        } catch (Exception exception) {
+            throw new RuntimeException("deleteDoneTodosByCategory fehlgeschlagen", exception);
         }
     }
 
@@ -123,15 +126,15 @@ public class TodoService {
     public void markOpen(int todoId) {
         String sql = "UPDATE TodoItems SET Status = ? WHERE Id = ?";
 
-        try (var c = Db.open();
-                var ps = c.prepareStatement(sql)) {
+        try (var connection = Db.open();
+                var preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, 0); // OPEN
-            ps.setInt(2, todoId);
+            preparedStatement.setInt(1, 0); // OPEN
+            preparedStatement.setInt(2, todoId);
 
-            ps.executeUpdate();
-        } catch (Exception e) {
-            throw new RuntimeException("markOpen fehlgeschlagen", e);
+            preparedStatement.executeUpdate();
+        } catch (Exception exception) {
+            throw new RuntimeException("markOpen fehlgeschlagen", exception);
         }
     }
 

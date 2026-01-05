@@ -9,27 +9,27 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryRepository {
+public class CategoryRepository { // Repository-Klasse für CRUD-Operationen auf Kategorien
 
-    public List<Category> findAll() {
+    public List<Category> findAll() { // Findet alle Kategorien in der DB
         String sql = "SELECT Id, Name FROM Categories ORDER BY Name";
-        List<Category> out = new ArrayList<>();
+        List<Category> outputedList = new ArrayList<>();
 
         try (Connection connection = Db.open();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                out.add(new Category(resultSet.getInt("Id"), resultSet.getString("Name")));
+                outputedList.add(new Category(resultSet.getInt("Id"), resultSet.getString("Name")));
             }
-            return out;
+            return outputedList;
 
         } catch (Exception exception) {
             throw new RuntimeException("Kategorien laden fehlgeschlagen", exception);
         }
     }
 
-    public int insert(String name) {
+    public int insert(String name) { // Fügt eine neue Kategorie in die DB ein und gibt die generierte ID zurück
         String sql = "INSERT INTO Categories (Name) VALUES (?)";
 
         try (Connection connection = Db.open();
@@ -43,14 +43,14 @@ public class CategoryRepository {
                 if (keys.next())
                     return keys.getInt(1);
             }
-            throw new RuntimeException("Keine ID zurueckgegeben");
+            throw new RuntimeException("Keine ID zurückgegeben");
 
         } catch (Exception exception) {
-            throw new RuntimeException("Kategorie einfuegen fehlgeschlagen", exception);
+            throw new RuntimeException("Kategorie einfügen fehlgeschlagen", exception);
         }
     }
 
-    public void updateName(int id, String newName) {
+    public void updateName(int id, String newName) { // Aktualisiert den Namen einer Kategorie anhand der ID
         String sql = "UPDATE Categories SET Name = ? WHERE Id = ?";
 
         try (Connection connection = Db.open();
@@ -65,7 +65,7 @@ public class CategoryRepository {
         }
     }
 
-    public void delete(int id) {
+    public void delete(int id) { // Löscht eine Kategorie anhand der ID
         String sql = "DELETE FROM Categories WHERE Id = ?";
 
         try (Connection connection = Db.open();
@@ -75,7 +75,7 @@ public class CategoryRepository {
             preparedStatement.executeUpdate();
 
         } catch (Exception exception) {
-            throw new RuntimeException("Kategorie loeschen fehlgeschlagen", exception);
+            throw new RuntimeException("Kategorie löschen fehlgeschlagen", exception);
         }
     }
 }
