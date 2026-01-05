@@ -8,11 +8,11 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.stream.Collectors;
 
-public final class DatabaseInitializer {
+public final class DatabaseInitializer { // final --> darf nicht vererbt werden
 
     private static final String DB_URL = "jdbc:sqlite:todo.db";
 
-    private DatabaseInitializer() {
+    private DatabaseInitializer() { // private --> verhindert Instanzierung, Nutzung nur über statische Methoden
     }
 
     public static void init() {
@@ -21,37 +21,40 @@ public final class DatabaseInitializer {
     }
 
     private static void executeSqlResource(String resourcePath) {
-        String sql = readResource(resourcePath);
+        String sql = readResource(resourcePath); // Liest Inhalt als String
         // split bei ';'
-        String[] statements = sql.split(";");
-        try (Connection con = DriverManager.getConnection(DB_URL);
-                Statement st = con.createStatement()) {
+        String[] statements = sql.split(";"); // Zerlegt SQL in einzelne Statements
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+                Statement statement = connection.createStatement()) {
 
-            st.execute("PRAGMA foreign_keys = ON;");
+            statement.execute("PRAGMA foreign_keys = ON;");
 
-            for (String raw : statements) {
+            for (String raw : statements) { // Iteration über alle SQL-Teilstrings
                 String s = raw.trim();
                 if (!s.isEmpty()) {
-                    st.execute(s);
+                    statement.execute(s);
                 }
             }
-        } catch (Exception e) {
-            throw new RuntimeException("DB init failed for resource: " + resourcePath, e);
+        } catch (Exception exception) {
+            throw new RuntimeException("DB init failed for resource: " + resourcePath, exception);
         }
     }
 
-    private static String readResource(String resourcePath) {
-        String p = resourcePath.startsWith("/") ? resourcePath : "/" + resourcePath;
+    private static String readResource(String resourcePath) { // Lädt Datei aus Classpath
+        String path = resourcePath.startsWith("/") ? resourcePath : "/" + resourcePath; // absoluter Pfad
 
-        try (var in = DatabaseInitializer.class.getResourceAsStream(p)) {
-            if (in == null) {
-                throw new IllegalStateException("Resource not found: " + p);
+        try (var initializer = DatabaseInitializer.class.getResourceAsStream(path)) {
+            if (initializer == null) {
+                throw new IllegalStateException("Resource not found: " + path);
             }
-            try (var br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
-                return br.lines().collect(Collectors.joining("\n"));
+            try (var bufferedReader = new BufferedReader(new InputStreamReader(initializer, StandardCharsets.UTF_8))) { // wandelt
+                                                                                                                        // Bytestream
+                // in
+                // UTF-8-Zeichenstrom
+                return bufferedReader.lines().collect(Collectors.joining("\n"));
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to read resource: " + p, e);
+        } catch (Exception exception) {
+            throw new RuntimeException("Failed to read resource: " + path, exception);
         }
     }
 

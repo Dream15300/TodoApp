@@ -17,7 +17,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 
 import java.io.IOException;
@@ -26,7 +25,7 @@ import java.util.Optional;
 
 public class PrimaryController {
 
-    @FXML
+    @FXML // Kennzeichnet Feld wird per fx:id aus FXML gesetzt
     private ListView<Category> listsView;
     @FXML
     private ListView<TodoItem> tasksView;
@@ -43,8 +42,8 @@ public class PrimaryController {
     @FXML
     private Button btnClearDone; // "Alle erledigten löschen"
 
-    private final TodoService service = new TodoService();
-    private boolean showingDone = false;
+    private final TodoService service = new TodoService(); // Instanzierung der Service-Schicht
+    private boolean showingDone = false; // false = offene Tasks anzeigen, true = erledigte anzeigen
 
     // ------------------------------------------------------------
     // Navigation
@@ -64,18 +63,24 @@ public class PrimaryController {
     // Lifecycle
     // ------------------------------------------------------------
     @FXML
-    private void initialize() {
-        setupCategoryCells();
-        setupTodoCells();
+    private void initialize() { // vom FXMLLoader automatisch nach Injection aufgerufen
+        setupCategoryCells(); // Konfiguriert Darstellung/Interaktion der Kategorie-ListView (Custom Cells)
+        setupTodoCells(); // Konfiguriert Darstellung/Interaktion der Todo-ListView (Checkbox +
+                          // Inline-Edit)
 
-        loadCategories();
+        loadCategories(); // Lädt Kategorien aus Service und setzt sie in listsView
 
-        listsView.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+        listsView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldV, newV) -> { // Listener
+                                                                                                            // fuer
+            // Auswahlwechsel:
+            // reagiert, wenn eine
+            // andere Kategorie
+            // selektiert wird
             showingDone = false;
             refreshTasks();
         });
 
-        if (!listsView.getItems().isEmpty()) {
+        if (!listsView.getItems().isEmpty()) { // Falls Liste vorhanden, erste Kategorie automatisch auswählen
             listsView.getSelectionModel().selectFirst();
         }
 
@@ -85,8 +90,9 @@ public class PrimaryController {
     // ------------------------------------------------------------
     // Kategorien: Name + Edit-Button pro Zeile
     // ------------------------------------------------------------
-    private void setupCategoryCells() {
-        listsView.setCellFactory(lv -> new ListCell<>() {
+    private void setupCategoryCells() { // Setzt eine CellFactory, damit jede Kategoriezeile ein Layout (Name +
+                                        // Edit-Button) bekommt
+        listsView.setCellFactory(listsView -> new ListCell<>() {
 
             private final Label name = new Label();
             private final Button btnEdit = new Button("✎");
@@ -94,22 +100,22 @@ public class PrimaryController {
             private final HBox root = new HBox(8, name, spacer, btnEdit);
 
             {
-                root.setAlignment(Pos.CENTER_LEFT);
-                HBox.setHgrow(spacer, Priority.ALWAYS);
+                root.setAlignment(Pos.CENTER_LEFT); // Box-Ausrichtung
+                HBox.setHgrow(spacer, Priority.ALWAYS); // drückt Button nach Rechts
 
                 btnEdit.getStyleClass().add("category-edit-btn");
 
-                btnEdit.setOnAction(e -> {
+                btnEdit.setOnAction(e -> { // Edit-Button Aktion
                     Category c = getItem();
                     if (c == null)
                         return;
-                    showEditCategoryDialog(c);
+                    showEditCategoryDialog(c); // Öffnet Dialog zum Bearbeiten der Kategorie
                 });
             }
 
             @Override
-            protected void updateItem(Category item, boolean empty) {
-                super.updateItem(item, empty);
+            protected void updateItem(Category item, boolean empty) { // Aktualisiert die Darstellung der Zelle
+                super.updateItem(item, empty); // Basis-Implementierung aufrufen
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -122,8 +128,9 @@ public class PrimaryController {
         });
     }
 
-    private void showEditCategoryDialog(Category category) {
-        Dialog<ButtonType> dialog = new Dialog<>();
+    private void showEditCategoryDialog(Category category) { // Dialog zum Bearbeiten (Umbenennen/Löschen) einer
+                                                             // Kategorie
+        Dialog<ButtonType> dialog = new Dialog<>(); // JavaFX-Dialog --> Ergebnis ist ein ButtonType
         dialog.setTitle("Liste bearbeiten");
         dialog.setHeaderText(null);
 
@@ -132,11 +139,11 @@ public class PrimaryController {
         dialog.getDialogPane().getButtonTypes().addAll(btnRename, btnDelete, ButtonType.CANCEL);
 
         TextField txtName = new TextField(category.getName());
-        txtName.setPromptText("Listenname");
+        txtName.setPromptText("Listenname"); // Platzhaltertext
 
         HBox content = new HBox(8, new Label("Name:"), txtName);
         content.setAlignment(Pos.CENTER_LEFT);
-        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().setContent(content); // Setzt Inhalt des Dialogs
 
         Optional<ButtonType> res = dialog.showAndWait();
         if (res.isEmpty() || res.get() == ButtonType.CANCEL)
@@ -148,8 +155,8 @@ public class PrimaryController {
                 if (newName.isEmpty())
                     return;
 
-                int id = category.getId();
-                service.renameCategory(id, newName);
+                int id = category.getId(); // Merkt sich die ID vor der Umbenennung
+                service.renameCategory(id, newName); // Ruft TodoService zum Umbenennen auf
 
                 loadCategories();
                 reselectCategoryById(id);
@@ -157,12 +164,12 @@ public class PrimaryController {
                 showingDone = false;
                 refreshTasks();
             } else if (res.get() == btnDelete) {
-                Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-                a.setTitle("Liste löschen");
-                a.setHeaderText(null);
-                a.setContentText("Liste \"" + category.getName() + "\" wirklich löschen?");
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Liste löschen");
+                alert.setHeaderText(null);
+                alert.setContentText("Liste \"" + category.getName() + "\" wirklich löschen?");
 
-                Optional<ButtonType> confirm = a.showAndWait();
+                Optional<ButtonType> confirm = alert.showAndWait();
                 if (confirm.isEmpty() || confirm.get() != ButtonType.OK)
                     return;
 
@@ -176,44 +183,44 @@ public class PrimaryController {
                 showingDone = false;
                 refreshTasks();
             }
-        } catch (Exception ex) {
-            showError("Bearbeiten fehlgeschlagen: " + ex.getMessage(), ex);
+        } catch (Exception exception) {
+            showError("Bearbeiten fehlgeschlagen: " + exception.getMessage(), exception);
         }
     }
 
     @FXML
-    private void onNewList() {
-        TextInputDialog d = new TextInputDialog();
-        d.setTitle("Liste erstellen");
-        d.setHeaderText(null);
-        d.setContentText("Name:");
+    private void onNewList() { // Handler für "Neue Liste"-Button
+        TextInputDialog textInputDialog = new TextInputDialog();
+        textInputDialog.setTitle("Liste erstellen");
+        textInputDialog.setHeaderText(null);
+        textInputDialog.setContentText("Name:");
 
-        Optional<String> r = d.showAndWait();
-        if (r.isEmpty())
+        Optional<String> showDialog = textInputDialog.showAndWait();
+        if (showDialog.isEmpty())
             return;
 
-        String name = r.get().trim();
+        String name = showDialog.get().trim();
         if (name.isEmpty())
             return;
 
         try {
-            int newId = service.createCategory(name);
+            int newId = service.createCategory(name); // Ruft TodoService zum Erstellen der Kategorie auf
             loadCategories();
             reselectCategoryById(newId);
 
             showingDone = false;
             refreshTasks();
-        } catch (Exception ex) {
-            showError("Liste konnte nicht erstellt werden: " + ex.getMessage(), ex);
+        } catch (Exception exception) {
+            showError("Liste konnte nicht erstellt werden: " + exception.getMessage(), exception);
         }
     }
 
-    private void loadCategories() {
-        List<Category> cats = service.getCategories();
-        listsView.getItems().setAll(cats);
+    private void loadCategories() { // Lädt Kategorien aus Service und setzt sie in listsView
+        List<Category> categories = service.getCategories();
+        listsView.getItems().setAll(categories);
     }
 
-    private void reselectCategoryById(int id) {
+    private void reselectCategoryById(int id) { // Selektiert eine Kategorie in der Listenansicht anhand ihrer ID
         listsView.getItems().stream()
                 .filter(c -> c.getId() == id)
                 .findFirst()
@@ -223,25 +230,26 @@ public class PrimaryController {
     // ------------------------------------------------------------
     // Todos: Checkbox (DONE <-> OPEN) + Inline Edit (Titel)
     // ------------------------------------------------------------
-    private void setupTodoCells() {
+    private void setupTodoCells() { // Setzt eine CellFactory, damit jede Todo-Zeile eine Checkbox + Editierbarkeit
+                                    // bekommt
         tasksView.setEditable(true);
 
-        tasksView.setCellFactory(lv -> new ListCell<>() {
+        tasksView.setCellFactory(listsView -> new ListCell<>() {
 
-            private final CheckBox cb = new CheckBox();
-            private final Label lbl = new Label();
+            private final CheckBox checkBox = new CheckBox();
+            private final Label label = new Label();
             private final TextField editor = new TextField();
 
             private final Region spacer = new Region();
-            private final HBox root = new HBox(8, cb, lbl, spacer);
+            private final HBox root = new HBox(8, checkBox, label, spacer);
 
             {
                 HBox.setHgrow(spacer, Priority.ALWAYS);
                 root.setAlignment(Pos.CENTER_LEFT);
-                lbl.setWrapText(true);
+                label.setWrapText(true);
 
                 // DONE <-> OPEN
-                cb.setOnAction(e -> {
+                checkBox.setOnAction(e -> {
                     TodoItem item = getItem();
                     if (item == null)
                         return;
@@ -253,9 +261,9 @@ public class PrimaryController {
                             service.markDone(item.getId());
                         }
                         refreshTasks();
-                    } catch (Exception ex) {
-                        cb.setSelected(item.getStatus() == TodoStatus.DONE);
-                        showError("Status konnte nicht geändert werden: " + ex.getMessage(), ex);
+                    } catch (Exception exception) {
+                        checkBox.setSelected(item.getStatus() == TodoStatus.DONE); // Rückgängig
+                        showError("Status konnte nicht geändert werden: " + exception.getMessage(), exception);
                     }
                 });
 
@@ -269,7 +277,7 @@ public class PrimaryController {
                 });
 
                 // Focus lost => speichern
-                editor.focusedProperty().addListener((obs, was, is) -> {
+                editor.focusedProperty().addListener((observableValue, was, is) -> {
                     if (!is && isEditing())
                         commitEditTitle();
                 });
@@ -294,7 +302,7 @@ public class PrimaryController {
                 super.startEdit();
                 editor.setText(item.getTitle());
 
-                root.getChildren().set(1, editor);
+                root.getChildren().set(1, editor); // Ersetzt an Position 1 (Label) durch TextField
                 editor.requestFocus();
                 editor.selectAll();
             }
@@ -302,7 +310,7 @@ public class PrimaryController {
             @Override
             public void cancelEdit() {
                 super.cancelEdit();
-                root.getChildren().set(1, lbl);
+                root.getChildren().set(1, label);
             }
 
             @Override
@@ -315,22 +323,24 @@ public class PrimaryController {
                     return;
                 }
 
-                cb.setSelected(item.getStatus() == TodoStatus.DONE);
+                checkBox.setSelected(item.getStatus() == TodoStatus.DONE);
 
-                String due = (item.getDueDate() == null) ? "" : " (" + item.getDueDate() + ")";
-                lbl.setText(item.getTitle() + due);
+                String dueDate = (item.getDueDate() == null) ? "" : " (" + item.getDueDate() + ")"; // Baut einen
+                                                                                                    // Suffix-Stringfür
+                                                                                                    // DueDate
+                label.setText(item.getTitle() + dueDate);
 
                 if (isEditing()) {
                     root.getChildren().set(1, editor);
                 } else {
-                    root.getChildren().set(1, lbl);
+                    root.getChildren().set(1, label);
                 }
 
                 setText(null);
                 setGraphic(root);
             }
 
-            private void commitEditTitle() {
+            private void commitEditTitle() { // Speichert den neuen Titel nach dem Editieren in DB
                 TodoItem item = getItem();
                 if (item == null)
                     return;
@@ -342,14 +352,14 @@ public class PrimaryController {
                 }
 
                 try {
-                    // DueDate beibehalten (nicht ueberschreiben)
-                    LocalDate due = item.getDueDate();
-                    service.updateTodo(item.getId(), newTitle, due);
+                    // DueDate beibehalten (nicht überschreiben)
+                    LocalDate dueDate = item.getDueDate();
+                    service.updateTodo(item.getId(), newTitle, dueDate);
 
                     super.cancelEdit();
                     refreshTasks();
-                } catch (Exception ex) {
-                    showError("Todo konnte nicht umbenannt werden: " + ex.getMessage(), ex);
+                } catch (Exception exception) {
+                    showError("Todo konnte nicht umbenannt werden: " + exception.getMessage(), exception);
                     cancelEdit();
                 }
             }
@@ -357,9 +367,9 @@ public class PrimaryController {
     }
 
     @FXML
-    private void onAddTask() {
-        Category cat = listsView.getSelectionModel().getSelectedItem();
-        if (cat == null)
+    private void onAddTask() { // Handler für "Hinzufügen"-Button
+        Category category = listsView.getSelectionModel().getSelectedItem(); // Ausgewählte Kategorie holen
+        if (category == null)
             return;
 
         String title = txtNewTaskTitle.getText() == null ? "" : txtNewTaskTitle.getText().trim();
@@ -367,14 +377,14 @@ public class PrimaryController {
             return;
 
         try {
-            service.addTodo(cat.getId(), title, dpNewTaskDueDate.getValue());
+            service.addTodo(category.getId(), title, dpNewTaskDueDate.getValue());
             txtNewTaskTitle.clear();
             dpNewTaskDueDate.setValue(null);
 
             showingDone = false;
             refreshTasks();
-        } catch (Exception ex) {
-            showError("Todo konnte nicht hinzugefügt werden: " + ex.getMessage(), ex);
+        } catch (Exception exception) {
+            showError("Todo konnte nicht hinzugefügt werden: " + exception.getMessage(), exception);
         }
     }
 
@@ -382,53 +392,53 @@ public class PrimaryController {
     // Historie Buttons
     // ------------------------------------------------------------
     @FXML
-    private void onShowHistory() {
+    private void onShowHistory() { // Wechsel zu erledigten Tasks
         showingDone = true;
         refreshTasks();
     }
 
     @FXML
-    private void onBackFromHistory() {
+    private void onBackFromHistory() { // Wechsel zu offenen Tasks
         showingDone = false;
         refreshTasks();
     }
 
     @FXML
-    private void onClearDone() {
-        Category cat = listsView.getSelectionModel().getSelectedItem();
-        if (cat == null)
+    private void onClearDone() { // Löschen aller erledigten Tasks der aktuellen Kategorie
+        Category category = listsView.getSelectionModel().getSelectedItem();
+        if (category == null)
             return;
 
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle("Erledigte löschen");
-        a.setHeaderText(null);
-        a.setContentText("Alle erledigten Aufgaben in dieser Liste löschen?");
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); // Bestätigungsdialog
+        alert.setTitle("Erledigte löschen");
+        alert.setHeaderText(null);
+        alert.setContentText("Alle erledigten Aufgaben in dieser Liste löschen?");
 
-        Optional<ButtonType> r = a.showAndWait();
-        if (r.isEmpty() || r.get() != ButtonType.OK)
+        Optional<ButtonType> showDialog = alert.showAndWait();
+        if (showDialog.isEmpty() || showDialog.get() != ButtonType.OK)
             return;
 
         try {
-            service.deleteDoneTodosByCategory(cat.getId());
+            service.deleteDoneTodosByCategory(category.getId()); // Löscht erledigte Tasks via Service
             refreshTasks();
-        } catch (Exception ex) {
-            showError("Erledigte Aufgaben konnten nicht gelöscht werden: " + ex.getMessage(), ex);
+        } catch (Exception exception) {
+            showError("Erledigte Aufgaben konnten nicht gelöscht werden: " + exception.getMessage(), exception);
         }
     }
 
-    private void updateHistoryButtons(int doneCount) {
+    private void updateHistoryButtons(int doneCount) { // Aktualisiert Sichtbarkeit und Texte der Footer-Buttons
         boolean inHistory = showingDone;
 
-        if (btnShowDone != null) {
+        if (btnShowDone != null) { // "› Erledigt X"
             btnShowDone.setText("› Erledigt " + doneCount);
             btnShowDone.setVisible(!inHistory);
             btnShowDone.setManaged(!inHistory);
         }
-        if (btnBack != null) {
+        if (btnBack != null) { // "‹ Zurueck"
             btnBack.setVisible(inHistory);
             btnBack.setManaged(inHistory);
         }
-        if (btnClearDone != null) {
+        if (btnClearDone != null) { // "Alle erledigten löschen"
             btnClearDone.setVisible(inHistory);
             btnClearDone.setManaged(inHistory);
         }
@@ -437,25 +447,25 @@ public class PrimaryController {
     // ------------------------------------------------------------
     // Refresh
     // ------------------------------------------------------------
-    private void refreshTasks() {
-        Category cat = listsView.getSelectionModel().getSelectedItem();
+    private void refreshTasks() { // Lädt Tasks der selektierten Kategorie (offen/erledigt je nach Zustand)
+        Category category = listsView.getSelectionModel().getSelectedItem();
         tasksView.getItems().clear();
 
-        if (cat == null) {
+        if (category == null) {
             updateHistoryButtons(0);
             return;
         }
 
-        int doneCount = service.getDoneTodosForCategory(cat.getId()).size();
+        int doneCount = service.getDoneTodosForCategory(category.getId()).size(); // Anzahl erledigter Tasks ermitteln
 
-        List<TodoItem> items = showingDone
-                ? service.getDoneTodosForCategory(cat.getId())
-                : service.getOpenTodosForCategory(cat.getId());
+        List<TodoItem> items = showingDone // Je nach Zustand erledigte/offene Tasks laden
+                ? service.getDoneTodosForCategory(category.getId()) // Wenn
+                : service.getOpenTodosForCategory(category.getId()); // sonst offene Tasks
 
-        Comparator<TodoItem> byDueDateAsc = Comparator
-                // Tasks ohne DueDate immer nach hinten
+        Comparator<TodoItem> byDueDateAsc = Comparator // Sortierlogik definieren
+                // Tasks ohne DueDate immer nach hinten, dann aufsteigend nach DueDate
                 .comparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder()))
-                // Tie-Breaker: Titel
+                // Tie-Breaker: Titel alphabetisch
                 .thenComparing(TodoItem::getTitle, String.CASE_INSENSITIVE_ORDER);
 
         items.sort(byDueDateAsc);
@@ -468,13 +478,13 @@ public class PrimaryController {
     // ------------------------------------------------------------
     // Helper
     // ------------------------------------------------------------
-    private void showError(String msg, Exception ex) {
-        ex.printStackTrace();
+    private void showError(String msg, Exception exception) {
+        exception.printStackTrace();
 
-        Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setTitle("Fehler");
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Fehler");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
     }
 }

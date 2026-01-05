@@ -15,66 +15,67 @@ public class CategoryRepository {
         String sql = "SELECT Id, Name FROM Categories ORDER BY Name";
         List<Category> out = new ArrayList<>();
 
-        try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            while (rs.next()) {
-                out.add(new Category(rs.getInt("Id"), rs.getString("Name")));
+            while (resultSet.next()) {
+                out.add(new Category(resultSet.getInt("Id"), resultSet.getString("Name")));
             }
             return out;
 
-        } catch (Exception e) {
-            throw new RuntimeException("Kategorien laden fehlgeschlagen", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("Kategorien laden fehlgeschlagen", exception);
         }
     }
 
     public int insert(String name) {
         String sql = "INSERT INTO Categories (Name) VALUES (?)";
 
-        try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql,
+                        Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setString(1, name);
-            ps.executeUpdate();
+            preparedStatement.setString(1, name);
+            preparedStatement.executeUpdate();
 
-            try (ResultSet keys = ps.getGeneratedKeys()) {
+            try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
                 if (keys.next())
                     return keys.getInt(1);
             }
             throw new RuntimeException("Keine ID zurueckgegeben");
 
-        } catch (Exception e) {
-            throw new RuntimeException("Kategorie einfuegen fehlgeschlagen", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("Kategorie einfuegen fehlgeschlagen", exception);
         }
     }
 
     public void updateName(int id, String newName) {
         String sql = "UPDATE Categories SET Name = ? WHERE Id = ?";
 
-        try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setString(1, newName);
-            ps.setInt(2, id);
-            ps.executeUpdate();
+            preparedStatement.setString(1, newName);
+            preparedStatement.setInt(2, id);
+            preparedStatement.executeUpdate();
 
-        } catch (Exception e) {
-            throw new RuntimeException("Kategorie umbenennen fehlgeschlagen", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("Kategorie umbenennen fehlgeschlagen", exception);
         }
     }
 
     public void delete(int id) {
         String sql = "DELETE FROM Categories WHERE Id = ?";
 
-        try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
-            ps.executeUpdate();
+            preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
 
-        } catch (Exception e) {
-            throw new RuntimeException("Kategorie loeschen fehlgeschlagen", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("Kategorie loeschen fehlgeschlagen", exception);
         }
     }
 }

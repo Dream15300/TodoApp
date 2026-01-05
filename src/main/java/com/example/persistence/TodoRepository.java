@@ -16,17 +16,17 @@ public class TodoRepository {
     public boolean hasTodos(int categoryId) {
         String sql = "SELECT 1 FROM TodoItems WHERE CategoryId = ? LIMIT 1";
 
-        try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, categoryId);
+            preparedStatement.setInt(1, categoryId);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
             }
 
-        } catch (Exception e) {
-            throw new RuntimeException("Todo-Existenz pruefen fehlgeschlagen", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("Todo-Existenz pruefen fehlgeschlagen", exception);
         }
     }
 
@@ -53,70 +53,71 @@ public class TodoRepository {
     private List<TodoItem> queryList(String sql, int categoryId) {
         List<TodoItem> out = new ArrayList<>();
 
-        try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, categoryId);
+            preparedStatement.setInt(1, categoryId);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next())
-                    out.add(map(rs));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next())
+                    out.add(map(resultSet));
             }
 
             return out;
 
-        } catch (Exception e) {
-            throw new RuntimeException("Todos laden fehlgeschlagen", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("Todos laden fehlgeschlagen", exception);
         }
     }
 
     public int insert(TodoItem item) {
         String sql = "INSERT INTO TodoItems (CategoryId, Title, DueDate, Status, Priority) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql,
+                        Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setInt(1, item.getCategoryId());
-            ps.setString(2, item.getTitle());
-            ps.setString(3, item.getDueDate() == null ? null : item.getDueDate().toString());
-            ps.setInt(4, toDbStatus(item.getStatus()));
-            ps.setInt(5, item.getPriority());
+            preparedStatement.setInt(1, item.getCategoryId());
+            preparedStatement.setString(2, item.getTitle());
+            preparedStatement.setString(3, item.getDueDate() == null ? null : item.getDueDate().toString());
+            preparedStatement.setInt(4, toDbStatus(item.getStatus()));
+            preparedStatement.setInt(5, item.getPriority());
 
-            ps.executeUpdate();
+            preparedStatement.executeUpdate();
 
-            try (ResultSet keys = ps.getGeneratedKeys()) {
+            try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
                 if (keys.next())
                     return keys.getInt(1);
             }
             throw new RuntimeException("Keine ID zurueckgegeben");
 
-        } catch (Exception e) {
-            throw new RuntimeException("Todo einfuegen fehlgeschlagen", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("Todo einfuegen fehlgeschlagen", exception);
         }
     }
 
     public void updateStatus(int todoId, TodoStatus status) {
         String sql = "UPDATE TodoItems SET Status = ? WHERE Id = ?";
 
-        try (Connection c = Db.open();
-                PreparedStatement ps = c.prepareStatement(sql)) {
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, toDbStatus(status));
-            ps.setInt(2, todoId);
-            ps.executeUpdate();
+            preparedStatement.setInt(1, toDbStatus(status));
+            preparedStatement.setInt(2, todoId);
+            preparedStatement.executeUpdate();
 
-        } catch (Exception e) {
-            throw new RuntimeException("Todo-Status aktualisieren fehlgeschlagen", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("Todo-Status aktualisieren fehlgeschlagen", exception);
         }
     }
 
-    private TodoItem map(ResultSet rs) throws Exception {
-        int id = rs.getInt("Id");
-        int catId = rs.getInt("CategoryId");
-        String title = rs.getString("Title");
-        String due = rs.getString("DueDate");
-        int status = rs.getInt("Status");
-        int priority = rs.getInt("Priority");
+    private TodoItem map(ResultSet resultSet) throws Exception {
+        int id = resultSet.getInt("Id");
+        int catId = resultSet.getInt("CategoryId");
+        String title = resultSet.getString("Title");
+        String due = resultSet.getString("DueDate");
+        int status = resultSet.getInt("Status");
+        int priority = resultSet.getInt("Priority");
 
         LocalDate dueDate = (due == null || due.isBlank()) ? null : LocalDate.parse(due);
         TodoStatus st = fromDbStatus(status);
