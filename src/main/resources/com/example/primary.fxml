@@ -84,12 +84,14 @@
                             <Label text="Todo"/>
                             <TextField fx:id="detailsTitle"
                                        promptText="Titel"
-                                       maxWidth="Infinity"/>
+                                       maxWidth="Infinity"
+                                       styleClass="details-input"/>
 
-                            <Label text="Faelligkeit"/>
+                            <Label text="Fälligkeit"/>
                             <DatePicker fx:id="detailsDueDate"
                                         maxWidth="Infinity"
-                                        prefWidth="Infinity"/>
+                                        prefWidth="Infinity"
+                                        styleClass="details-input"/>
 
                             <HBox spacing="8.0">
                                 <Button text="Datum entfernen"
@@ -116,14 +118,14 @@
                                 styleClass="tasks-footer-btn"/>
 
                         <Button fx:id="btnBack"
-                                text="‹ Zurueck"
+                                text="‹ Zurück"
                                 onAction="#onBackFromHistory"
                                 maxWidth="Infinity"
                                 HBox.hgrow="ALWAYS"
                                 styleClass="tasks-footer-btn"/>
 
                         <Button fx:id="btnClearDone"
-                                text="Alle erledigten loeschen"
+                                text="Alle erledigten löschen"
                                 onAction="#onClearDone"
                                 maxWidth="Infinity"
                                 HBox.hgrow="ALWAYS"

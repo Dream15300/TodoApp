@@ -193,12 +193,74 @@
 }
 
 /* =====================================
-   Bearbeitungs-Panel
+   Details-Panel
    ===================================== */
 .details-pane {
     -fx-background-color: rgba(255,255,255,0.10);
     -fx-background-radius: 10;
     -fx-padding: 6;
+}
+
+.details-pane .details-input {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-radius: 9.5;
+    -fx-border-color: transparent;
+    -fx-padding: 10 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1f2a44;
+}
+
+/* Fokus */
+.details-pane .details-input:focused {
+    -fx-border-color: #2e7d6f;
+    -fx-border-width: 1;
+}
+
+/* DatePicker: internes TextField angleichen */
+.details-pane .details-input .text-field {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-text-fill: #1f2a44;
+    -fx-font-size: 13px;
+}
+
+/* Kalender-Button im DatePicker */
+.details-pane .date-picker .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+}
+
+.details-pane .date-picker .arrow-button:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   DETAILS – BUTTONS
+   ========================= */
+
+.details-pane .details-btn {
+    -fx-background-color: #6f8f86;
+    -fx-background-radius: 12;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 10 14;
+}
+
+.details-pane .details-btn:hover {
+    -fx-background-color: #5e8076;
+}
+
+.details-pane .details-btn-primary {
+    -fx-background-color: #4f7f74;
+    -fx-background-radius: 12;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 10 14;
+}
+
+.details-pane .details-btn-primary:hover {
+    -fx-background-color: #3f6f64;
 }
 
 
