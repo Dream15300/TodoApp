@@ -155,8 +155,8 @@ public class PrimaryController {
                 nameEditor.setMaxWidth(Double.MAX_VALUE);
                 HBox.setHgrow(nameEditor, Priority.ALWAYS);
 
-                btnSave.getStyleClass().add("category-popup-btn-primary");
-                btnCancel.getStyleClass().add("category-popup-btn");
+                btnSave.getStyleClass().add("category-popup-btn-save");
+                btnCancel.getStyleClass().add("category-popup-btn-cancel");
                 btnDelete.getStyleClass().add("category-popup-btn-danger");
 
                 buttonsRow.getChildren().setAll(btnDelete, btnCancel, btnSave);
