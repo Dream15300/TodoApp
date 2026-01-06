@@ -58,6 +58,16 @@ public class PrimaryController {
     @FXML
     private VBox listsPane;
 
+    // --- "Neue Liste" Popup (zentriert) ---
+    private final javafx.scene.control.PopupControl newListPopup = new javafx.scene.control.PopupControl();
+    private final javafx.scene.control.TextField newListNameField = new javafx.scene.control.TextField();
+    private final javafx.scene.control.Button newListSaveBtn = new javafx.scene.control.Button("Speichern");
+    private final javafx.scene.control.Button newListCancelBtn = new javafx.scene.control.Button("Abbrechen");
+    private final javafx.scene.layout.VBox newListBox = new javafx.scene.layout.VBox(6);
+    private final javafx.scene.layout.HBox newListButtons = new javafx.scene.layout.HBox(6);
+    private final javafx.scene.layout.StackPane newListPopupRoot = new javafx.scene.layout.StackPane();
+    private TextField newListField;
+
     private final TodoService service = new TodoService(); // Instanzierung der Service-Schicht
     private boolean showingDone = false; // false = offene Tasks anzeigen, true = erledigte anzeigen
 
@@ -90,6 +100,7 @@ public class PrimaryController {
                           // Inline-Edit)
         loadCategories(); // Lädt Kategorien aus Service und setzt sie in listsView
         SplitPane.setResizableWithParent(listsPane, false);
+        setupNewListPopup(); // Initialisiert das "Neue Liste" Popup
 
         // Initialzustand: Details zu (nimmt keinen Platz, weil managed=false im FXML)
         closeDetails();
@@ -119,6 +130,127 @@ public class PrimaryController {
         }
 
         refreshTasks();
+    }
+
+    // ------------------------------------------------------------
+    // "Neue Liste" Popup (zentriert)
+    // ------------------------------------------------------------
+
+    // Handler für "Neue Liste" Button
+    @FXML
+    private void onNewList() {
+        if (listsView == null || listsView.getScene() == null)
+            return;
+
+        // Wenn offen: schliessen
+        if (newListPopup.isShowing()) {
+            newListPopup.hide();
+            return;
+        }
+
+        // Feld vorbereiten
+        newListNameField.clear();
+        newListNameField.requestFocus();
+
+        // Popup anzeigen (erstmal, damit Groessen berechnet werden)
+        newListPopup.show(listsView, 0, 0);
+
+        // Zentrieren relativ zur Primary-Scene
+        centerPopupInOwnerScene(newListPopup);
+
+        // Fokus nach show()
+        newListNameField.requestFocus();
+        newListNameField.selectAll();
+    }
+
+    private void setupNewListPopup() {
+        newListPopup.setAutoHide(true);
+        newListPopup.setHideOnEscape(true);
+
+        // Root = Karte
+        VBox card = new VBox(10);
+        card.getStyleClass().add("category-popup-card"); // oder "category-popup-card" (siehe CSS unten)
+        card.setFillWidth(true);
+
+        Label lbl = new Label("Name:");
+        newListField = new TextField();
+        newListField.getStyleClass().add("category-popup-input");
+
+        Button btnCancel = new Button("Abbrechen");
+        btnCancel.getStyleClass().add("category-popup-btn-cancel");
+
+        Button btnSave = new Button("Speichern");
+        btnSave.getStyleClass().add("category-popup-btn-save");
+
+        HBox buttonsRow = new HBox(12);
+        buttonsRow.setAlignment(Pos.CENTER);
+        buttonsRow.setFillHeight(false);
+
+        buttonsRow.getChildren().setAll(btnCancel, btnSave);
+
+        // Inhalt
+        card.getChildren().addAll(lbl, newListField, buttonsRow);
+
+        // Scene Root setzen
+        newListPopup.getScene().setRoot(card);
+
+        // Transparenter Popup-Hintergrund (damit kein eckiges Rechteck dahinter
+        // entsteht)
+        newListPopup.getScene().setFill(javafx.scene.paint.Color.TRANSPARENT);
+
+        // Stylesheets der App uebernehmen (sonst wirken Klassen nicht!)
+        newListPopup.setOnShown(e -> {
+            var owner = listsView.getScene();
+            if (owner != null) {
+                newListPopup.getScene().getStylesheets().setAll(owner.getStylesheets());
+            }
+        });
+
+        // Events
+        btnCancel.setOnAction(e -> newListPopup.hide());
+        btnSave.setOnAction(e -> commitNewList());
+
+        newListField.setOnAction(e -> commitNewList()); // Enter = speichern
+    }
+
+    private void centerPopupInOwnerScene(javafx.scene.control.PopupControl popup) {
+        var ownerScene = listsView.getScene();
+        var w = popup.getWidth();
+        var h = popup.getHeight();
+
+        // Falls Breite/Hoehe noch 0 sind, minimal erzwingen
+        if (w <= 0 || h <= 0) {
+            popup.getScene().getRoot().applyCss();
+            popup.getScene().getRoot().layout();
+            w = popup.getScene().getRoot().prefWidth(-1);
+            h = popup.getScene().getRoot().prefHeight(-1);
+        }
+
+        double centerX = ownerScene.getWindow().getX() + ownerScene.getX() + (ownerScene.getWidth() - w) / 2.0;
+        double centerY = ownerScene.getWindow().getY() + ownerScene.getY() + (ownerScene.getHeight() - h) / 2.0;
+
+        popup.setX(centerX);
+        popup.setY(centerY);
+    }
+
+    private void commitNewList() {
+        String name = newListField.getText() == null ? "" : newListField.getText().trim();
+        if (name.isEmpty())
+            return;
+
+        try {
+            int newId = service.createCategory(name);
+            loadCategories();
+            reselectCategoryById(newId);
+
+            showingDone = false;
+            closeDetails();
+            refreshTasks();
+
+            newListPopup.hide();
+        } catch (Exception ex) {
+            showError("Liste konnte nicht erstellt werden: " + ex.getMessage(), ex);
+        }
     }
 
     // ------------------------------------------------------------
@@ -300,36 +432,6 @@ public class PrimaryController {
             refreshTasks();
         } catch (Exception exception) {
             showError("Löschen fehlgeschlagen: " + exception.getMessage(), exception);
-        }
-    }
-
-    @FXML
-    private void onNewList() { // Handler für "Neue Liste"-Button
-        TextInputDialog textInputDialog = new TextInputDialog();
-        textInputDialog.setTitle("Liste erstellen");
-        textInputDialog.setHeaderText(null);
-        textInputDialog.setContentText("Name:");
-
-        Optional<String> showDialog = textInputDialog.showAndWait();
-        if (showDialog.isEmpty()) {
-            return;
-        }
-
-        String name = showDialog.get().trim();
-        if (name.isEmpty()) {
-            return;
-        }
-
-        try {
-            int newId = service.createCategory(name);
-            loadCategories();
-            reselectCategoryById(newId);
-
-            showingDone = false;
-            closeDetails();
-            refreshTasks();
-        } catch (Exception exception) {
-            showError("Liste konnte nicht erstellt werden: " + exception.getMessage(), exception);
         }
     }
 
