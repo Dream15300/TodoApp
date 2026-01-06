@@ -99,11 +99,10 @@
 }
 
 /* =========================
-   Inputs (TextField + DatePicker) global
-   (Details + Popup nutzen die gleichen Klassen)
+   Inputs: TextField (Details + Popup)
    ========================= */
-.details-input,
-.category-popup-input {
+.text-field.details-input,
+.text-field.category-popup-input {
     -fx-background-color: rgba(255,255,255,0.98);
     -fx-background-radius: 14;
     -fx-background-insets: 0;
@@ -118,28 +117,109 @@
     -fx-min-height: 44;
     -fx-pref-height: 44;
 }
-.details-input:focused,
-.category-popup-input:focused {
+
+.text-field.details-input:focused,
+.text-field.category-popup-input:focused {
     -fx-border-color: #2e7d6f;
     -fx-border-width: 2;
 }
 
-/* DatePicker: internes TextField + Button */
-.date-picker.details-input .text-field,
-.date-picker.category-popup-input .text-field {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-    -fx-padding: 0;
+
+/* =========================
+   Inputs: DatePicker (Details + Popup)
+   ========================= */
+
+/* DatePicker-Aussenhülle */
+.date-picker.details-input,
+.date-picker.category-popup-input {
+    -fx-background-color: rgba(255,255,255,0.98);
+    -fx-background-radius: 14;
+    -fx-background-insets: 0;
+
+    -fx-border-color: rgba(31,42,68,0.28);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+
+    /* Innenluft rechts/links, damit Arrow nicht am Rand klebt */
+    -fx-padding: 0 6 0 6;
+
+    -fx-min-height: 44;
+    -fx-pref-height: 44;
 }
-.date-picker.details-input .arrow-button,
-.date-picker.category-popup-input .arrow-button {
+
+/* internes TextField */
+.date-picker.details-input > .text-field,
+.date-picker.category-popup-input > .text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+
+    /* rechts etwas mehr, damit Text nicht unter den Button läuft */
+    -fx-padding: 10 12 10 12;
+
+    -fx-text-fill: #1f2a44;
+}
+
+/* Arrow-Button */
+.date-picker.details-input > .arrow-button,
+.date-picker.category-popup-input > .arrow-button {
+
+    /* transparenter Hintergrund */
     -fx-background-color: transparent;
     -fx-background-radius: 10;
+
+    /* KLICKBEREICH */
+    -fx-min-width: 42;
+    -fx-pref-width: 42;
+
+    /* Padding vergrössert Hitbox */
+    -fx-padding: 0 12 0 12;
+
+    /* Button nicht am Rand kleben lassen */
+    -fx-background-insets: 0 2 0 2;
 }
-.date-picker.details-input .arrow-button:hover,
-.date-picker.category-popup-input .arrow-button:hover {
+
+.date-picker.details-input > .arrow-button:hover,
+.date-picker.category-popup-input > .arrow-button:hover {
     -fx-background-color: rgba(0,0,0,0.08);
 }
+
+
+.date-picker.details-input > .arrow-button:hover,
+.date-picker.category-popup-input > .arrow-button:hover {
+    -fx-background-color: rgba(0,0,0,0.08);
+}
+
+
+/* =========================
+   DatePicker Popup: Navigation (Monat/Jahr)
+   ========================= */
+
+.date-picker-popup .month-year-pane {
+    -fx-background-color: rgba(255,255,255,0.92);
+    -fx-padding: 6 8;
+}
+
+/* Die 4 Navigationsbuttons (<< < > >>) */
+.date-picker-popup .month-year-pane .spinner .button {
+    -fx-background-color: rgba(0,0,0,0.00); /* transparentes Feld */
+    -fx-background-radius: 10;
+    -fx-padding: 0;
+    -fx-pref-width: 34;
+    -fx-pref-height: 34;
+}
+
+/* Hover */
+.date-picker-popup .month-year-pane .spinner .button:hover {
+    -fx-background-color: rgba(0,0,0,0.08);
+}
+
+/* Pfeile selbst nicht verkleinern */
+.date-picker-popup .month-year-pane .spinner .left-arrow,
+.date-picker-popup .month-year-pane .spinner .right-arrow {
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
 
 /* =========================
    Footer Buttons
@@ -255,7 +335,7 @@
     -fx-padding: 0;
 }
 
-/* 5) Dein VBox-Container: nur Layout */
+/* 5) VBox-Container: nur Layout */
 .category-popup-box {
     -fx-background-color: transparent;
     -fx-padding: 0;
@@ -263,7 +343,7 @@
     -fx-min-width: 420;
 }
 
-/* 6) Buttons im Popup */
+/* 6) Buttons im Kategorien-Edit-Popup */
 .category-popup-btn-cancel,
 .category-popup-btn-save,
 .category-popup-btn-danger {

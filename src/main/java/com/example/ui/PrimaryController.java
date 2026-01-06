@@ -61,11 +61,6 @@ public class PrimaryController {
     // --- "Neue Liste" Popup (zentriert) ---
     private final javafx.scene.control.PopupControl newListPopup = new javafx.scene.control.PopupControl();
     private final javafx.scene.control.TextField newListNameField = new javafx.scene.control.TextField();
-    private final javafx.scene.control.Button newListSaveBtn = new javafx.scene.control.Button("Speichern");
-    private final javafx.scene.control.Button newListCancelBtn = new javafx.scene.control.Button("Abbrechen");
-    private final javafx.scene.layout.VBox newListBox = new javafx.scene.layout.VBox(6);
-    private final javafx.scene.layout.HBox newListButtons = new javafx.scene.layout.HBox(6);
-    private final javafx.scene.layout.StackPane newListPopupRoot = new javafx.scene.layout.StackPane();
     private TextField newListField;
 
     private final TodoService service = new TodoService(); // Instanzierung der Service-Schicht
