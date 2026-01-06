@@ -1,25 +1,23 @@
+/* =========================================================
+   style.css (JavaFX 21)
+   - bereinigt (keine doppelten Regeln)
+   - Popup: ContextMenu IST die Karte (Gruen), kein zweites Rechteck
+   ========================================================= */
+
 /* =========================
    Basis
    ========================= */
 .root {
-    -fx-font-family: "Segoe UI";
-    -fx-font-size: 13px;
-    -fx-background-color: #44897A;
+  -fx-font-family: "Segoe UI";
+  -fx-font-size: 13px;
 }
 
-.label {
-    -fx-text-fill: #1f2a44;
+.app-root {
+  -fx-background-color: #44897A;
 }
 
-/* =========================
-   Top ToolBar
-   ========================= */
-.tool-bar {
-    -fx-background-color: #44897A;
-    -fx-padding: 8;
-    -fx-spacing: 8;
-    -fx-border-width: 0;
-}
+
+.label { -fx-text-fill: #1f2a44; }
 
 /* =========================
    Buttons (global)
@@ -28,54 +26,17 @@
     -fx-background-color: #5f7f76;
     -fx-text-fill: #ffffff;
     -fx-border-width: 0;
-    -fx-background-radius: 10;
-    -fx-padding: 10 12;
+    -fx-background-radius: 12;
+    -fx-padding: 10 14;
 }
-
-.button:hover {
-    -fx-background-color: #6EA498;
-}
-
-.button:pressed {
-    -fx-background-color: #81b1a7;
-}
-
-.button:disabled {
-    -fx-opacity: 0.6;
-}
-
-/* =====================================
-   Kategorie: Bearbeiten-Icon
-   ===================================== */
-.category-edit-btn {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-
-    /* kleiner Klickbereich */
-    -fx-padding: 4;
-
-    /* Icon bleibt gross */
-    -fx-font-size: 14px;
-
-    /* runde, unsichtbare Hitbox */
-    -fx-background-radius: 6;
-}
-
-.category-edit-btn:hover {
-    -fx-background-color: rgba(0,0,0,0.06);
-}
-
-.category-edit-btn:pressed {
-    -fx-background-color: rgba(0,0,0,0.10);
-}
-
+.button:hover   { -fx-background-color: #6EA498; }
+.button:pressed { -fx-background-color: #81b1a7; }
+.button:disabled { -fx-opacity: 0.6; }
 
 /* =========================
    SplitPane
    ========================= */
-.split-pane {
-    -fx-background-color: transparent;
-}
+.split-pane { -fx-background-color: transparent; }
 
 .split-pane-divider {
     -fx-padding: 0 1 0 1;
@@ -83,219 +44,258 @@
 }
 
 /* =========================
-   Container
-   ========================= */
-.vbox, .hbox {
-    -fx-background-color: transparent;
-}
-
-/* =========================
-   Weisse Blöcke (links/rechts)
-   -> KEINE Borders
+   Karten-Container links/rechts
    ========================= */
 .category-container,
 .tasks-container {
     -fx-background-color: #6EA498;
-    -fx-background-radius: 10;
-    -fx-border-width: 0;
-    -fx-padding: 6;
+    -fx-background-radius: 12;
+    -fx-padding: 8;
 }
 
 /* =========================
-   ListView
-   -> KEINE Borders (auch kein Fokus-Rahmen)
+   ListView + Cells
    ========================= */
 .list-view {
-    -fx-background-color: #6EA498;
-    -fx-background-radius: 10;
-    -fx-border-width: 0;
-    -fx-padding: 6;
-}
-
-.list-view:focused {
-    -fx-border-width: 0;
-    -fx-background-insets: 0;
-}
-
-.list-view .viewport {
-    -fx-background-color: transparent;
-}
-
-/* ListCells */
-.list-view .list-cell {
-    -fx-background-color: transparent;
-    -fx-text-fill: #1f2a44;
-    -fx-padding: 10 12;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
-    -fx-background-insets: 1 0 1 0;
-}
-
-.list-view .list-cell:filled:hover {
-    -fx-background-color: #8fb8af;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
-    -fx-background-insets: 1 0 1 0;
-}
-
-.list-view .list-cell:filled:selected {
-    -fx-background-color: #8fb8af;
-    -fx-text-fill: #0f1c3a;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
-    -fx-background-insets: 1 0 1 0;
-}
-
-.list-view .text-field {
     -fx-background-color: transparent;
     -fx-border-width: 0;
     -fx-padding: 0;
 }
+.list-view:focused { -fx-border-width: 0; }
+.list-view .viewport { -fx-background-color: transparent; }
 
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1f2a44;
+    -fx-padding: 10 12;
+    -fx-background-radius: 8;
+    -fx-background-insets: 1 0 1 0;
+}
+.list-view .list-cell:filled:hover,
+.list-view .list-cell:filled:selected {
+    -fx-background-color: #8fb8af;
+}
+
+/* Tasks-Liste: Linien unten */
 .tasks-view .list-cell:filled {
     -fx-background-color: transparent;
     -fx-padding: 10 12;
-    -fx-background-insets: 0 0 8 0;
-    -fx-border-insets: 0 0 8 0;
     -fx-border-color: transparent transparent rgba(255,255,255,0.25) transparent;
     -fx-border-width: 0 0 1 0;
 }
-
-.tasks-view .list-cell:filled:hover,
-.tasks-view .list-cell:filled:selected {
-    -fx-background-insets: 0 0 8 0;
-    -fx-border-insets: 0 0 8 0;
-}
-
-/* Leere Zellen: keine Linie */
 .tasks-view .list-cell:empty {
     -fx-border-width: 0;
-    -fx-border-color: transparent;
     -fx-background-color: transparent;
-    
 }
 
-
-/* =====================================
-   Todo Text (Titel + Faelligkeit)
-   ===================================== */
-.todo-textbox {
-    -fx-spacing: 2;
-}
-
-.todo-title {
-    -fx-text-fill: #1f2a44;
-}
-
+/* Todo Text */
+.todo-title { -fx-text-fill: #1f2a44; }
 .todo-due {
     -fx-font-size: 10px;
     -fx-text-fill: rgba(31,42,68,0.70);
 }
 
-/* =====================================
-   Details-Panel
-   ===================================== */
-.details-pane {
-    -fx-background-color: rgba(255,255,255,0.10);
-    -fx-background-radius: 10;
-    -fx-padding: 6;
-}
-
-.details-pane .details-input {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 10;
-    -fx-border-radius: 9.5;
-    -fx-border-color: transparent;
-    -fx-padding: 10 12;
-    -fx-font-size: 13px;
-    -fx-text-fill: #1f2a44;
-}
-
-/* Fokus */
-.details-pane .details-input:focused {
-    -fx-border-color: #2e7d6f;
-    -fx-border-width: 1;
-}
-
-/* DatePicker: internes TextField angleichen */
-.details-pane .details-input .text-field {
+/* =========================
+   Kategorie Edit Icon
+   ========================= */
+.category-edit-btn {
     -fx-background-color: transparent;
-    -fx-padding: 0;
-    -fx-text-fill: #1f2a44;
-    -fx-font-size: 13px;
-}
-
-/* Kalender-Button im DatePicker */
-.details-pane .date-picker .arrow-button {
-    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 4;
+    -fx-font-size: 14px;
     -fx-background-radius: 8;
 }
+.category-edit-btn:hover   { -fx-background-color: rgba(0,0,0,0.06); }
+.category-edit-btn:pressed { -fx-background-color: rgba(0,0,0,0.10); }
 
-.details-pane .date-picker .arrow-button:hover {
-    -fx-background-color: rgba(0, 0, 0, 0.08);
+/* =========================
+   Details Panel rechts
+   ========================= */
+.details-pane {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 12;
+    -fx-padding: 12;
 }
 
 /* =========================
-   DETAILS – BUTTONS
+   Inputs (TextField + DatePicker) global
+   (Details + Popup nutzen die gleichen Klassen)
    ========================= */
+.details-input,
+.category-popup-input {
+    -fx-background-color: rgba(255,255,255,0.98);
+    -fx-background-radius: 14;
+    -fx-background-insets: 0;
 
-.details-pane .details-btn {
-    -fx-background-color: #6f8f86;
-    -fx-background-radius: 12;
-    -fx-text-fill: white;
-    -fx-font-size: 13px;
-    -fx-padding: 10 14;
+    -fx-border-color: rgba(31,42,68,0.28);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+
+    -fx-padding: 10 12;
+    -fx-text-fill: #1f2a44;
+
+    -fx-min-height: 44;
+    -fx-pref-height: 44;
+}
+.details-input:focused,
+.category-popup-input:focused {
+    -fx-border-color: #2e7d6f;
+    -fx-border-width: 2;
 }
 
-.details-pane .details-btn:hover {
-    -fx-background-color: #5e8076;
+/* DatePicker: internes TextField + Button */
+.date-picker.details-input .text-field,
+.date-picker.category-popup-input .text-field {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
 }
-
-.details-pane .details-btn-primary {
-    -fx-background-color: #4f7f74;
-    -fx-background-radius: 12;
-    -fx-text-fill: white;
-    -fx-font-size: 13px;
-    -fx-padding: 10 14;
-}
-
-.details-pane .details-btn-primary:hover {
-    -fx-background-color: #3f6f64;
-}
-
-
-/* =========================
-   "Neue Liste" (volle Breite)
-   ========================= */
-.category-add-full {
-    -fx-max-width: Infinity;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 12 14;
+.date-picker.details-input .arrow-button,
+.date-picker.category-popup-input .arrow-button {
+    -fx-background-color: transparent;
     -fx-background-radius: 10;
 }
+.date-picker.details-input .arrow-button:hover,
+.date-picker.category-popup-input .arrow-button:hover {
+    -fx-background-color: rgba(0,0,0,0.08);
+}
 
 /* =========================
-   Tasks Footer: "Erledigt" eingebettet
+   Footer Buttons
    ========================= */
 .tasks-footer-btn {
-    -fx-max-width: Infinity;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 12 14;
-    -fx-background-radius: 10;
-    -fx-border-width: 0;
     -fx-background-color: rgba(0,0,0,0.06);
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 12;
+    -fx-padding: 12 14;
+}
+.tasks-footer-btn:hover { -fx-background-color: rgba(0,0,0,0.10); }
+
+/* =========================
+   Eingabezeile unten
+   ========================= */
+.todo-input {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-border-color: rgba(255,255,255,0.35);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-alignment: CENTER_LEFT;
+}
+.todo-input:focus-within { -fx-border-color: rgba(255,255,255,0.70); }
+
+.todo-input-btn {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 8 12;
+    -fx-background-radius: 10;
+}
+.todo-input-field {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 8 10;
+}
+.todo-input-date {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+.todo-input-date .text-field {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 8 10;
+}
+.todo-input-date .arrow-button {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 8 10;
 }
 
-.tasks-footer-btn:hover {
-    -fx-background-color: rgba(0,0,0,0.10);
+/* =========================================================
+   Kategorie – Edit Popup (ContextMenu) 
+   ========================================================= */
+
+/* 1) Root: zeichnet die Karte */
+.category-edit-menu.context-menu {
+    -fx-background-color: rgba(110,164,152,0.96); 
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+
+    -fx-border-color: rgba(0,0,0,0.55);
+    -fx-border-width: 1;
+    -fx-border-insets: 0;
+    -fx-border-radius: 10;
+
+    -fx-padding: 16;
+
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 14, 0.2, 0, 4);
 }
+
+/* 2) Innenlayout vom Skin: alles transparent */
+.category-edit-menu.context-menu > .scroll-pane,
+.category-edit-menu.context-menu > .scroll-pane > .viewport,
+.category-edit-menu.context-menu > .scroll-pane > .viewport > .content {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* 3) Hover/Selection/Armed Highlight komplett aus */
+.category-edit-menu .menu-item,
+.category-edit-menu .custom-menu-item,
+.category-edit-menu .menu-item:hover,
+.category-edit-menu .menu-item:focused,
+.category-edit-menu .menu-item:armed,
+.category-edit-menu .custom-menu-item:hover,
+.category-edit-menu .custom-menu-item:focused,
+.category-edit-menu .custom-menu-item:armed {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+/* 4) CustomMenuItem Container + dessen Kinder: kein Background/Borders */
+.category-edit-menu .custom-menu-item > .container,
+.category-edit-menu .custom-menu-item > .container > * {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+/* 5) Dein VBox-Container: nur Layout */
+.category-popup-box {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-spacing: 12;
+    -fx-min-width: 420;
+}
+
+/* 6) Buttons im Popup */
+.category-popup-btn,
+.category-popup-btn-primary,
+.category-popup-btn-danger {
+    -fx-padding: 6 10;
+    -fx-min-height: 28;
+    -fx-font-size: 12px;
+
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+}
+
+
+.category-popup-btn { -fx-background-color: #5f7f76; }
+.category-popup-btn:hover { -fx-background-color: #6EA498; }
+
+.category-popup-btn-primary { -fx-background-color: #4f7f74; }
+.category-popup-btn-primary:hover { -fx-background-color: #3f6f64; }
+
+.category-popup-btn-danger { -fx-background-color: #7a4b4b; }
+.category-popup-btn-danger:hover { -fx-background-color: #8b5858; }
 
 /* =========================
    Checkbox
    ========================= */
-.check-box {
-    -fx-padding: 0 8 0 0;
-}
+.check-box { -fx-padding: 0 8 0 0; }
 
 .check-box .box {
     -fx-background-color: white;
@@ -305,71 +305,8 @@
     -fx-pref-width: 18;
     -fx-pref-height: 18;
 }
-
 .check-box:selected .box {
     -fx-background-color: #036832;
     -fx-border-color: #036832;
 }
-
-.check-box:selected .mark {
-    -fx-background-color: white;
-}
-
-/* =========================
-   Eingabezeile unten (verschmolzen)
-   ========================= */
-.todo-input {
-    -fx-background-color: rgba(255,255,255,0.10);
-    -fx-border-color: rgba(255,255,255,0.35);
-    -fx-border-width: 1;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-alignment: CENTER_LEFT;
-}
-
-/* Plus links in der Eingabezeile */
-.todo-input-btn {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-    -fx-padding: 8 12;
-    -fx-background-radius: 8;
-}
-
-/* TextField integriert */
-.todo-input-field {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-    -fx-padding: 8 10;
-}
-
-/* DatePicker integriert */
-.todo-input-date {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-    -fx-padding: 0;
-}
-
-.todo-input-date .text-field {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-    -fx-padding: 8 10;
-}
-
-.todo-input-date .arrow-button {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-    -fx-padding: 8 10;
-}
-
-/* Fokus */
-.todo-input:focused,
-.todo-input:focus-within {
-    -fx-border-color: rgba(255,255,255,0.70);
-}
-
-/* =========================
-   Dialoge (minimal)
-   ========================= */
-.dialog-pane {
-    -fx-background-color: #f6f7fb;
-}
+.check-box:selected .mark { -fx-background-color: white; }

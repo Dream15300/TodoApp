@@ -16,6 +16,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.geometry.Side;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -121,16 +122,27 @@ public class PrimaryController {
     }
 
     // ------------------------------------------------------------
-    // Kategorien: Name + Edit-Button pro Zeile
+    // Kategorien: Inline-Edit (kein Dialog) + Delete per Confirmation
     // ------------------------------------------------------------
-    private void setupCategoryCells() { // Setzt eine CellFactory, damit jede Kategoriezeile ein Layout (Name +
-                                        // Edit-Button) bekommt
+    private void setupCategoryCells() {
         listsView.setCellFactory(lv -> new ListCell<>() {
 
-            private final Label name = new Label();
+            private final Label nameLabel = new Label();
             private final Button btnEdit = new Button("✎");
             private final Region spacer = new Region();
-            private final HBox root = new HBox(8, name, spacer, btnEdit);
+            private final HBox root = new HBox(8, nameLabel, spacer, btnEdit);
+
+            // Popup Editor
+            private final ContextMenu editMenu = new ContextMenu();
+            private final TextField nameEditor = new TextField();
+            private final Button btnSave = new Button("Speichern");
+            private final Button btnCancel = new Button("Abbrechen");
+            private final Button btnDelete = new Button("Löschen");
+
+            private final VBox editorBox = new VBox(6);
+            private final HBox buttonsRow = new HBox(6);
+
+            private final CustomMenuItem editorItem = new CustomMenuItem();
 
             {
                 root.setAlignment(Pos.CENTER_LEFT);
@@ -138,92 +150,156 @@ public class PrimaryController {
 
                 btnEdit.getStyleClass().add("category-edit-btn");
 
+                // --- Editor UI (im Popup) ---
+                nameEditor.getStyleClass().add("category-popup-input");
+                nameEditor.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(nameEditor, Priority.ALWAYS);
+
+                btnSave.getStyleClass().add("category-popup-btn-primary");
+                btnCancel.getStyleClass().add("category-popup-btn");
+                btnDelete.getStyleClass().add("category-popup-btn-danger");
+
+                buttonsRow.getChildren().setAll(btnDelete, btnCancel, btnSave);
+                buttonsRow.setAlignment(Pos.CENTER_RIGHT);
+
+                editorBox.getStyleClass().add("category-popup-box");
+                editorBox.getChildren().setAll(new Label("Name:"), nameEditor, buttonsRow);
+
+                editorItem.setContent(editorBox);
+                editorItem.setHideOnClick(false); // wichtig: Klicks im Popup sollen es nicht sofort schliessen
+                editorItem.setStyle("-fx-padding: 0; -fx-background-color: transparent;");
+                editorBox.setStyle("-fx-background-color: transparent;"); // Sicherheit gegen Skin-Reste
+                editorItem.setMnemonicParsing(false);
+                editorItem.getStyleClass().add("category-popup-item");
+
+                editMenu.getItems().setAll(editorItem);
+                editMenu.getStyleClass().add("category-edit-menu");
+                editMenu.setOnShown(e -> {
+                    var scene = editMenu.getScene();
+                    if (scene != null) {
+                        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+                    }
+                });
+
+                // --- Events ---
                 btnEdit.setOnAction(e -> {
                     Category category = getItem();
                     if (category == null) {
                         return;
                     }
-                    showEditCategoryDialog(category);
+
+                    // Text vorbelegen
+                    nameEditor.setText(category.getName());
+                    nameEditor.selectAll();
+
+                    // Popup direkt am Edit-Button verankert anzeigen
+                    if (editMenu.isShowing()) {
+                        editMenu.hide();
+                    }
+                    editMenu.show(btnEdit, Side.BOTTOM, 0, 6);
+
+                    // Fokus erst nach show()
+                    nameEditor.requestFocus();
+                });
+
+                btnCancel.setOnAction(e -> editMenu.hide());
+
+                btnSave.setOnAction(e -> commitRename());
+
+                nameEditor.setOnAction(e -> commitRename()); // Enter = speichern
+
+                btnDelete.setOnAction(e -> {
+                    Category category = getItem();
+                    if (category == null) {
+                        return;
+                    }
+                    editMenu.hide();
+                    confirmAndDeleteCategory(category);
+                });
+
+                // Wenn Zelle recycled/ausgeblendet wird, Popup schliessen
+                itemProperty().addListener((observableValue, oldV, newV) -> {
+                    if (editMenu.isShowing()) {
+                        editMenu.hide();
+                    }
                 });
             }
 
             @Override
             protected void updateItem(Category item, boolean empty) {
                 super.updateItem(item, empty);
+
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
-                } else {
-                    name.setText(item.getName());
-                    setText(null);
-                    setGraphic(root);
+                    if (editMenu.isShowing()) {
+                        editMenu.hide();
+                    }
+                    return;
+                }
+
+                nameLabel.setText(item.getName());
+                setText(null);
+                setGraphic(root);
+            }
+
+            private void commitRename() {
+                Category category = getItem();
+                if (category == null) {
+                    editMenu.hide();
+                    return;
+                }
+
+                String newName = nameEditor.getText() == null ? "" : nameEditor.getText().trim();
+                if (newName.isEmpty()) {
+                    editMenu.hide();
+                    return;
+                }
+
+                try {
+                    int id = category.getId();
+                    service.renameCategory(id, newName);
+
+                    loadCategories();
+                    reselectCategoryById(id);
+
+                    showingDone = false;
+                    closeDetails();
+                    refreshTasks();
+
+                    editMenu.hide();
+                } catch (Exception exception) {
+                    editMenu.hide();
+                    showError("Bearbeiten fehlgeschlagen: " + exception.getMessage(), exception);
                 }
             }
         });
     }
 
-    private void showEditCategoryDialog(Category category) { // Zeigt einen Dialog zum Umbenennen/Löschen der Kategorie
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Liste bearbeiten");
-        dialog.setHeaderText(null);
+    private void confirmAndDeleteCategory(Category category) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Liste löschen");
+        alert.setHeaderText(null);
+        alert.setContentText("Liste \"" + category.getName() + "\" wirklich löschen?");
 
-        ButtonType btnRename = new ButtonType("Umbenennen", ButtonBar.ButtonData.OK_DONE);
-        ButtonType btnDelete = new ButtonType("Löschen", ButtonBar.ButtonData.OTHER);
-        dialog.getDialogPane().getButtonTypes().addAll(btnRename, btnDelete, ButtonType.CANCEL);
-
-        TextField txtName = new TextField(category.getName());
-        txtName.setPromptText("Listenname");
-
-        HBox content = new HBox(8, new Label("Name:"), txtName);
-        content.setAlignment(Pos.CENTER_LEFT);
-        dialog.getDialogPane().setContent(content);
-
-        Optional<ButtonType> showDialog = dialog.showAndWait();
-        if (showDialog.isEmpty() || showDialog.get() == ButtonType.CANCEL) {
+        Optional<ButtonType> confirm = alert.showAndWait();
+        if (confirm.isEmpty() || confirm.get() != ButtonType.OK) {
             return;
         }
 
         try {
-            if (showDialog.get() == btnRename) {
-                String newName = txtName.getText() == null ? "" : txtName.getText().trim();
-                if (newName.isEmpty()) {
-                    return;
-                }
+            service.deleteCategory(category.getId());
 
-                int id = category.getId();
-                service.renameCategory(id, newName);
-
-                loadCategories();
-                reselectCategoryById(id);
-
-                showingDone = false;
-                closeDetails();
-                refreshTasks();
-
-            } else if (showDialog.get() == btnDelete) {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Liste löschen");
-                alert.setHeaderText(null);
-                alert.setContentText("Liste \"" + category.getName() + "\" wirklich löschen?");
-
-                Optional<ButtonType> confirm = alert.showAndWait();
-                if (confirm.isEmpty() || confirm.get() != ButtonType.OK) {
-                    return;
-                }
-
-                service.deleteCategory(category.getId());
-
-                loadCategories();
-                if (!listsView.getItems().isEmpty()) {
-                    listsView.getSelectionModel().selectFirst();
-                }
-
-                showingDone = false;
-                closeDetails();
-                refreshTasks();
+            loadCategories();
+            if (!listsView.getItems().isEmpty()) {
+                listsView.getSelectionModel().selectFirst();
             }
+
+            showingDone = false;
+            closeDetails();
+            refreshTasks();
         } catch (Exception exception) {
-            showError("Bearbeiten fehlgeschlagen: " + exception.getMessage(), exception);
+            showError("Löschen fehlgeschlagen: " + exception.getMessage(), exception);
         }
     }
 
