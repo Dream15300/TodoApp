@@ -5,6 +5,8 @@ import com.example.domain.Category;
 import com.example.domain.TodoItem;
 import com.example.domain.TodoStatus;
 import com.example.service.TodoService;
+
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -139,25 +141,27 @@ public class PrimaryController {
         if (listsView == null || listsView.getScene() == null)
             return;
 
-        // Wenn offen: schliessen
         if (newListPopup.isShowing()) {
             newListPopup.hide();
             return;
         }
 
-        // Feld vorbereiten
         newListNameField.clear();
-        newListNameField.requestFocus();
 
-        // Popup anzeigen (erstmal, damit Groessen berechnet werden)
         newListPopup.show(listsView, 0, 0);
 
-        // Zentrieren relativ zur Primary-Scene
-        centerPopupInOwnerScene(newListPopup);
+        // Phase 1: nach show -> zentrieren
+        Platform.runLater(() -> {
+            centerPopupInOwnerScene(newListPopup);
 
-        // Fokus nach show()
-        newListNameField.requestFocus();
-        newListNameField.selectAll();
+            // Phase 2: nach reposition -> Fokus setzen
+            Platform.runLater(() -> {
+                listsView.getScene().getWindow().requestFocus();
+
+                newListNameField.requestFocus();
+                newListNameField.selectAll();
+            });
+        });
     }
 
     private void setupNewListPopup() {

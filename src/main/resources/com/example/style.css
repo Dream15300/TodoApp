@@ -468,6 +468,17 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 14, 0.2, 0, 4);
 }
 
+.category-add-full-btn {
+    -fx-background-color: #5f7f76;
+    -fx-text-fill: #ffffff;
+    -fx-border-width: 0;
+    -fx-background-radius: 12;
+    -fx-padding: 10 14;
+}
+.category-add-full-btn:hover   { -fx-background-color: #0d6955; }
+.category-add-full-btn:pressed { -fx-background-color: #0e755f; }
+.category-add-full-btn:disabled { -fx-opacity: 0.6; }
+
 
 /* =========================
    Checkbox

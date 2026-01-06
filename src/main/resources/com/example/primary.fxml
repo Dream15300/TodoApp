@@ -34,7 +34,7 @@
                     <Button text="+ Neue Liste"
                             onAction="#onNewList"
                             maxWidth="Infinity"
-                            styleClass="category-add-full"/>
+                            styleClass="category-add-full-btn"/>
                 </VBox>
             </VBox>
 
