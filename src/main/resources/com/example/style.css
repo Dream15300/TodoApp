@@ -89,6 +89,13 @@
     -fx-text-fill: rgba(31,42,68,0.70);
 }
 
+.todo-notes-icon {
+    -fx-font-size: 12px;
+    -fx-opacity: 0.75;
+    -fx-padding: 0 4 0 0; /* leicht Abstand zum rechten Rand */
+}
+
+
 /* =========================
    Details Panel rechts
    ========================= */
@@ -96,6 +103,37 @@
     -fx-background-color: rgba(255,255,255,0.10);
     -fx-background-radius: 12;
     -fx-padding: 12;
+}
+
+.details-notes {
+    -fx-background-color: rgba(255,255,255,0.98);
+    -fx-background-radius: 14;
+    -fx-background-insets: 0;
+
+    -fx-border-color: rgba(31,42,68,0.28);
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+
+    -fx-padding: 10 12;
+    -fx-text-fill: #1f2a44;
+}
+
+.details-notes:focused {
+    -fx-border-color: #2e7d6f;
+    -fx-border-width: 2;
+}
+
+/* TextArea besteht aus einem inneren Content-Node */
+.details-notes .content {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* Scrollbars unauffaellig (optional) */
+.details-notes .scroll-pane,
+.details-notes .viewport {
+    -fx-background-color: transparent;
 }
 
 /* =========================

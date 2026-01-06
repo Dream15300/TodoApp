@@ -52,6 +52,8 @@ public class PrimaryController {
     private TextField detailsTitle;
     @FXML
     private DatePicker detailsDueDate;
+    @FXML
+    private TextArea detailsNotes;
 
     private TodoItem detailsItem;
 
@@ -457,7 +459,8 @@ public class PrimaryController {
             private final VBox textBox = new VBox(2, title, due);
 
             private final Region spacer = new Region();
-            private final HBox root = new HBox(8, checkBox, textBox, spacer);
+            private final Label notesIcon = new Label("✎");
+            private final HBox root = new HBox(8, checkBox, textBox, spacer, notesIcon);
 
             {
                 HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -471,6 +474,11 @@ public class PrimaryController {
                 due.setVisible(false);
 
                 textBox.getStyleClass().add("todo-textbox");
+
+                notesIcon.getStyleClass().add("todo-notes-icon");
+                notesIcon.setAlignment(Pos.CENTER);
+                notesIcon.setManaged(false);
+                notesIcon.setVisible(false);
 
                 checkBox.setOnAction(e -> {
                     TodoItem item = getItem();
@@ -515,6 +523,11 @@ public class PrimaryController {
                     due.setVisible(false);
                 }
 
+                String notes = item.getNotes(); // muss existieren
+                boolean hasNotes = notes != null && !notes.isBlank();
+                notesIcon.setManaged(hasNotes);
+                notesIcon.setVisible(hasNotes);
+
                 setText(null);
                 setGraphic(root);
             }
@@ -556,6 +569,9 @@ public class PrimaryController {
 
         detailsPane.setManaged(true);
         detailsPane.setVisible(true);
+
+        detailsNotes.setText(item.getNotes() == null ? "" : item.getNotes());
+
     }
 
     private void closeDetails() {
@@ -587,26 +603,22 @@ public class PrimaryController {
 
     @FXML
     private void onSaveDetails() {
-        if (detailsItem == null) {
+        if (detailsItem == null)
             return;
-        }
 
         String newTitle = detailsTitle.getText() == null ? "" : detailsTitle.getText().trim();
-        if (newTitle.isEmpty()) {
+        if (newTitle.isEmpty())
             return;
-        }
 
         LocalDate newDue = detailsDueDate.getValue();
+        String notes = detailsNotes.getText(); // darf null/leer sein
 
         try {
             int id = detailsItem.getId();
-            service.updateTodo(id, newTitle, newDue);
+            service.updateTodo(id, newTitle, newDue, notes);
 
             refreshTasks();
-
-            // nach refresh NICHT automatisch wieder selektieren -> sonst öffnet es wieder
             closeDetails();
-
         } catch (Exception exception) {
             showError("Aufgabe konnte nicht aktualisiert werden: " + exception.getMessage(), exception);
         }

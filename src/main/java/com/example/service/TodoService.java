@@ -63,33 +63,38 @@ public class TodoService {
                 categoryId,
                 title.trim(),
                 dueDate,
+                null,
                 TodoStatus.OPEN,
                 0);
 
         return todoRepo.insert(item);
     }
 
-    public void updateTodo(int todoId, String newTitle, LocalDate newDueDate) { // Aktualisiert Titel und
-                                                                                // Fälligkeitsdatum eines Todos
+    public void updateTodo(int todoId, String newTitle, LocalDate newDueDate, String notes) {
         if (newTitle == null || newTitle.trim().isEmpty()) {
             throw new IllegalArgumentException("Titel darf nicht leer sein");
         }
 
-        String sql = "UPDATE TodoItems SET Title = ?, DueDate = ? WHERE Id = ?";
+        String sql = "UPDATE TodoItems SET Title = ?, DueDate = ?, Notes = ? WHERE Id = ?";
 
         try (Connection connection = Db.open();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, newTitle.trim());
 
-            // DueDate ist TEXT: yyyy-MM-dd oder NULL
             if (newDueDate == null) {
                 preparedStatement.setNull(2, Types.VARCHAR);
             } else {
-                preparedStatement.setString(2, newDueDate.toString());
+                preparedStatement.setString(2, newDueDate.toString()); // yyyy-MM-dd
             }
 
-            preparedStatement.setInt(3, todoId);
+            if (notes == null || notes.isBlank()) {
+                preparedStatement.setNull(3, Types.VARCHAR);
+            } else {
+                preparedStatement.setString(3, notes);
+            }
+
+            preparedStatement.setInt(4, todoId);
 
             int affected = preparedStatement.executeUpdate();
             if (affected == 0) {

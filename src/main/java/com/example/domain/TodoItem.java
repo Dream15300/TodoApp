@@ -9,15 +9,18 @@ public class TodoItem {
     private LocalDate dueDate;
     private TodoStatus status;
     private int priority;
+    private String notes;
 
     public TodoItem() {
     }
 
-    public TodoItem(int id, int categoryId, String title, LocalDate dueDate, TodoStatus status, int priority) {
+    public TodoItem(int id, int categoryId, String title, LocalDate dueDate, String notes, TodoStatus status,
+            int priority) {
         this.id = id;
         this.categoryId = categoryId;
         this.title = title;
         this.dueDate = dueDate;
+        this.notes = notes;
         this.status = status;
         this.priority = priority;
     }
@@ -68,6 +71,14 @@ public class TodoItem {
 
     public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public String toDisplayString() {

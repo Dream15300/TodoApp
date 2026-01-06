@@ -94,6 +94,16 @@
                                         prefWidth="Infinity"
                                         styleClass="details-input"/>
 
+                            <Label text="Notizen"/>
+                            <TextArea fx:id="detailsNotes"
+                                    promptText="Notizen..."
+                                    wrapText="true"
+                                    prefRowCount="6"
+                                    maxWidth="Infinity"
+                                    VBox.vgrow="ALWAYS"
+                                    styleClass="details-notes"/>
+
+
                             <HBox spacing="8.0">
                                 <Button text="Datum entfernen"
                                         onAction="#onClearDetailsDueDate"

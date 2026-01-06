@@ -32,22 +32,22 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
 
     public List<TodoItem> findOpenByCategory(int categoryId) { // Findet alle offenen Todos für eine bestimmte Kategorie
         String sql = """
-                SELECT Id, CategoryId, Title, DueDate, Status, Priority
+                SELECT Id, CategoryId, Title, DueDate, Notes, Status, Priority
                 FROM TodoItems
                 WHERE CategoryId = ? AND Status = 0
                 ORDER BY Priority DESC, DueDate IS NULL, DueDate, Id
-                """;
+                    """;
         return queryList(sql, categoryId);
     }
 
     public List<TodoItem> findDoneByCategory(int categoryId) { // Findet alle erledigten Todos für eine bestimmte
                                                                // Kategorie
         String sql = """
-                SELECT Id, CategoryId, Title, DueDate, Status, Priority
+                SELECT Id, CategoryId, Title, DueDate, Notes, Status, Priority
                 FROM TodoItems
                 WHERE CategoryId = ? AND Status = 1
                 ORDER BY DueDate IS NULL, DueDate DESC, Id DESC
-                """;
+                    """;
         return queryList(sql, categoryId);
     }
 
@@ -75,7 +75,7 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
 
     public int insert(TodoItem item) { // Fügt ein neues TodoItem in die Datenbank ein und gibt die generierte DB-ID
                                        // zurück
-        String sql = "INSERT INTO TodoItems (CategoryId, Title, DueDate, Status, Priority) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO TodoItems (CategoryId, Title, DueDate, Notes, Status, Priority) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = Db.open();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql,
@@ -85,8 +85,9 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
             preparedStatement.setInt(1, item.getCategoryId());
             preparedStatement.setString(2, item.getTitle());
             preparedStatement.setString(3, item.getDueDate() == null ? null : item.getDueDate().toString());
-            preparedStatement.setInt(4, toDbStatus(item.getStatus()));
-            preparedStatement.setInt(5, item.getPriority());
+            preparedStatement.setString(4, item.getNotes());
+            preparedStatement.setInt(5, toDbStatus(item.getStatus()));
+            preparedStatement.setInt(6, item.getPriority());
 
             preparedStatement.executeUpdate();
 
@@ -122,6 +123,7 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
         int catId = resultSet.getInt("CategoryId");
         String title = resultSet.getString("Title");
         String due = resultSet.getString("DueDate");
+        String notes = resultSet.getString("Notes");
         int status = resultSet.getInt("Status");
         int priority = resultSet.getInt("Priority");
 
@@ -129,7 +131,7 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
                                                                                           // zu LocalDate
         TodoStatus todoStatus = fromDbStatus(status);
 
-        return new TodoItem(id, catId, title, dueDate, todoStatus, priority);
+        return new TodoItem(id, catId, title, dueDate, notes, todoStatus, priority);
     }
 
     private int toDbStatus(TodoStatus converStatus) { // Konvertiert TodoStatus-Enum zu DB-kompatiblen Integer-Wert

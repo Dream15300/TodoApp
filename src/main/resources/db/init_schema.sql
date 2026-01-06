@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS TodoItems (
   Title       TEXT NOT NULL,
   Description TEXT,
   DueDate     TEXT,
+  Notes       TEXT,
   Status      INTEGER NOT NULL,
   Priority    INTEGER NOT NULL,
   CategoryId  INTEGER,
