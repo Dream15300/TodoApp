@@ -159,7 +159,10 @@
                                styleClass="todo-input-field"/>
 
                     <DatePicker fx:id="dpNewTaskDueDate"
-                                styleClass="todo-input-date"/>
+                                styleClass="todo-input-date"
+                                prefWidth="110"
+                                minWidth="110"
+                                maxWidth="110"/>
                 </HBox>
 
             </VBox>

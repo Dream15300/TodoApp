@@ -286,9 +286,28 @@
 .todo-input-btn {
     -fx-background-color: transparent;
     -fx-border-width: 0;
-    -fx-padding: 8 12;
+
+    -fx-padding: 0;                
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-pref-width: 40;
+    -fx-pref-height: 40;
+
+    -fx-alignment: center;         
+    -fx-text-alignment: center;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+
     -fx-background-radius: 10;
 }
+
+.todo-input-btn:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
+}
+.todo-input-btn:pressed {
+    -fx-background-color: rgba(0,0,0,0.10);
+}
+
 .todo-input-field {
     -fx-background-color: transparent;
     -fx-border-width: 0;
@@ -301,12 +320,38 @@
 .todo-input-date .text-field {
     -fx-background-color: transparent;
     -fx-border-width: 0;
-    -fx-padding: 8 10;
+    -fx-alignment: CENTER_RIGHT;    
+    -fx-padding: 8 6 8 10;
+
 }
+/* DatePicker-Button */
 .todo-input-date .arrow-button {
     -fx-background-color: transparent;
     -fx-border-width: 0;
-    -fx-padding: 8 10;
+
+    -fx-min-width: 46;
+    -fx-min-height: 40;
+    -fx-pref-width: 46;
+    -fx-pref-height: 40;
+
+    /* Abstand zum Rand */
+    -fx-padding: 0 10 0 10;
+    -fx-background-radius: 10;
+    -fx-alignment: center;
+}
+
+/* Icon selbst vergrössern */
+.todo-input-date .arrow-button .arrow {
+    -fx-scale-x: 1.6;
+    -fx-scale-y: 1.6;
+}
+
+
+.todo-input-date .arrow-button:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
+}
+.todo-input-date .arrow-button:pressed {
+    -fx-background-color: rgba(0,0,0,0.10);
 }
 
 /* =========================
