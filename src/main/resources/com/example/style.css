@@ -76,6 +76,8 @@
     -fx-padding: 10 12;
     -fx-border-color: transparent transparent rgba(255,255,255,0.25) transparent;
     -fx-border-width: 0 0 1 0;
+    -fx-pref-height: -1;
+    -fx-min-height: USE_PREF_SIZE;
 }
 .tasks-view .list-cell:empty {
     -fx-border-width: 0;

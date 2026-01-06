@@ -450,6 +450,7 @@ public class PrimaryController {
     private void setupTodoCells() { // Setzt eine CellFactory, damit jede Todo-Zeile eine Checkbox + Editierbarkeit
                                     // bekommt
         tasksView.setEditable(false);
+        tasksView.setFixedCellSize(-1);
 
         tasksView.setCellFactory(lv -> new ListCell<>() {
 
@@ -463,10 +464,21 @@ public class PrimaryController {
             private final HBox root = new HBox(8, checkBox, textBox, spacer, notesIcon);
 
             {
-                HBox.setHgrow(spacer, Priority.ALWAYS);
+                setPrefWidth(0); // erlaubt Binding korrekt zu wirken
+                prefWidthProperty().bind(lv.widthProperty().subtract(18)); // 18 = ca. Scrollbar/Padding
+
                 root.setAlignment(Pos.CENTER_LEFT);
+                root.setMaxWidth(Double.MAX_VALUE);
+
+                HBox.setHgrow(textBox, Priority.ALWAYS);
+                textBox.setMaxWidth(Double.MAX_VALUE);
+                textBox.setMinWidth(0);
+
+                HBox.setHgrow(spacer, Priority.ALWAYS);
 
                 title.setWrapText(true);
+                title.setMaxWidth(Double.MAX_VALUE);
+                title.setMinWidth(0);
                 title.getStyleClass().add("todo-title");
 
                 due.getStyleClass().add("todo-due");
@@ -512,7 +524,7 @@ public class PrimaryController {
 
                 checkBox.setSelected(item.getStatus() == TodoStatus.DONE);
 
-                title.setText(item.getTitle());
+                title.setText(breakAnywhere(item.getTitle()));
 
                 if (item.getDueDate() != null) {
                     due.setText("📅 " + item.getDueDate().format(DUE_FMT));
@@ -523,7 +535,7 @@ public class PrimaryController {
                     due.setVisible(false);
                 }
 
-                String notes = item.getNotes(); // muss existieren
+                String notes = item.getNotes();
                 boolean hasNotes = notes != null && !notes.isBlank();
                 notesIcon.setManaged(hasNotes);
                 notesIcon.setVisible(hasNotes);
@@ -532,6 +544,12 @@ public class PrimaryController {
                 setGraphic(root);
             }
         });
+    }
+
+    private static String breakAnywhere(String s) {
+        if (s == null)
+            return "";
+        return s.replace("", "\u200B");
     }
 
     @FXML
