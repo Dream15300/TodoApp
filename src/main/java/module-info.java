@@ -6,6 +6,7 @@ module com.example {
     requires javafx.base;
 
     requires java.sql;
+    requires java.prefs;
     requires org.xerial.sqlitejdbc;
 
     opens com.example to javafx.fxml;

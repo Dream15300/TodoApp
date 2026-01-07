@@ -7,6 +7,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import com.example.ui.ThemeManager;
+
 public class App extends Application {
 
     @Override
@@ -18,8 +20,11 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("primary.fxml"));
         Scene scene = new Scene(loader.load(), 900, 600);
+
         scene.getStylesheets().add(
                 App.class.getResource("/com/example/style.css").toExternalForm());
+
+        ThemeManager.applySaved(scene);
 
         stage.setTitle("ToDoListeZbW");
         stage.setScene(scene);

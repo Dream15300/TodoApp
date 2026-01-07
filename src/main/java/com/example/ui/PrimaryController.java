@@ -7,9 +7,9 @@ import com.example.ui.controller.CategoriesController;
 import com.example.ui.controller.DetailsController;
 import com.example.ui.controller.NewListPopupController;
 import com.example.ui.controller.TasksController;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.SplitPane;
 import javafx.scene.layout.VBox;
 
 public class PrimaryController {
@@ -41,6 +41,9 @@ public class PrimaryController {
 
     @FXML
     private VBox listsPane;
+
+    @FXML
+    private ToggleButton tglTheme;
 
     private final TodoService service = new TodoService();
 
@@ -98,6 +101,14 @@ public class PrimaryController {
         });
 
         tasksController.refresh();
+
+        if (tglTheme != null) {
+            ThemeManager.Theme saved = ThemeManager.loadThemeOrDefault();
+            boolean dim = (saved == ThemeManager.Theme.DIM);
+
+            tglTheme.setSelected(dim);
+            tglTheme.setText(dim ? "Dim" : "Light");
+        }
     }
 
     // ------- FXML Actions: delegieren -------
@@ -151,5 +162,23 @@ public class PrimaryController {
             detailsController.close();
             tasksController.refresh();
         }
+    }
+
+    @FXML
+    private void onToggleTheme() {
+        if (tglTheme == null)
+            return;
+        if (tglTheme.getScene() == null)
+            return;
+
+        boolean dim = tglTheme.isSelected();
+        ThemeManager.Theme theme = dim ? ThemeManager.Theme.DIM : ThemeManager.Theme.LIGHT;
+
+        ThemeManager.apply(tglTheme.getScene(), theme);
+        tglTheme.getScene().getRoot().applyCss();
+        tglTheme.getScene().getRoot().layout();
+        ThemeManager.saveTheme(theme);
+
+        tglTheme.setText(dim ? "Dim" : "Light");
     }
 }

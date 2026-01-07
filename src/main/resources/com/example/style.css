@@ -4,27 +4,58 @@
 .root {
   -fx-font-family: "Segoe UI";
   -fx-font-size: 13px;
+
+  /* Fallback-Werte (falls kein Theme geladen ist) */
+  -fx-c-app-bg: #f3f4f6;
+
+  -fx-c-text: #111827;
+  -fx-c-text-muted: rgba(17,24,39,0.65);
+
+  -fx-c-border: rgba(17,24,39,0.14);
+  -fx-c-divider: rgba(17,24,39,0.18);
+
+  -fx-c-card-bg: #ffffff;
+
+  -fx-c-hover: rgba(59,130,246,0.10);
+  -fx-c-selected: rgba(59,130,246,0.14);
+
+  -fx-c-accent: #2563eb;
+  -fx-c-accent-strong: #1d4ed8;
+
+  -fx-c-btn-bg: #e5e7eb;
+  -fx-c-btn-hover: #dbeafe;
+  -fx-c-btn-pressed: #bfdbfe;
+
+  -fx-c-footer-btn-bg: rgba(17,24,39,0.06);
+  -fx-c-footer-btn-hover: rgba(17,24,39,0.10);
+
+  -fx-c-input-bg: #ffffff;
+  -fx-c-input-border: rgba(17,24,39,0.18);
+
+  -fx-c-danger: #b91c1c;
+  -fx-c-danger-hover: #991b1b;
+  -fx-c-neutral: #6b7280;
+  -fx-c-neutral-hover: #4b5563;
 }
 
 .app-root {
-  -fx-background-color: #44897A;
+  -fx-background-color: -fx-c-app-bg;
 }
 
-
-.label { -fx-text-fill: #1f2a44; }
+.label { -fx-text-fill: -fx-c-text; }
 
 /* =========================
    Buttons (global)
    ========================= */
 .button {
-    -fx-background-color: #5f7f76;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: -fx-c-btn-bg;
+    -fx-text-fill: -fx-c-text;
     -fx-border-width: 0;
     -fx-background-radius: 12;
     -fx-padding: 10 14;
 }
-.button:hover   { -fx-background-color: #6EA498; }
-.button:pressed { -fx-background-color: #81b1a7; }
+.button:hover   { -fx-background-color: -fx-c-btn-hover; }
+.button:pressed { -fx-background-color: -fx-c-btn-pressed; }
 .button:disabled { -fx-opacity: 0.6; }
 
 /* =========================
@@ -34,7 +65,7 @@
 
 .split-pane-divider {
     -fx-padding: 0 1 0 1;
-    -fx-background-color: #05503f;
+    -fx-background-color: -fx-c-divider;
 }
 
 /* =========================
@@ -42,9 +73,13 @@
    ========================= */
 .category-container,
 .tasks-container {
-    -fx-background-color: #6EA498;
+    -fx-background-color: -fx-c-card-bg;
     -fx-background-radius: 12;
     -fx-padding: 8;
+
+    -fx-border-color: -fx-c-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
 }
 
 /* =========================
@@ -60,21 +95,25 @@
 
 .list-view .list-cell {
     -fx-background-color: transparent;
-    -fx-text-fill: #1f2a44;
+    -fx-text-fill: -fx-c-text;
     -fx-padding: 10 12;
-    -fx-background-radius: 8;
+    -fx-background-radius: 10;
     -fx-background-insets: 1 0 1 0;
 }
-.list-view .list-cell:filled:hover,
+
+.list-view .list-cell:filled:hover {
+    -fx-background-color: -fx-c-hover;
+}
+
 .list-view .list-cell:filled:selected {
-    -fx-background-color: #8fb8af;
+    -fx-background-color: -fx-c-selected;
 }
 
 /* Tasks-Liste: Linien unten */
 .tasks-view .list-cell:filled {
     -fx-background-color: transparent;
-    -fx-padding: 10 12;
-    -fx-border-color: transparent transparent rgba(255,255,255,0.25) transparent;
+    -fx-padding: 12 12;
+    -fx-border-color: transparent transparent -fx-c-border transparent;
     -fx-border-width: 0 0 1 0;
     -fx-pref-height: -1;
 }
@@ -84,43 +123,47 @@
 }
 
 /* Todo Text */
-.todo-title { -fx-text-fill: #1f2a44; }
+.todo-title { -fx-text-fill: -fx-c-text; }
 .todo-due {
     -fx-font-size: 10px;
-    -fx-text-fill: rgba(31,42,68,0.70);
+    -fx-text-fill: -fx-c-text-muted;
 }
 
 .todo-notes-icon {
     -fx-font-size: 18px;
     -fx-opacity: 0.85;
     -fx-padding: 0 6 0 6;
+    -fx-text-fill: -fx-c-accent;
 }
-
 
 /* =========================
    Details Panel rechts
    ========================= */
 .details-pane {
-    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-color: -fx-c-card-bg;
     -fx-background-radius: 12;
     -fx-padding: 12;
+
+    -fx-border-radius: 12;
+    -fx-border-color: -fx-c-border;
+    -fx-border-width: 1;
 }
 
 .details-notes {
-    -fx-background-color: rgba(255,255,255,0.98);
+    -fx-background-color: -fx-c-input-bg;
     -fx-background-radius: 14;
     -fx-background-insets: 0;
 
-    -fx-border-color: rgba(31,42,68,0.28);
+    -fx-border-color: -fx-c-input-border;
     -fx-border-radius: 14;
     -fx-border-width: 1;
 
     -fx-padding: 10 12;
-    -fx-text-fill: #1f2a44;
+    -fx-text-fill: -fx-c-text;
 }
 
 .details-notes:focused {
-    -fx-border-color: #2e7d6f;
+    -fx-border-color: -fx-c-accent;
     -fx-border-width: 2;
 }
 
@@ -131,7 +174,7 @@
     -fx-padding: 0;
 }
 
-/* Scrollbars unauffaellig (optional) */
+/* Scrollbars unauffällig (optional) */
 .details-notes .scroll-pane,
 .details-notes .viewport {
     -fx-background-color: transparent;
@@ -142,16 +185,16 @@
    ========================= */
 .text-field.details-input,
 .text-field.category-popup-input {
-    -fx-background-color: rgba(255,255,255,0.98);
+    -fx-background-color: -fx-c-input-bg;
     -fx-background-radius: 14;
     -fx-background-insets: 0;
 
-    -fx-border-color: rgba(31,42,68,0.28);
+    -fx-border-color: -fx-c-input-border;
     -fx-border-radius: 14;
     -fx-border-width: 1;
 
     -fx-padding: 10 12;
-    -fx-text-fill: #1f2a44;
+    -fx-text-fill: -fx-c-text;
 
     -fx-min-height: 44;
     -fx-pref-height: 44;
@@ -159,10 +202,9 @@
 
 .text-field.details-input:focused,
 .text-field.category-popup-input:focused {
-    -fx-border-color: #2e7d6f;
+    -fx-border-color: -fx-c-accent;
     -fx-border-width: 2;
 }
-
 
 /* =========================
    Inputs: DatePicker (Details + Popup)
@@ -171,11 +213,11 @@
 /* DatePicker-Aussenhülle */
 .date-picker.details-input,
 .date-picker.category-popup-input {
-    -fx-background-color: rgba(255,255,255,0.98);
+    -fx-background-color: -fx-c-input-bg;
     -fx-background-radius: 14;
     -fx-background-insets: 0;
 
-    -fx-border-color: rgba(31,42,68,0.28);
+    -fx-border-color: -fx-c-input-border;
     -fx-border-radius: 14;
     -fx-border-width: 1;
 
@@ -195,52 +237,38 @@
     /* rechts etwas mehr, damit Text nicht unter den Button läuft */
     -fx-padding: 10 12 10 12;
 
-    -fx-text-fill: #1f2a44;
+    -fx-text-fill: -fx-c-text;
 }
 
 /* Arrow-Button */
 .date-picker.details-input > .arrow-button,
 .date-picker.category-popup-input > .arrow-button {
-
-    /* transparenter Hintergrund */
     -fx-background-color: transparent;
     -fx-background-radius: 10;
 
-    /* KLICKBEREICH */
     -fx-min-width: 42;
     -fx-pref-width: 42;
 
-    /* Padding vergrössert Hitbox */
     -fx-padding: 0 12 0 12;
-
-    /* Button nicht am Rand kleben lassen */
     -fx-background-insets: 0 2 0 2;
 }
 
 .date-picker.details-input > .arrow-button:hover,
 .date-picker.category-popup-input > .arrow-button:hover {
-    -fx-background-color: rgba(0,0,0,0.08);
+    -fx-background-color: rgba(17,24,39,0.06);
 }
-
-
-.date-picker.details-input > .arrow-button:hover,
-.date-picker.category-popup-input > .arrow-button:hover {
-    -fx-background-color: rgba(0,0,0,0.08);
-}
-
 
 /* =========================
    DatePicker Popup: Navigation (Monat/Jahr)
    ========================= */
-
 .date-picker-popup .month-year-pane {
-    -fx-background-color: rgba(255,255,255,0.92);
+    -fx-background-color: rgba(255,255,255,0.98);
     -fx-padding: 6 8;
 }
 
 /* Die 4 Navigationsbuttons (<< < > >>) */
 .date-picker-popup .month-year-pane .spinner .button {
-    -fx-background-color: rgba(0,0,0,0.00); /* transparentes Feld */
+    -fx-background-color: rgba(0,0,0,0.00);
     -fx-background-radius: 10;
     -fx-padding: 0;
     -fx-pref-width: 34;
@@ -249,7 +277,7 @@
 
 /* Hover */
 .date-picker-popup .month-year-pane .spinner .button:hover {
-    -fx-background-color: rgba(0,0,0,0.08);
+    -fx-background-color: rgba(17,24,39,0.06);
 }
 
 /* Pfeile selbst nicht verkleinern */
@@ -259,60 +287,61 @@
     -fx-scale-y: 1.0;
 }
 
-
 /* =========================
    Footer Buttons
    ========================= */
 .tasks-footer-btn {
-    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-background-color: -fx-c-footer-btn-bg;
     -fx-alignment: CENTER_LEFT;
     -fx-background-radius: 12;
     -fx-padding: 12 14;
 }
-.tasks-footer-btn:hover { -fx-background-color: rgba(0,0,0,0.10); }
+.tasks-footer-btn:hover { -fx-background-color: -fx-c-footer-btn-hover; }
 
 /* =========================
    Eingabezeile unten
    ========================= */
 .todo-input {
-    -fx-background-color: rgba(255,255,255,0.10);
-    -fx-border-color: rgba(255,255,255,0.35);
+    -fx-background-color: -fx-c-input-bg;
+    -fx-border-color: -fx-c-border;
     -fx-border-width: 1;
     -fx-border-radius: 12;
     -fx-background-radius: 12;
     -fx-alignment: CENTER_LEFT;
 }
-.todo-input:focus-within { -fx-border-color: rgba(255,255,255,0.70); }
+.todo-input:focus-within { -fx-border-color: rgba(59,130,246,0.60); }
 
 .todo-input-btn {
     -fx-background-color: transparent;
     -fx-border-width: 0;
 
-    -fx-padding: 0;                
+    -fx-padding: 0;
     -fx-min-width: 40;
     -fx-min-height: 40;
     -fx-pref-width: 40;
     -fx-pref-height: 40;
 
-    -fx-alignment: center;         
+    -fx-alignment: center;
     -fx-text-alignment: center;
     -fx-font-size: 22px;
     -fx-font-weight: bold;
 
     -fx-background-radius: 10;
+    -fx-text-fill: -fx-c-accent;
 }
 
 .todo-input-btn:hover {
-    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-background-color: rgba(17,24,39,0.06);
 }
 .todo-input-btn:pressed {
-    -fx-background-color: rgba(0,0,0,0.10);
+    -fx-background-color: rgba(17,24,39,0.10);
 }
 
 .todo-input-field {
     -fx-background-color: transparent;
     -fx-border-width: 0;
     -fx-padding: 8 10;
+    -fx-text-fill: -fx-c-text;
 }
 .todo-input-date {
     -fx-background-color: transparent;
@@ -321,10 +350,11 @@
 .todo-input-date .text-field {
     -fx-background-color: transparent;
     -fx-border-width: 0;
-    -fx-alignment: CENTER_RIGHT;    
+    -fx-alignment: CENTER_RIGHT;
     -fx-padding: 8 6 8 10;
-
+    -fx-text-fill: -fx-c-text;
 }
+
 /* DatePicker-Button */
 .todo-input-date .arrow-button {
     -fx-background-color: transparent;
@@ -335,7 +365,6 @@
     -fx-pref-width: 46;
     -fx-pref-height: 40;
 
-    /* Abstand zum Rand */
     -fx-padding: 0 10 0 10;
     -fx-background-radius: 10;
     -fx-alignment: center;
@@ -347,12 +376,11 @@
     -fx-scale-y: 1.6;
 }
 
-
 .todo-input-date .arrow-button:hover {
-    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-background-color: rgba(17,24,39,0.06);
 }
 .todo-input-date .arrow-button:pressed {
-    -fx-background-color: rgba(0,0,0,0.10);
+    -fx-background-color: rgba(17,24,39,0.10);
 }
 
 /* =========================
@@ -364,27 +392,27 @@
     -fx-padding: 4;
     -fx-font-size: 14px;
     -fx-background-radius: 8;
+    -fx-text-fill: -fx-c-text;
 }
-.category-edit-btn:hover   { -fx-background-color: rgba(0,0,0,0.06); }
-.category-edit-btn:pressed { -fx-background-color: rgba(0,0,0,0.10); }
+.category-edit-btn:hover   { -fx-background-color: rgba(17,24,39,0.06); }
+.category-edit-btn:pressed { -fx-background-color: rgba(17,24,39,0.10); }
 
 /* =========================================================
-   Kategorie – Edit Popup (ContextMenu) 
+   Kategorie – Edit Popup (ContextMenu)
    ========================================================= */
-
 .category-edit-menu.context-menu {
-    -fx-background-color: rgba(110,164,152,0.96); 
+    -fx-background-color: rgba(255,255,255,0.98);
     -fx-background-insets: 0;
     -fx-background-radius: 10;
 
-    -fx-border-color: rgba(0,0,0,0.55);
+    -fx-border-color: rgba(17,24,39,0.20);
     -fx-border-width: 1;
     -fx-border-insets: 0;
     -fx-border-radius: 10;
 
     -fx-padding: 16;
 
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 14, 0.2, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 14, 0.2, 0, 4);
 }
 
 /* 2) Innenlayout vom Skin: alles transparent */
@@ -439,47 +467,47 @@
     -fx-text-fill: white;
 }
 
-.category-popup-btn-cancel { -fx-background-color: #5f7f76; }
-.category-popup-btn-cancel:hover { -fx-background-color: #4f7f74; }
+.category-popup-btn-cancel { -fx-background-color: -fx-c-neutral; }
+.category-popup-btn-cancel:hover { -fx-background-color: -fx-c-neutral-hover; }
 
-.category-popup-btn-save { -fx-background-color: #4f7f74; }
-.category-popup-btn-save:hover { -fx-background-color: #3f6f64; }
+.category-popup-btn-save { -fx-background-color: -fx-c-accent; }
+.category-popup-btn-save:hover { -fx-background-color: -fx-c-accent-strong; }
 
-.category-popup-btn-danger { -fx-background-color: #7a4b4b; }
-.category-popup-btn-danger:hover { -fx-background-color: #8b5858; }
+.category-popup-btn-danger { -fx-background-color: -fx-c-danger; }
+.category-popup-btn-danger:hover { -fx-background-color: -fx-c-danger-hover; }
 
 /* =========================================================
-   Neue Liste – Popup 
+   Neue Liste – Popup
    ========================================================= */
 
 /* Karte fuer PopupControl (Neue Liste) */
 .category-popup-card {
-    -fx-background-color: rgba(110,164,152,0.96);
+    -fx-background-color: rgba(255,255,255,0.98);
     -fx-background-radius: 10;
     -fx-background-insets: 0;
 
-    -fx-border-color: rgba(0,0,0,0.55);
+    -fx-border-color: rgba(17,24,39,0.20);
     -fx-border-width: 1;
     -fx-border-radius: 10;
     -fx-border-insets: 0;
 
     -fx-padding: 16;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 14, 0.2, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 14, 0.2, 0, 4);
 }
 
 .category-add-full-btn {
-    -fx-background-color: #5f7f76;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: -fx-c-btn-bg;
+    -fx-text-fill: -fx-c-text;
     -fx-border-width: 0;
     -fx-background-radius: 12;
     -fx-padding: 10 14;
 }
-.category-add-full-btn:hover   { -fx-background-color: #0d6955; }
-.category-add-full-btn:pressed { -fx-background-color: #0e755f; }
+.category-add-full-btn:hover   { -fx-background-color: -fx-c-btn-hover; }
+.category-add-full-btn:pressed { -fx-background-color: -fx-c-btn-pressed; }
 .category-add-full-btn:disabled { -fx-opacity: 0.6; }
 
 /* =========================================================
-   Neue Liste löschen – Popup 
+   Neue Liste löschen – Popup
    ========================================================= */
 .confirm-popup-card {
     -fx-padding: 10 16 14 16; /* oben kleiner */
@@ -489,21 +517,59 @@
     -fx-padding: 0;
 }
 
-
 /* =========================
    Checkbox
    ========================= */
-.check-box { -fx-padding: 0 8 0 0; }
+.check-box {
+    -fx-padding: 0 10 0 0;
+    -fx-alignment: CENTER;
+}
 
 .check-box .box {
-    -fx-background-color: white;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
-    -fx-pref-width: 14;
-    -fx-pref-height: 14;
+    -fx-background-color: -fx-c-input-bg;
+    -fx-border-color: rgba(17,24,39,0.30);
+    -fx-border-width: 1.5;
+
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+
+    -fx-pref-width: 18;
+    -fx-pref-height: 18;
 }
+
+.check-box:hover .box {
+    -fx-border-color: -fx-c-accent;
+}
+
 .check-box:selected .box {
-    -fx-background-color: #036832;
-    -fx-border-color: #036832;
+    -fx-background-color: -fx-c-accent;
+    -fx-border-color: -fx-c-accent;
 }
-.check-box:selected .mark { -fx-background-color: white; }
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.check-box:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* =========================
+   Toggle Color Theme Button
+   ========================= */
+.toggle-button {
+    -fx-background-color: rgba(17,24,39,0.08);
+    -fx-text-fill: -fx-c-text;
+    -fx-background-radius: 10;
+    -fx-padding: 8 12;
+}
+.toggle-button:selected {
+    -fx-background-color: rgba(59,130,246,0.22);
+    -fx-text-fill: -fx-c-text;
+}
+.toggle-button:hover {
+    -fx-background-color: rgba(17,24,39,0.12);
+}

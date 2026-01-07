@@ -1,0 +1,42 @@
+.root {
+  /* App Background (f3f4f6 → dunkler Grau) */
+  -fx-c-app-bg: #4d4f51;
+
+  /* Text */
+  -fx-c-text: #030712;
+  -fx-c-text-muted: rgba(3,7,18,0.65);
+
+  /* Linien / Divider */
+  -fx-c-border: rgba(3,7,18,0.22);
+  -fx-c-divider: rgba(3,7,18,0.28);
+
+  /* Karten (Listen & Aufgaben) */
+  -fx-c-card-bg: #787777;
+
+  /* Hover / Selection (gleiche Abstufung wie Light) */
+  -fx-c-hover: rgba(37,99,235,0.14);
+  -fx-c-selected: rgba(37,99,235,0.20);
+
+  /* Accent */
+  -fx-c-accent: #1e40af;
+  -fx-c-accent-strong: #1e3a8a;
+
+  /* Buttons */
+  -fx-c-btn-bg: #c7cdd6;
+  -fx-c-btn-hover: #bfdbfe;
+  -fx-c-btn-pressed: #93c5fd;
+
+  /* Footer Buttons */
+  -fx-c-footer-btn-bg: rgba(3,7,18,0.10);
+  -fx-c-footer-btn-hover: rgba(3,7,18,0.16);
+
+  /* Inputs */
+  -fx-c-input-bg: #e5e7eb;
+  -fx-c-input-border: rgba(3,7,18,0.26);
+
+  /* Statusfarben */
+  -fx-c-danger: #991b1b;
+  -fx-c-danger-hover: #7f1d1d;
+  -fx-c-neutral: #4b5563;
+  -fx-c-neutral-hover: #374151;
+}

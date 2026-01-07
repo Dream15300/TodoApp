@@ -1,0 +1,34 @@
+/* ===== com/example/theme-light.css ===== */
+
+.root {
+  -fx-c-app-bg: #f3f4f6;
+
+  -fx-c-text: #111827;
+  -fx-c-text-muted: rgba(17,24,39,0.65);
+
+  -fx-c-border: rgba(17,24,39,0.14);
+  -fx-c-divider: rgba(17,24,39,0.18);
+
+  -fx-c-card-bg: #ffffff;
+
+  -fx-c-hover: rgba(59,130,246,0.10);
+  -fx-c-selected: rgba(59,130,246,0.14);
+
+  -fx-c-accent: #2563eb;
+  -fx-c-accent-strong: #1d4ed8;
+
+  -fx-c-btn-bg: #e5e7eb;
+  -fx-c-btn-hover: #dbeafe;
+  -fx-c-btn-pressed: #bfdbfe;
+
+  -fx-c-footer-btn-bg: rgba(17,24,39,0.06);
+  -fx-c-footer-btn-hover: rgba(17,24,39,0.10);
+
+  -fx-c-input-bg: #ffffff;
+  -fx-c-input-border: rgba(17,24,39,0.18);
+
+  -fx-c-danger: #b91c1c;
+  -fx-c-danger-hover: #991b1b;
+  -fx-c-neutral: #6b7280;
+  -fx-c-neutral-hover: #4b5563;
+}
