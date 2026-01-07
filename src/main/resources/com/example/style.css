@@ -125,7 +125,7 @@
 /* Todo Text */
 .todo-title { -fx-text-fill: -fx-c-text; }
 .todo-due {
-    -fx-font-size: 10px;
+    -fx-font-size: 11px;
     -fx-text-fill: -fx-c-text-muted;
 }
 
@@ -518,32 +518,54 @@
 }
 
 /* =========================
-   Checkbox
+   Checkbox (vollstaendig eigenes Skinning)
    ========================= */
 .check-box {
     -fx-padding: 0 10 0 0;
     -fx-alignment: CENTER;
 }
 
+/* Box: alle Modena-Defaults neutralisieren */
 .check-box .box {
     -fx-background-color: -fx-c-input-bg;
-    -fx-border-color: rgba(17,24,39,0.30);
-    -fx-border-width: 1.5;
-
-    -fx-border-radius: 6;
+    -fx-background-insets: 0;
     -fx-background-radius: 6;
+
+    -fx-border-color: -fx-c-input-border;
+    -fx-border-insets: 0;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 6;
+
+    -fx-padding: 0;
 
     -fx-pref-width: 18;
     -fx-pref-height: 18;
+
+    /* verhindert “komische” Kanten/Highlight aus Modena */
+    -fx-effect: null;
 }
 
+/* Hover */
 .check-box:hover .box {
     -fx-border-color: -fx-c-accent;
 }
 
+/* Focus (falls Tastaturfokus) */
+.check-box:focused .box {
+    -fx-border-color: -fx-c-accent;
+}
+
+/* Checked */
 .check-box:selected .box {
     -fx-background-color: -fx-c-accent;
     -fx-border-color: -fx-c-accent;
+}
+
+/* Haken/Markierung */
+.check-box .mark {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-effect: null;
 }
 
 .check-box:selected .mark {
@@ -551,6 +573,13 @@
     -fx-scale-x: 1.1;
     -fx-scale-y: 1.1;
 }
+
+/* Focus-Farben vom Control selbst aus */
+.check-box {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
 
 .check-box:focused {
     -fx-focus-color: transparent;

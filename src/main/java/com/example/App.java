@@ -26,7 +26,7 @@ public class App extends Application {
 
         ThemeManager.applySaved(scene);
 
-        stage.setTitle("ToDoListeZbW");
+        stage.setTitle("ToDo");
         stage.setScene(scene);
         stage.show();
     }

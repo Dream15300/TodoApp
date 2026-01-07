@@ -1,42 +1,42 @@
 .root {
-  /* App Background (f3f4f6 → dunkler Grau) */
-  -fx-c-app-bg: #4d4f51;
+  /* App Background (gleichmässig dunkler) */
+  -fx-c-app-bg: #2f3133;
 
-  /* Text */
-  -fx-c-text: #030712;
-  -fx-c-text-muted: rgba(3,7,18,0.65);
+  /* Text (muss hell sein im Dark Theme) */
+  -fx-c-text: #e5e7eb;
+  -fx-c-text-muted: rgba(229,231,235,0.65);
 
-  /* Linien / Divider */
-  -fx-c-border: rgba(3,7,18,0.22);
-  -fx-c-divider: rgba(3,7,18,0.28);
+  /* Linien / Divider (gleiche Alpha wie vorher) */
+  -fx-c-border: rgba(229,231,235,0.22);
+  -fx-c-divider: rgba(229,231,235,0.28);
 
   /* Karten (Listen & Aufgaben) */
-  -fx-c-card-bg: #787777;
+  -fx-c-card-bg: #3a3c3f;
 
-  /* Hover / Selection (gleiche Abstufung wie Light) */
-  -fx-c-hover: rgba(37,99,235,0.14);
-  -fx-c-selected: rgba(37,99,235,0.20);
+  /* Hover / Selection (Abstand 0.06 beibehalten) */
+  -fx-c-hover: rgba(96,165,250,0.14);
+  -fx-c-selected: rgba(96,165,250,0.20);
 
-  /* Accent */
-  -fx-c-accent: #1e40af;
-  -fx-c-accent-strong: #1e3a8a;
+  /* Accent (identische Relationen wie Light, nur heller) */
+  -fx-c-accent: #60a5fa;
+  -fx-c-accent-strong: #3b82f6;
 
   /* Buttons */
-  -fx-c-btn-bg: #c7cdd6;
-  -fx-c-btn-hover: #bfdbfe;
-  -fx-c-btn-pressed: #93c5fd;
+  -fx-c-btn-bg: #4b5563;
+  -fx-c-btn-hover: #64748b;
+  -fx-c-btn-pressed: #475569;
 
   /* Footer Buttons */
-  -fx-c-footer-btn-bg: rgba(3,7,18,0.10);
-  -fx-c-footer-btn-hover: rgba(3,7,18,0.16);
+  -fx-c-footer-btn-bg: rgba(229,231,235,0.10);
+  -fx-c-footer-btn-hover: rgba(229,231,235,0.16);
 
   /* Inputs */
-  -fx-c-input-bg: #e5e7eb;
-  -fx-c-input-border: rgba(3,7,18,0.26);
+  -fx-c-input-bg: #4b5563;
+  -fx-c-input-border: rgba(229,231,235,0.26);
 
   /* Statusfarben */
-  -fx-c-danger: #991b1b;
-  -fx-c-danger-hover: #7f1d1d;
-  -fx-c-neutral: #4b5563;
-  -fx-c-neutral-hover: #374151;
+  -fx-c-danger: #f87171;
+  -fx-c-danger-hover: #ef4444;
+  -fx-c-neutral: #9ca3af;
+  -fx-c-neutral-hover: #d1d5db;
 }
