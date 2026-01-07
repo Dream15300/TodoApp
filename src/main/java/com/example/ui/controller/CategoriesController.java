@@ -14,6 +14,7 @@ public class CategoriesController {
 
     private final ListView<Category> listsView;
     private final TodoService service;
+    private ConfirmPopupController deleteConfirmPopup;
 
     public CategoriesController(ListView<Category> listsView, TodoService service) {
         this.listsView = listsView;
@@ -23,6 +24,10 @@ public class CategoriesController {
     public void init() {
         setupCategoryCells();
         loadCategories();
+
+        deleteConfirmPopup = new ConfirmPopupController(listsView);
+        deleteConfirmPopup.init();
+
         if (!listsView.getItems().isEmpty()) {
             listsView.getSelectionModel().selectFirst();
         }
@@ -169,17 +174,21 @@ public class CategoriesController {
     }
 
     private void confirmAndDelete(Category category) {
-        boolean ok = UiDialogs.confirm("Liste löschen", "Liste \"" + category.getName() + "\" wirklich löschen?");
-        if (!ok)
-            return;
+        String msg = "Liste \"" + category.getName() + "\" wirklich löschen?";
 
-        try {
-            service.deleteCategory(category.getId());
-            loadCategories();
-            if (!listsView.getItems().isEmpty())
-                listsView.getSelectionModel().selectFirst();
-        } catch (Exception exception) {
-            UiDialogs.error("Löschen fehlgeschlagen: " + exception.getMessage(), exception);
-        }
+        deleteConfirmPopup.showCentered(msg, () -> {
+            try {
+                service.deleteCategory(category.getId());
+                loadCategories();
+                if (!listsView.getItems().isEmpty()) {
+                    listsView.getSelectionModel().selectFirst();
+                }
+            } catch (Exception exception) {
+                com.example.ui.UiDialogs.error(
+                        "Löschen fehlgeschlagen: " + exception.getMessage(),
+                        exception);
+            }
+        });
     }
+
 }

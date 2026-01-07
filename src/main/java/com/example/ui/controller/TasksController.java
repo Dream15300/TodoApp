@@ -59,10 +59,10 @@ public class TasksController {
     }
 
     public void setOnUserSelection(javafx.beans.value.ChangeListener<TodoItem> listener) {
-        tasksView.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+        tasksView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldV, newV) -> {
             if (suppressSelection)
                 return;
-            listener.changed(obs, oldV, newV);
+            listener.changed(observableValue, oldV, newV);
         });
     }
 

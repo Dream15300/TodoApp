@@ -77,7 +77,6 @@
     -fx-border-color: transparent transparent rgba(255,255,255,0.25) transparent;
     -fx-border-width: 0 0 1 0;
     -fx-pref-height: -1;
-    -fx-min-height: USE_PREF_SIZE;
 }
 .tasks-view .list-cell:empty {
     -fx-border-width: 0;
@@ -92,9 +91,9 @@
 }
 
 .todo-notes-icon {
-    -fx-font-size: 12px;
-    -fx-opacity: 0.75;
-    -fx-padding: 0 4 0 0; /* leicht Abstand zum rechten Rand */
+    -fx-font-size: 18px;
+    -fx-opacity: 0.85;
+    -fx-padding: 0 6 0 6;
 }
 
 
@@ -478,6 +477,17 @@
 .category-add-full-btn:hover   { -fx-background-color: #0d6955; }
 .category-add-full-btn:pressed { -fx-background-color: #0e755f; }
 .category-add-full-btn:disabled { -fx-opacity: 0.6; }
+
+/* =========================================================
+   Neue Liste löschen – Popup 
+   ========================================================= */
+.confirm-popup-card {
+    -fx-padding: 10 16 14 16; /* oben kleiner */
+}
+
+.confirm-message {
+    -fx-padding: 0;
+}
 
 
 /* =========================
