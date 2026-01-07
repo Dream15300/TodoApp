@@ -497,11 +497,10 @@
 
 .check-box .box {
     -fx-background-color: white;
-    -fx-border-color: #9fb1e6;
-    -fx-border-radius: 6;
-    -fx-background-radius: 6;
-    -fx-pref-width: 18;
-    -fx-pref-height: 18;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-pref-width: 14;
+    -fx-pref-height: 14;
 }
 .check-box:selected .box {
     -fx-background-color: #036832;
