@@ -264,34 +264,119 @@
     -fx-background-color: rgba(17,24,39,0.06);
 }
 
-/* =========================
-   DatePicker Popup: Navigation (Monat/Jahr)
-   ========================= */
-.date-picker-popup .month-year-pane {
-    -fx-background-color: rgba(255,255,255,0.98);
-    -fx-padding: 6 8;
+/* =========================================================
+   DatePicker Popup (Kalender) – theme-faehig (LIGHT/DIM)
+   ========================================================= */
+
+/* Popup-Container */
+.date-picker-popup {
+    -fx-background-color: -fx-c-card-bg;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+
+    -fx-border-color: -fx-c-border;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+
+    -fx-padding: 8;
 }
 
-/* Die 4 Navigationsbuttons (<< < > >>) */
+/* Innenflaechen transparent halten, damit der Popup-Background sauber greift */
+.date-picker-popup > .month-year-pane,
+.date-picker-popup > .calendar-grid {
+    -fx-background-color: transparent;
+}
+
+/* Header (Monat/Jahr Leiste) */
+.date-picker-popup .month-year-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 6 8 10 8;
+}
+
+/* Monat/Jahr Text */
+.date-picker-popup .month-year-pane .label {
+    -fx-text-fill: -fx-c-text;
+}
+
+/* Navigationsbuttons (<< < > >>) */
 .date-picker-popup .month-year-pane .spinner .button {
-    -fx-background-color: rgba(0,0,0,0.00);
+    -fx-background-color: transparent;
     -fx-background-radius: 10;
     -fx-padding: 0;
     -fx-pref-width: 34;
     -fx-pref-height: 34;
 }
-
-/* Hover */
 .date-picker-popup .month-year-pane .spinner .button:hover {
-    -fx-background-color: rgba(17,24,39,0.06);
+    -fx-background-color: -fx-c-hover;
+}
+.date-picker-popup .month-year-pane .spinner .button:pressed {
+    -fx-background-color: -fx-c-selected;
 }
 
-/* Pfeile selbst nicht verkleinern */
+/* Pfeile */
 .date-picker-popup .month-year-pane .spinner .left-arrow,
 .date-picker-popup .month-year-pane .spinner .right-arrow {
+    -fx-background-color: -fx-c-text-muted;
     -fx-scale-x: 1.0;
     -fx-scale-y: 1.0;
 }
+
+/* Wochentage (Mo, Di, ...) */
+.date-picker-popup .day-name-cell {
+    -fx-text-fill: -fx-c-text-muted;
+    -fx-font-size: 11px;
+    -fx-padding: 6 0 6 0;
+}
+
+/* Kalenderzellen generell */
+.date-picker-popup .day-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-c-text;
+
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+
+    -fx-border-color: -fx-c-border;
+    -fx-border-width: 1;
+
+    -fx-padding: 6 0 6 0;
+}
+
+/* Hover auf Tagen */
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: -fx-c-hover;
+}
+
+/* Ausgewaehlter Tag */
+.date-picker-popup .day-cell:selected {
+    -fx-background-color: -fx-c-selected;
+    -fx-text-fill: -fx-c-text;
+    -fx-border-color: -fx-c-accent;
+}
+
+/* Heute */
+.date-picker-popup .day-cell:today {
+    -fx-border-color: -fx-c-accent;
+    -fx-border-width: 2;
+}
+
+/* Tage ausserhalb Monat (vor/nach) */
+.date-picker-popup .day-cell:previous-month,
+.date-picker-popup .day-cell:next-month {
+    -fx-text-fill: -fx-c-text-muted;
+    -fx-opacity: 0.75;
+}
+
+/* Week-Number-Spalte (links), falls aktiv */
+.date-picker-popup .week-number-cell {
+    -fx-text-fill: -fx-c-text-muted;
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-c-border;
+    -fx-border-width: 1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
 
 /* =========================
    Footer Buttons

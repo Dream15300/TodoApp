@@ -8,7 +8,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PopupControl;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 public class ConfirmPopupController {
 
@@ -55,7 +54,6 @@ public class ConfirmPopupController {
         card.getChildren().addAll(titleLabel, contentBox);
 
         popup.getScene().setRoot(card);
-        popup.getScene().setFill(Color.TRANSPARENT);
 
         popup.setOnShown(e -> {
             var scene = ownerNode.getScene();

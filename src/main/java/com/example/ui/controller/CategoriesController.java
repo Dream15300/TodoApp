@@ -84,18 +84,11 @@ public class CategoriesController {
 
                 editorItem.setContent(editorBox);
                 editorItem.setHideOnClick(false);
-                editorItem.setStyle("-fx-padding: 0; -fx-background-color: transparent;");
-                editorBox.setStyle("-fx-background-color: transparent;");
                 editorItem.setMnemonicParsing(false);
                 editorItem.getStyleClass().add("category-popup-item");
 
                 editMenu.getItems().setAll(editorItem);
                 editMenu.getStyleClass().add("category-edit-menu");
-                editMenu.setOnShown(e -> {
-                    var scene = editMenu.getScene();
-                    if (scene != null)
-                        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
-                });
 
                 btnEdit.setOnAction(e -> {
                     Category category = getItem();

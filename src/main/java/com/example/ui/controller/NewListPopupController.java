@@ -11,7 +11,6 @@ import javafx.scene.control.PopupControl;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.control.ListView;
 
 import java.util.function.IntConsumer;
@@ -56,7 +55,6 @@ public class NewListPopupController {
         card.getChildren().addAll(lbl, nameField, buttons);
 
         popup.getScene().setRoot(card);
-        popup.getScene().setFill(Color.TRANSPARENT);
 
         popup.setOnShown(e -> {
             var owner = ownerListsView.getScene();

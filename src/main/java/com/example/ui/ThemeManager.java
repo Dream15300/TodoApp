@@ -26,7 +26,7 @@ public final class ThemeManager {
         String v = PREFS.get(KEY_THEME, Theme.DIM.name());
         try {
             return Theme.valueOf(v);
-        } catch (Exception ex) {
+        } catch (Exception exception) {
             return Theme.DIM;
         }
     }
