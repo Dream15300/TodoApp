@@ -157,7 +157,7 @@
                 <argument>--name</argument><argument>${app.name}</argument>
                 <argument>--app-version</argument><argument>${app.version}</argument>
                 <argument>--icon</argument>
-                <argument>${project.basedir}/src/main/resources/HakenIcon.ico</argument>
+                <argument>${project.basedir}/src/main/resources/Haken.ico</argument>
 
                 <!-- Eingabe: unser app Ordner -->
                 <argument>--input</argument><argument>${project.build.directory}/app</argument>
