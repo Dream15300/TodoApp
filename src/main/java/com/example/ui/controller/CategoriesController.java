@@ -49,7 +49,7 @@ public class CategoriesController {
         listsView.setCellFactory(lv -> new ListCell<>() {
 
             private final Label nameLabel = new Label();
-            private final Button btnEdit = new Button("✎");
+            private final Button btnEdit = new Button("⋯");
             private final Region spacer = new Region();
             private final HBox root = new HBox(8, nameLabel, spacer, btnEdit);
 
