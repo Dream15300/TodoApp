@@ -610,7 +610,7 @@
     -fx-background-color: rgba(17,24,39,0.08);
     -fx-text-fill: -fx-c-text;
     -fx-background-radius: 10;
-    -fx-padding: 2 10;
+    -fx-padding: 0 10;
 }
 .toggle-button:selected {
     -fx-background-color: rgba(59,130,246,0.22);

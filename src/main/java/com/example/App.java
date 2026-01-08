@@ -3,6 +3,7 @@ package com.example;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -25,6 +26,11 @@ public class App extends Application {
                 App.class.getResource("/com/example/style.css").toExternalForm());
 
         ThemeManager.applySaved(scene);
+
+        stage.getIcons().add(new Image(App.class.getResource("/com/example/Haken.png").toExternalForm()));
+
+        stage.getIcons().addAll(
+                new Image(App.class.getResource("/com/example/Haken.png").toExternalForm()));
 
         stage.setTitle("To Do");
         stage.setScene(scene);
