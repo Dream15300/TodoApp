@@ -85,7 +85,7 @@
 
                             <Separator/>
 
-                            <Label text="Todo"/>
+                            <Label text="To Do"/>
                             <TextField fx:id="detailsTitle"
                                        promptText="Titel"
                                        maxWidth="Infinity"
