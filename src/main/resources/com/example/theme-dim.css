@@ -1,42 +1,44 @@
+/* ===== com/example/theme-dim.css ===== */
+
 .root {
-  /* App Background (gleichmässig dunkler) */
-  -fx-c-app-bg: #2f3133;
+  /* App Background (light: f3f4f6 -> dim: dunkelgrau) */
+  -fx-c-app-bg: #2f343a;
 
-  /* Text (muss hell sein im Dark Theme) */
-  -fx-c-text: #e5e7eb;
-  -fx-c-text-muted: rgba(229,231,235,0.65);
+  /* Text (light text auf dunklem Hintergrund) */
+  -fx-c-text: #f3f4f6;
+  -fx-c-text-muted: rgba(243,244,246,0.65);
 
-  /* Linien / Divider (gleiche Alpha wie vorher) */
-  -fx-c-border: rgba(229,231,235,0.22);
-  -fx-c-divider: rgba(229,231,235,0.28);
+  /* Linien / Divider (Alpha-Abstaende wie im Light) */
+  -fx-c-border: rgba(243,244,246,0.14);
+  -fx-c-divider: rgba(243,244,246,0.18);
 
-  /* Karten (Listen & Aufgaben) */
-  -fx-c-card-bg: #3a3c3f;
+  /* Karten */
+  -fx-c-card-bg: #3a4048;
 
-  /* Hover / Selection (Abstand 0.06 beibehalten) */
-  -fx-c-hover: rgba(96,165,250,0.14);
-  -fx-c-selected: rgba(96,165,250,0.20);
+  /* Hover / Selection (Alpha-Abstaende beibehalten) */
+  -fx-c-hover: rgba(59,130,246,0.10);
+  -fx-c-selected: rgba(59,130,246,0.14);
 
-  /* Accent (identische Relationen wie Light, nur heller) */
+  /* Accent (gleiches Farbschema, leicht „dim“-tauglich) */
   -fx-c-accent: #60a5fa;
   -fx-c-accent-strong: #3b82f6;
 
   /* Buttons */
-  -fx-c-btn-bg: #4b5563;
-  -fx-c-btn-hover: #64748b;
-  -fx-c-btn-pressed: #475569;
+  -fx-c-btn-bg: #4a515b;
+  -fx-c-btn-hover: #525b66;
+  -fx-c-btn-pressed: #5b6572;
 
-  /* Footer Buttons */
-  -fx-c-footer-btn-bg: rgba(229,231,235,0.10);
-  -fx-c-footer-btn-hover: rgba(229,231,235,0.16);
+  /* Footer Buttons (Alpha-Abstaende wie im Light) */
+  -fx-c-footer-btn-bg: rgba(243,244,246,0.06);
+  -fx-c-footer-btn-hover: rgba(243,244,246,0.10);
 
   /* Inputs */
-  -fx-c-input-bg: #4b5563;
-  -fx-c-input-border: rgba(229,231,235,0.26);
+  -fx-c-input-bg: #333a43;
+  -fx-c-input-border: rgba(243,244,246,0.18);
 
-  /* Statusfarben */
-  -fx-c-danger: #f87171;
-  -fx-c-danger-hover: #ef4444;
+  /* Statusfarben (leicht angepasst fuer dunklen Hintergrund) */
+  -fx-c-danger: #ef4444;
+  -fx-c-danger-hover: #dc2626;
   -fx-c-neutral: #9ca3af;
   -fx-c-neutral-hover: #d1d5db;
 }

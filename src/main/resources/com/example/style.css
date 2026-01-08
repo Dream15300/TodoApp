@@ -36,6 +36,12 @@
   -fx-c-danger-hover: #991b1b;
   -fx-c-neutral: #6b7280;
   -fx-c-neutral-hover: #4b5563;
+
+  /* Kategorien-Edit & Neue Liste Popup*/
+  -fx-c-popup-bg: rgba(255,255,255,0.98);
+  -fx-c-popup-border: rgba(17,24,39,0.20);
+  -fx-c-popup-shadow: rgba(0,0,0,0.20);
+
 }
 
 .app-root {
@@ -401,19 +407,24 @@
    Kategorie – Edit Popup (ContextMenu)
    ========================================================= */
 .category-edit-menu.context-menu {
-    -fx-background-color: rgba(255,255,255,0.98);
+    -fx-background-color: -fx-c-card-bg;
     -fx-background-insets: 0;
     -fx-background-radius: 10;
 
-    -fx-border-color: rgba(17,24,39,0.20);
+    -fx-border-color: -fx-c-border;
     -fx-border-width: 1;
     -fx-border-insets: 0;
     -fx-border-radius: 10;
 
     -fx-padding: 16;
-
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 14, 0.2, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 14, 0.2, 0, 4);
 }
+
+/* Text im ContextMenu sicher auf Theme-Farbe setzen */
+.category-edit-menu.context-menu .label {
+    -fx-text-fill: -fx-c-text;
+}
+
 
 /* 2) Innenlayout vom Skin: alles transparent */
 .category-edit-menu.context-menu > .scroll-pane,
@@ -482,18 +493,24 @@
 
 /* Karte fuer PopupControl (Neue Liste) */
 .category-popup-card {
-    -fx-background-color: rgba(255,255,255,0.98);
+    -fx-background-color: -fx-c-card-bg;
     -fx-background-radius: 10;
     -fx-background-insets: 0;
 
-    -fx-border-color: rgba(17,24,39,0.20);
+    -fx-border-color: -fx-c-border;
     -fx-border-width: 1;
     -fx-border-radius: 10;
     -fx-border-insets: 0;
 
     -fx-padding: 16;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 14, 0.2, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 14, 0.2, 0, 4);
 }
+
+/* Labels im Popup sicher auf Theme-Farbe setzen */
+.category-popup-card .label {
+    -fx-text-fill: -fx-c-text;
+}
+
 
 .category-add-full-btn {
     -fx-background-color: -fx-c-btn-bg;
