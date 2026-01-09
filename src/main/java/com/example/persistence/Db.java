@@ -14,7 +14,7 @@ public final class Db {
 
     // App-spezifische Ablage (stabil bei Installer/Shortcut/verschiedenen Working
     // Directories)
-    private static final String APP_DIR_NAME = "TodoListeZbW";
+    private static final String APP_DIR_NAME = "TodoApp";
     private static final String DB_FILE_NAME = "todo.db";
 
     // Lazy-initialisiert, weil Pfad/Env erst zur Laufzeit sicher bestimmbar ist
@@ -64,7 +64,7 @@ public final class Db {
     private static Path resolveAppDataDbPath() {
         String os = System.getProperty("os.name", "").toLowerCase();
 
-        // Windows: %APPDATA%\TodoListeZbW\todo.db
+        // Windows: %APPDATA%\TodoApp\todo.db
         if (os.contains("win")) {
             String appData = System.getenv("APPDATA");
             if (appData != null && !appData.isBlank()) {
@@ -74,14 +74,14 @@ public final class Db {
             return Paths.get(System.getProperty("user.home"), "AppData", "Roaming", APP_DIR_NAME, DB_FILE_NAME);
         }
 
-        // macOS: ~/Library/Application Support/TodoListeZbW/todo.db
+        // macOS: ~/Library/Application Support/TodoApp/todo.db
         if (os.contains("mac")) {
             return Paths.get(System.getProperty("user.home"), "Library", "Application Support", APP_DIR_NAME,
                     DB_FILE_NAME);
         }
 
-        // Linux/Unix: $XDG_DATA_HOME/TodoListeZbW/todo.db oder
-        // ~/.local/share/TodoListeZbW/todo.db
+        // Linux/Unix: $XDG_DATA_HOME/TodoApp/todo.db oder
+        // ~/.local/share/TodoApp/todo.db
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
             return Paths.get(xdgDataHome, APP_DIR_NAME, DB_FILE_NAME);

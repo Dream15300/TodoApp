@@ -64,10 +64,17 @@ public final class TaskbarDueNotifier {
         if (hasDue && (lastNotifiedDay == null || !lastNotifiedDay.equals(today))) {
             lastNotifiedDay = today;
             if (trayIcon != null) {
+                int count = dueToday;
+
+                String message = (count == 1)
+                        ? "Heute ist 1 Todo fällig."
+                        : "Heute sind " + count + " Todos fällig.";
+
                 trayIcon.displayMessage(
-                        "TodoListeZbW",
-                        "Heute sind " + dueToday + " Todo(s) fällig.",
+                        "TodoApp",
+                        message,
                         TrayIcon.MessageType.WARNING);
+
             }
         }
 
@@ -87,7 +94,7 @@ public final class TaskbarDueNotifier {
             SystemTray tray = SystemTray.getSystemTray();
             Image image = createSimpleTrayImage();
 
-            trayIcon = new TrayIcon(image, "TodoListeZbW");
+            trayIcon = new TrayIcon(image, "TodoApp");
             trayIcon.setImageAutoSize(true);
 
             PopupMenu menu = new PopupMenu();
