@@ -33,6 +33,8 @@ public class TasksController {
 
     private boolean showingDone = false;
 
+    private ConfirmPopupController deleteDoneConfirmPopup;
+
     // verhindert, dass programatische Selektion (Refresh) Details öffnet
     private boolean suppressSelection = false;
 
@@ -56,6 +58,9 @@ public class TasksController {
 
     public void init() {
         setupTodoCells();
+
+        deleteDoneConfirmPopup = new ConfirmPopupController(tasksView);
+        deleteDoneConfirmPopup.init();
     }
 
     public void setOnUserSelection(javafx.beans.value.ChangeListener<TodoItem> listener) {
@@ -146,17 +151,23 @@ public class TasksController {
         if (category == null)
             return;
 
-        boolean ok = UiDialogs.confirm("Erledigte löschen",
-                "Alle erledigten Aufgaben in dieser Liste löschen?");
-        if (!ok)
-            return;
-
-        try {
-            service.deleteDoneTodosByCategory(category.getId());
-            refresh();
-        } catch (Exception exception) {
-            UiDialogs.error("Erledigte Aufgaben konnten nicht gelöscht werden: " + exception.getMessage(), exception);
+        // Sicherstellen, dass init() gelaufen ist (Fallback)
+        if (deleteDoneConfirmPopup == null) {
+            deleteDoneConfirmPopup = new ConfirmPopupController(tasksView);
+            deleteDoneConfirmPopup.init();
         }
+
+        deleteDoneConfirmPopup.showCentered(
+                "Alle erledigten Aufgaben in dieser Liste löschen?",
+                () -> {
+                    try {
+                        service.deleteDoneTodosByCategory(category.getId());
+                        refresh();
+                    } catch (Exception exception) {
+                        UiDialogs.error("Erledigte Aufgaben konnten nicht gelöscht werden: " + exception.getMessage(),
+                                exception);
+                    }
+                });
     }
 
     private void updateHistoryButtons(int doneCount) {
