@@ -9,9 +9,9 @@ public final class UiDialogs {
     private UiDialogs() {
     }
 
-    public static void error(String msg, Exception ex) {
-        if (ex != null)
-            ex.printStackTrace();
+    public static void error(String msg, Exception exception) {
+        if (exception != null)
+            exception.printStackTrace();
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Fehler");

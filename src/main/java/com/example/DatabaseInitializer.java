@@ -40,18 +40,37 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
         }
     }
 
+    // Gibt Inhalt als String zurück
+    /*
+     * 1. Pfad normieren (Classpath-konform)
+     * 2. Resource als InputStream laden
+     * 3. Bytestrom → UTF-8-Zeichenstrom umwandeln
+     * 4. Zeilenweise lesen
+     * 5. Zu einem String zusammenfügen
+     * 6. Fehler sauber kapseln und weiterreichen
+     */
     private static String readResource(String resourcePath) { // Lädt Datei aus Classpath
         String path = resourcePath.startsWith("/") ? resourcePath : "/" + resourcePath; // absoluter Pfad
 
-        try (var initializer = DatabaseInitializer.class.getResourceAsStream(path)) {
+        try (var initializer = DatabaseInitializer.class.getResourceAsStream(path)) { // getResourceAsStream erwartet
+                                                                                      // absoluten Pfad
             if (initializer == null) {
                 throw new IllegalStateException("Resource not found: " + path);
             }
             try (var bufferedReader = new BufferedReader(new InputStreamReader(initializer, StandardCharsets.UTF_8))) { // wandelt
                                                                                                                         // Bytestream
-                // in
-                // UTF-8-Zeichenstrom
-                return bufferedReader.lines().collect(Collectors.joining("\n"));
+                                                                                                                        // in
+                                                                                                                        // UTF-8-Zeichenstrom
+                                                                                                                        // Buffered
+                                                                                                                        // Reader
+                                                                                                                        // -->
+                                                                                                                        // effizientes
+                                                                                                                        // zeilenweises
+                                                                                                                        // Lesen
+                return bufferedReader.lines().collect(Collectors.joining("\n")); // .lines (jede Zeile ein Element)
+                                                                                 // → Stream
+                                                                                 // Collectors.joining("\n")
+                                                                                 // → String mit Zeilenumbruch
             }
         } catch (Exception exception) {
             throw new RuntimeException("Failed to read resource: " + path, exception);
