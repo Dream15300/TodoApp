@@ -1,0 +1,44 @@
+/* ===== com/example/theme-green.css ===== */
+
+.root {
+  /* App Background */
+  -fx-c-app-bg: #1f2d26;
+
+  /* Text */
+  -fx-c-text: #ecfdf5;
+  -fx-c-text-muted: rgba(236,253,245,0.65);
+
+  /* Linien / Divider */
+  -fx-c-border: rgba(236,253,245,0.14);
+  -fx-c-divider: rgba(236,253,245,0.18);
+
+  /* Karten */
+  -fx-c-card-bg: #263b32;
+
+  /* Hover / Selection (green accent) */
+  -fx-c-hover: rgba(34,197,94,0.10);
+  -fx-c-selected: rgba(34,197,94,0.14);
+
+  /* Accent */
+  -fx-c-accent: #22c55e;
+  -fx-c-accent-strong: #16a34a;
+
+  /* Buttons */
+  -fx-c-btn-bg: #2f4a3f;
+  -fx-c-btn-hover: #365447;
+  -fx-c-btn-pressed: #3f6353;
+
+  /* Footer Buttons */
+  -fx-c-footer-btn-bg: rgba(236,253,245,0.06);
+  -fx-c-footer-btn-hover: rgba(236,253,245,0.10);
+
+  /* Inputs */
+  -fx-c-input-bg: #22362c;
+  -fx-c-input-border: rgba(236,253,245,0.18);
+
+  /* Statusfarben */
+  -fx-c-danger: #ef4444;
+  -fx-c-danger-hover: #dc2626;
+  -fx-c-neutral: #9ca3af;
+  -fx-c-neutral-hover: #d1d5db;
+}

@@ -9,24 +9,39 @@ public final class ThemeManager {
     }
 
     private static final Preferences PREFS = Preferences.userNodeForPackage(ThemeManager.class);
-    private static final String KEY_THEME = "ui.theme"; // "LIGHT" | "DIM"
+
+    private static final String KEY_THEME = "ui.theme";
 
     public enum Theme {
         LIGHT("theme-light.css"),
-        DIM("theme-dim.css");
+        DIM("theme-dim.css"),
+        BLUE("theme-blue.css"),
+        GREEN("theme-green.css"),
+        PURPLE("theme-purple.css"),
+        HIGH_CONTRAST("theme-high-contrast.css");
 
-        final String css;
+        final String cssFile;
 
-        Theme(String css) {
-            this.css = css;
+        Theme(String cssFile) {
+            this.cssFile = cssFile;
+        }
+
+        String getCssPath() {
+            return "/com/example/" + cssFile;
         }
     }
 
+    /*
+     * =========================
+     * Load / Save
+     * =========================
+     */
+
     public static Theme loadThemeOrDefault() {
-        String v = PREFS.get(KEY_THEME, Theme.DIM.name());
+        String value = PREFS.get(KEY_THEME, Theme.DIM.name());
         try {
-            return Theme.valueOf(v);
-        } catch (Exception exception) {
+            return Theme.valueOf(value);
+        } catch (IllegalArgumentException exception) {
             return Theme.DIM;
         }
     }
@@ -37,25 +52,35 @@ public final class ThemeManager {
         }
     }
 
+    /*
+     * =========================
+     * Apply Theme
+     * =========================
+     */
+
     public static void apply(Scene scene, Theme theme) {
-        if (scene == null || theme == null)
+        if (scene == null || theme == null) {
             return;
-
-        String base = com.example.App.class.getResource("/com/example/style.css").toExternalForm();
-        String light = com.example.App.class.getResource("/com/example/theme-light.css").toExternalForm();
-        String dim = com.example.App.class.getResource("/com/example/theme-dim.css").toExternalForm();
-
-        // base sicherstellen (optional, falls du base via FXML einbindest)
-        if (!scene.getStylesheets().contains(base)) {
-            scene.getStylesheets().add(0, base);
         }
 
-        // alte Themes entfernen
-        scene.getStylesheets()
-                .removeIf(s -> s.contains("/com/example/theme-light.css") || s.contains("/com/example/theme-dim.css"));
+        String baseCss = com.example.App.class
+                .getResource("/com/example/style.css")
+                .toExternalForm();
 
-        // Theme setzen
-        scene.getStylesheets().add(theme == Theme.LIGHT ? light : dim);
+        // Base-CSS sicherstellen (Layout, Komponenten)
+        if (!scene.getStylesheets().contains(baseCss)) {
+            scene.getStylesheets().add(0, baseCss);
+        }
+
+        // Alle Theme-CSS entfernen
+        scene.getStylesheets().removeIf(s -> s.contains("/com/example/theme-"));
+
+        // Neues Theme hinzufuegen
+        String themeCss = com.example.App.class
+                .getResource(theme.getCssPath())
+                .toExternalForm();
+
+        scene.getStylesheets().add(themeCss);
 
         // Re-Apply erzwingen
         scene.getRoot().applyCss();

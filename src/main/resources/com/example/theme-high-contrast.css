@@ -1,0 +1,44 @@
+/* ===== com/example/theme-high-contrast.css ===== */
+
+.root {
+  /* App Background */
+  -fx-c-app-bg: #000000;
+
+  /* Text */
+  -fx-c-text: #ffffff;
+  -fx-c-text-muted: rgba(255,255,255,0.85);
+
+  /* Linien / Divider */
+  -fx-c-border: rgba(255,255,255,0.70);
+  -fx-c-divider: rgba(255,255,255,0.85);
+
+  /* Karten */
+  -fx-c-card-bg: #000000;
+
+  /* Hover / Selection (yellow accent for max contrast) */
+  -fx-c-hover: rgba(255,255,0,0.18);
+  -fx-c-selected: rgba(255,255,0,0.28);
+
+  /* Accent */
+  -fx-c-accent: #ffff009f;
+  -fx-c-accent-strong: #ffea00;
+
+  /* Buttons */
+  -fx-c-btn-bg: #111111;
+  -fx-c-btn-hover: #1a1a1a;
+  -fx-c-btn-pressed: #222222;
+
+  /* Footer Buttons */
+  -fx-c-footer-btn-bg: rgba(255,255,255,0.10);
+  -fx-c-footer-btn-hover: rgba(255,255,255,0.18);
+
+  /* Inputs */
+  -fx-c-input-bg: #000000;
+  -fx-c-input-border: rgba(255,255,255,0.85);
+
+  /* Statusfarben */
+  -fx-c-danger: #ff0000;
+  -fx-c-danger-hover: #cc0000;
+  -fx-c-neutral: #ffffff5b;
+  -fx-c-neutral-hover: #ffffff7d;
+}

@@ -8,14 +8,14 @@
   -fx-c-text: #f3f4f6;
   -fx-c-text-muted: rgba(243,244,246,0.65);
 
-  /* Linien / Divider (Alpha-Abstaende wie im Light) */
+  /* Linien / Divider (Alpha-Abstände wie im Light) */
   -fx-c-border: rgba(243,244,246,0.14);
   -fx-c-divider: rgba(243,244,246,0.18);
 
   /* Karten */
   -fx-c-card-bg: #3a4048;
 
-  /* Hover / Selection (Alpha-Abstaende beibehalten) */
+  /* Hover / Selection (Alpha-Abstände beibehalten) */
   -fx-c-hover: rgba(59,130,246,0.10);
   -fx-c-selected: rgba(59,130,246,0.14);
 
@@ -28,7 +28,7 @@
   -fx-c-btn-hover: #525b66;
   -fx-c-btn-pressed: #5b6572;
 
-  /* Footer Buttons (Alpha-Abstaende wie im Light) */
+  /* Footer Buttons (Alpha-Abstände wie im Light) */
   -fx-c-footer-btn-bg: rgba(243,244,246,0.06);
   -fx-c-footer-btn-hover: rgba(243,244,246,0.10);
 
@@ -36,7 +36,7 @@
   -fx-c-input-bg: #333a43;
   -fx-c-input-border: rgba(243,244,246,0.18);
 
-  /* Statusfarben (leicht angepasst fuer dunklen Hintergrund) */
+  /* Statusfarben (leicht angepasst für dunklen Hintergrund) */
   -fx-c-danger: #ef4444;
   -fx-c-danger-hover: #dc2626;
   -fx-c-neutral: #9ca3af;

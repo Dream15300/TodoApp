@@ -12,6 +12,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
+import javafx.geometry.Side;
+
 public class PrimaryController {
 
     @FXML
@@ -44,6 +46,7 @@ public class PrimaryController {
 
     @FXML
     private ToggleButton tglTheme;
+    private ContextMenu themeMenu;
 
     private final TodoService service = new TodoService();
 
@@ -103,12 +106,9 @@ public class PrimaryController {
         tasksController.refresh();
 
         if (tglTheme != null) {
-            ThemeManager.Theme saved = ThemeManager.loadThemeOrDefault();
-            boolean dim = (saved == ThemeManager.Theme.DIM);
-
-            tglTheme.setSelected(dim);
-            tglTheme.setText(dim ? "Dim" : "Light");
+            setupThemeMenu();
         }
+
     }
 
     // ------- FXML Actions: delegieren -------
@@ -164,21 +164,77 @@ public class PrimaryController {
         }
     }
 
-    @FXML
-    private void onToggleTheme() {
-        if (tglTheme == null)
-            return;
-        if (tglTheme.getScene() == null)
-            return;
+    // ------- Theme Menu -------
 
-        boolean dim = tglTheme.isSelected();
-        ThemeManager.Theme theme = dim ? ThemeManager.Theme.DIM : ThemeManager.Theme.LIGHT;
+    private void setupThemeMenu() {
+        themeMenu = new ContextMenu();
+        themeMenu.getStyleClass().add("theme-menu"); // CSS Hook
 
-        ThemeManager.apply(tglTheme.getScene(), theme);
-        tglTheme.getScene().getRoot().applyCss();
-        tglTheme.getScene().getRoot().layout();
-        ThemeManager.saveTheme(theme);
+        ToggleGroup group = new ToggleGroup();
 
-        tglTheme.setText(dim ? "Dim" : "Light");
+        // MenuItems fuer alle Themes aus ThemeManager
+        for (ThemeManager.Theme t : ThemeManager.Theme.values()) {
+            RadioMenuItem item = new RadioMenuItem(prettyThemeName(t));
+            item.setToggleGroup(group);
+            item.setUserData(t);
+
+            item.setOnAction(e -> {
+                ThemeManager.Theme selected = (ThemeManager.Theme) item.getUserData();
+                if (tglTheme.getScene() != null) {
+                    ThemeManager.apply(tglTheme.getScene(), selected);
+                    ThemeManager.saveTheme(selected);
+                    setThemeButtonLabel(selected);
+                }
+                themeMenu.hide();
+            });
+
+            themeMenu.getItems().add(item);
+        }
+
+        // Aktuelles Theme selektieren
+        ThemeManager.Theme current = ThemeManager.loadThemeOrDefault();
+        for (var mi : themeMenu.getItems()) {
+            if (mi instanceof RadioMenuItem rmi && rmi.getUserData() == current) {
+                rmi.setSelected(true);
+                break;
+            }
+        }
+
+        // Button-Label setzen
+        setThemeButtonLabel(current);
+
+        // ToggleButton als "Menu-Button" verwenden (kein Toggle-Status noetig)
+        tglTheme.setSelected(false);
+
+        // Klick-Handler: Popup oeffnen/schliessen
+        tglTheme.setOnAction(e -> {
+            if (themeMenu.isShowing()) {
+                themeMenu.hide();
+            } else {
+                // neben Button anzeigen
+                themeMenu.show(tglTheme, Side.BOTTOM, 0, 6);
+            }
+            tglTheme.setSelected(false); // verhindert "eingedrueckt"
+        });
+
+        // Wenn Popup schliesst: Toggle reset
+        themeMenu.setOnHidden(e -> tglTheme.setSelected(false));
     }
+
+    private void setThemeButtonLabel(ThemeManager.Theme theme) {
+        // Kurzer, typischer Label-Text
+        tglTheme.setText(prettyThemeName(theme));
+    }
+
+    private String prettyThemeName(ThemeManager.Theme t) {
+        return switch (t) {
+            case LIGHT -> "Light";
+            case DIM -> "Dim";
+            case BLUE -> "Blue";
+            case GREEN -> "Green";
+            case PURPLE -> "Purple";
+            case HIGH_CONTRAST -> "High Contrast";
+        };
+    }
+
 }

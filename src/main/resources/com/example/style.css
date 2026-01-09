@@ -718,3 +718,25 @@
 .toggle-button:hover {
     -fx-background-color: rgba(17,24,39,0.12);
 }
+
+/* kleines Theme-Auswahl-Popup */
+.theme-menu.context-menu {
+    -fx-background-color: -fx-c-card-bg;
+    -fx-background-radius: 10;
+    -fx-border-color: -fx-c-border;
+    -fx-border-radius: 10;
+    -fx-padding: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 14, 0.2, 0, 4);
+}
+
+.theme-menu .menu-item .label {
+    -fx-text-fill: -fx-c-text;
+    -fx-font-size: 12px;
+}
+
+.theme-menu .menu-item:focused,
+.theme-menu .menu-item:hover {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 8;
+}
+

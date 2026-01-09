@@ -47,8 +47,7 @@
                     <Label text="Aufgaben" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
                     <HBox HBox.hgrow="ALWAYS"/>
                     <ToggleButton fx:id="tglTheme"
-                                  text="Dim"
-                                  onAction="#onToggleTheme"/>
+                                  text="Dim"/>
 
                 </HBox>
 
