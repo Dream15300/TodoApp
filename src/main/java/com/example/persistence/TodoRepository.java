@@ -27,7 +27,7 @@ public class TodoRepository {
             }
 
         } catch (Exception exception) {
-            throw new RuntimeException("Todo-Existenz prüfen fehlgeschlagen", exception);
+            throw new RuntimeException("Todo-Existenz pruefen fehlgeschlagen", exception);
         }
     }
 
@@ -35,37 +35,40 @@ public class TodoRepository {
         String sql = """
                 SELECT Id, CategoryId, Title, DueDate, Notes, Status, Priority
                 FROM TodoItems
-                WHERE CategoryId = ? AND Status = 0
+                WHERE CategoryId = ? AND Status = ?
                 ORDER BY Priority DESC, DueDate IS NULL, DueDate, Id
                 """;
-        return queryList(sql, categoryId);
+
+        return queryByCategoryAndStatus(sql, categoryId, TodoStatus.OPEN);
     }
 
     public List<TodoItem> findDoneByCategory(int categoryId) {
         String sql = """
                 SELECT Id, CategoryId, Title, DueDate, Notes, Status, Priority
                 FROM TodoItems
-                WHERE CategoryId = ? AND Status = 1
+                WHERE CategoryId = ? AND Status = ?
                 ORDER BY DueDate IS NULL, DueDate DESC, Id DESC
                 """;
-        return queryList(sql, categoryId);
+
+        return queryByCategoryAndStatus(sql, categoryId, TodoStatus.DONE);
     }
 
-    private List<TodoItem> queryList(String sql, int categoryId) {
-        List<TodoItem> outputedList = new ArrayList<>();
+    private List<TodoItem> queryByCategoryAndStatus(String sql, int categoryId, TodoStatus status) {
+        List<TodoItem> output = new ArrayList<>();
 
         try (Connection connection = Db.open();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, categoryId);
+            preparedStatement.setInt(2, status.getDbValue());
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    outputedList.add(map(resultSet));
+                    output.add(map(resultSet));
                 }
             }
 
-            return outputedList;
+            return output;
 
         } catch (Exception exception) {
             throw new RuntimeException("Todos laden fehlgeschlagen", exception);
@@ -73,7 +76,10 @@ public class TodoRepository {
     }
 
     public int insert(TodoItem item) {
-        String sql = "INSERT INTO TodoItems (CategoryId, Title, DueDate, Notes, Status, Priority) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = """
+                INSERT INTO TodoItems (CategoryId, Title, DueDate, Notes, Status, Priority)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """;
 
         try (Connection connection = Db.open();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql,
@@ -83,7 +89,7 @@ public class TodoRepository {
             preparedStatement.setString(2, item.getTitle());
             preparedStatement.setString(3, item.getDueDate() == null ? null : item.getDueDate().toString());
             preparedStatement.setString(4, item.getNotes());
-            preparedStatement.setInt(5, toDbStatus(item.getStatus()));
+            preparedStatement.setInt(5, item.getStatus().getDbValue());
             preparedStatement.setInt(6, item.getPriority());
 
             preparedStatement.executeUpdate();
@@ -93,10 +99,10 @@ public class TodoRepository {
                     return keys.getInt(1);
                 }
             }
-            throw new RuntimeException("Keine ID zurückgegeben");
+            throw new RuntimeException("Keine ID zurueckgegeben");
 
         } catch (Exception exception) {
-            throw new RuntimeException("Todo einfügen fehlgeschlagen", exception);
+            throw new RuntimeException("Todo einfuegen fehlgeschlagen", exception);
         }
     }
 
@@ -106,7 +112,7 @@ public class TodoRepository {
         try (Connection connection = Db.open();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, toDbStatus(status));
+            preparedStatement.setInt(1, status.getDbValue());
             preparedStatement.setInt(2, todoId);
 
             int affected = preparedStatement.executeUpdate();
@@ -120,7 +126,7 @@ public class TodoRepository {
     }
 
     /**
-     * Aktualisiert Titel, DueDate und Notes.
+     * Aktualisiert Title, DueDate und Notes.
      * - DueDate: null -> DB NULL
      * - Notes: blank/null -> DB NULL
      */
@@ -135,7 +141,7 @@ public class TodoRepository {
             if (dueDate == null) {
                 preparedStatement.setNull(2, Types.VARCHAR);
             } else {
-                preparedStatement.setString(2, dueDate.toString()); // yyyy-MM-dd
+                preparedStatement.setString(2, dueDate.toString());
             }
 
             if (notes == null || notes.isBlank()) {
@@ -165,13 +171,13 @@ public class TodoRepository {
         try (Connection connection = Db.open();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, toDbStatus(TodoStatus.DONE));
+            preparedStatement.setInt(1, TodoStatus.DONE.getDbValue());
             preparedStatement.setInt(2, categoryId);
 
             preparedStatement.executeUpdate();
 
         } catch (Exception exception) {
-            throw new RuntimeException("Erledigte Todos löschen fehlgeschlagen", exception);
+            throw new RuntimeException("Erledigte Todos loeschen fehlgeschlagen", exception);
         }
     }
 
@@ -181,20 +187,12 @@ public class TodoRepository {
         String title = resultSet.getString("Title");
         String due = resultSet.getString("DueDate");
         String notes = resultSet.getString("Notes");
-        int status = resultSet.getInt("Status");
+        int statusValue = resultSet.getInt("Status");
         int priority = resultSet.getInt("Priority");
 
         LocalDate dueDate = (due == null || due.isBlank()) ? null : LocalDate.parse(due);
-        TodoStatus todoStatus = fromDbStatus(status);
+        TodoStatus todoStatus = TodoStatus.fromDbValue(statusValue);
 
         return new TodoItem(id, catId, title, dueDate, notes, todoStatus, priority);
-    }
-
-    private int toDbStatus(TodoStatus converStatus) {
-        return (converStatus == TodoStatus.DONE) ? 1 : 0;
-    }
-
-    private TodoStatus fromDbStatus(int reverseConvertStatus) {
-        return (reverseConvertStatus == 1) ? TodoStatus.DONE : TodoStatus.OPEN;
     }
 }
