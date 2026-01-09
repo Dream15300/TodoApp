@@ -138,7 +138,6 @@
 .todo-notes-icon {
     -fx-font-size: 18px;
     -fx-opacity: 0.85;
-    -fx-padding: 0 6 0 6;
     -fx-text-fill: -fx-c-accent;
 }
 

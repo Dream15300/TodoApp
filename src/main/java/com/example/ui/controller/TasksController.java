@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
+import javafx.scene.control.OverrunStyle;
 
 public class TasksController {
 
@@ -229,6 +230,12 @@ public class TasksController {
 
                 notesIcon.getStyleClass().add("todo-notes-icon");
                 notesIcon.setAlignment(Pos.CENTER);
+                notesIcon.setMinWidth(40);
+                notesIcon.setPrefWidth(40);
+                notesIcon.setMaxWidth(40);
+
+                // Falls es doch eng wird: nicht "…" rendern
+                notesIcon.setTextOverrun(OverrunStyle.CLIP);
                 notesIcon.setManaged(false);
                 notesIcon.setVisible(false);
 
