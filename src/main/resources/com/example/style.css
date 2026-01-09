@@ -550,6 +550,21 @@
     -fx-min-width: 420;
 }
 
+/* Titel/Label im Kategorien-Popup angleichen */
+.category-popup-box .label {
+    -fx-font-size: 14px;   /* oder 13px, je nachdem wie "Name der neuen Liste" aussieht */
+    -fx-font-weight: bold; /* optional */
+}
+
+/* TextField im Kategorien-Popup angleichen */
+.category-popup-box .text-field {
+    -fx-font-size: 13px;
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+    -fx-background-radius: 13;
+}
+
+
 /* 6) Buttons im Kategorien-Edit-Popup */
 .category-popup-btn-cancel,
 .category-popup-btn-save,
