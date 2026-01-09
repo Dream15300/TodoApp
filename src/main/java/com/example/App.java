@@ -9,8 +9,12 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 import com.example.ui.ThemeManager;
+import com.example.service.TodoService;
+import com.example.ui.TaskbarDueNotifier;
 
 public class App extends Application {
+
+    private TaskbarDueNotifier dueNotifier;
 
     @Override
     public void init() {
@@ -29,12 +33,20 @@ public class App extends Application {
 
         stage.getIcons().add(new Image(App.class.getResource("/com/example/Haken.png").toExternalForm()));
 
-        stage.getIcons().addAll(
-                new Image(App.class.getResource("/com/example/Haken.png").toExternalForm()));
-
         stage.setTitle("To Do");
         stage.setScene(scene);
         stage.show();
+
+        TodoService service = new TodoService();
+        dueNotifier = new TaskbarDueNotifier(service);
+        dueNotifier.start();
+
+        stage.setOnCloseRequest(e -> {
+            if (dueNotifier != null) {
+                dueNotifier.stop();
+            }
+        });
+
     }
 
     public static void main(String[] args) {

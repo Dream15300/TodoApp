@@ -211,4 +211,26 @@ public class TodoRepository {
 
         return new TodoItem(id, catId, title, dueDate, notes, todoStatus, priority);
     }
+
+    public int countByDueDateAndStatus(LocalDate dueDate, TodoStatus status) {
+        String sql = "SELECT COUNT(*) FROM TodoItems WHERE DueDate = ? AND Status = ?";
+
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, dueDate.toString()); // yyyy-MM-dd
+            preparedStatement.setInt(2, status.getDbValue());
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+                return 0;
+            }
+
+        } catch (Exception exception) {
+            throw new RuntimeException("Todo-Count (DueDate/Status) laden fehlgeschlagen", exception);
+        }
+    }
+
 }

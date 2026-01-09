@@ -87,4 +87,8 @@ public class TodoService {
     public void markOpen(int todoId) {
         todoRepo.updateStatus(todoId, TodoStatus.OPEN);
     }
+
+    public int countDueTodayOpen() {
+        return todoRepo.countByDueDateAndStatus(LocalDate.now(), TodoStatus.OPEN);
+    }
 }

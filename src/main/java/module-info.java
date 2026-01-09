@@ -5,6 +5,8 @@ module com.example {
 
     requires javafx.base;
 
+    requires java.desktop;
+
     requires java.sql;
     requires java.prefs;
     requires org.xerial.sqlitejdbc;
@@ -14,4 +16,7 @@ module com.example {
 
     exports com.example;
     exports com.example.ui;
+    exports com.example.service;
+    exports com.example.domain;
+
 }
