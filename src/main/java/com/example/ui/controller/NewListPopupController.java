@@ -58,8 +58,22 @@ public class NewListPopupController {
 
         popup.setOnShown(e -> {
             var owner = ownerListsView.getScene();
-            if (owner != null)
+            if (owner != null) {
                 popup.getScene().getStylesheets().setAll(owner.getStylesheets());
+            }
+
+            // Nach dem Anzeigen: zentrieren + Fokus sicher aufs Popup/Textfeld setzen
+            Platform.runLater(() -> {
+                centerInOwnerScene();
+
+                var popupWindow = popup.getScene().getWindow();
+                if (popupWindow != null) {
+                    popupWindow.requestFocus();
+                }
+
+                nameField.requestFocus();
+                nameField.selectAll();
+            });
         });
 
         btnCancel.setOnAction(e -> popup.hide());
@@ -68,8 +82,9 @@ public class NewListPopupController {
     }
 
     public void toggleShowCentered() {
-        if (ownerListsView == null || ownerListsView.getScene() == null)
+        if (ownerListsView == null || ownerListsView.getScene() == null) {
             return;
+        }
 
         if (popup.isShowing()) {
             popup.hide();
@@ -78,15 +93,6 @@ public class NewListPopupController {
 
         nameField.clear();
         popup.show(ownerListsView, 0, 0);
-
-        Platform.runLater(() -> {
-            centerInOwnerScene();
-            Platform.runLater(() -> {
-                ownerListsView.getScene().getWindow().requestFocus();
-                nameField.requestFocus();
-                nameField.selectAll();
-            });
-        });
     }
 
     private void centerInOwnerScene() {
@@ -109,8 +115,9 @@ public class NewListPopupController {
 
     private void commit() {
         String name = nameField.getText() == null ? "" : nameField.getText().trim();
-        if (name.isEmpty())
+        if (name.isEmpty()) {
             return;
+        }
 
         try {
             int newId = service.createCategory(name);
