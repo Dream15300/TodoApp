@@ -7,13 +7,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen auf TodoItems
+public class TodoRepository {
 
-    public boolean hasTodos(int categoryId) { // Prüft, ob Todos für eine bestimmte Kategorie existieren
+    public boolean hasTodos(int categoryId) {
         String sql = "SELECT 1 FROM TodoItems WHERE CategoryId = ? LIMIT 1";
 
         try (Connection connection = Db.open();
@@ -30,40 +31,38 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
         }
     }
 
-    public List<TodoItem> findOpenByCategory(int categoryId) { // Findet alle offenen Todos für eine bestimmte Kategorie
+    public List<TodoItem> findOpenByCategory(int categoryId) {
         String sql = """
                 SELECT Id, CategoryId, Title, DueDate, Notes, Status, Priority
                 FROM TodoItems
                 WHERE CategoryId = ? AND Status = 0
                 ORDER BY Priority DESC, DueDate IS NULL, DueDate, Id
-                    """;
+                """;
         return queryList(sql, categoryId);
     }
 
-    public List<TodoItem> findDoneByCategory(int categoryId) { // Findet alle erledigten Todos für eine bestimmte
-                                                               // Kategorie
+    public List<TodoItem> findDoneByCategory(int categoryId) {
         String sql = """
                 SELECT Id, CategoryId, Title, DueDate, Notes, Status, Priority
                 FROM TodoItems
                 WHERE CategoryId = ? AND Status = 1
                 ORDER BY DueDate IS NULL, DueDate DESC, Id DESC
-                    """;
+                """;
         return queryList(sql, categoryId);
     }
 
-    private List<TodoItem> queryList(String sql, int categoryId) { // Hilfsmethode zur Abfrage von TodoItems, mappt
-                                                                   // (Datenübertragung)
-                                                                   // ResultSet zu Liste von TodoItems
+    private List<TodoItem> queryList(String sql, int categoryId) {
         List<TodoItem> outputedList = new ArrayList<>();
 
         try (Connection connection = Db.open();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, categoryId); // Setzt Kategorie-ID im PreparedStatement an erster Stelle
+            preparedStatement.setInt(1, categoryId);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) { // Führt Abfrage aus und erhält ResultSet
-                while (resultSet.next())
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
                     outputedList.add(map(resultSet));
+                }
             }
 
             return outputedList;
@@ -73,14 +72,12 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
         }
     }
 
-    public int insert(TodoItem item) { // Fügt ein neues TodoItem in die Datenbank ein und gibt die generierte DB-ID
-                                       // zurück
+    public int insert(TodoItem item) {
         String sql = "INSERT INTO TodoItems (CategoryId, Title, DueDate, Notes, Status, Priority) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = Db.open();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql,
-                        Statement.RETURN_GENERATED_KEYS)) { // PreparedStatement zum Einfügen mit Rückgabe der
-                                                            // generierten Schlüssel
+                        Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setInt(1, item.getCategoryId());
             preparedStatement.setString(2, item.getTitle());
@@ -92,8 +89,9 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
             preparedStatement.executeUpdate();
 
             try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
-                if (keys.next())
+                if (keys.next()) {
                     return keys.getInt(1);
+                }
             }
             throw new RuntimeException("Keine ID zurückgegeben");
 
@@ -102,8 +100,7 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
         }
     }
 
-    public void updateStatus(int todoId, TodoStatus status) { // Aktualisiert den Status eines TodoItems anhand seiner
-                                                              // ID
+    public void updateStatus(int todoId, TodoStatus status) {
         String sql = "UPDATE TodoItems SET Status = ? WHERE Id = ?";
 
         try (Connection connection = Db.open();
@@ -111,14 +108,74 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
 
             preparedStatement.setInt(1, toDbStatus(status));
             preparedStatement.setInt(2, todoId);
-            preparedStatement.executeUpdate();
+
+            int affected = preparedStatement.executeUpdate();
+            if (affected == 0) {
+                throw new IllegalStateException("Todo nicht gefunden: Id=" + todoId);
+            }
 
         } catch (Exception exception) {
             throw new RuntimeException("Todo-Status aktualisieren fehlgeschlagen", exception);
         }
     }
 
-    private TodoItem map(ResultSet resultSet) throws Exception { // Mapped eine ResultSet-Zeile zu einem TodoItem-Objekt
+    /**
+     * Aktualisiert Titel, DueDate und Notes.
+     * - DueDate: null -> DB NULL
+     * - Notes: blank/null -> DB NULL
+     */
+    public void updateTodo(int todoId, String title, LocalDate dueDate, String notes) {
+        String sql = "UPDATE TodoItems SET Title = ?, DueDate = ?, Notes = ? WHERE Id = ?";
+
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, title);
+
+            if (dueDate == null) {
+                preparedStatement.setNull(2, Types.VARCHAR);
+            } else {
+                preparedStatement.setString(2, dueDate.toString()); // yyyy-MM-dd
+            }
+
+            if (notes == null || notes.isBlank()) {
+                preparedStatement.setNull(3, Types.VARCHAR);
+            } else {
+                preparedStatement.setString(3, notes);
+            }
+
+            preparedStatement.setInt(4, todoId);
+
+            int affected = preparedStatement.executeUpdate();
+            if (affected == 0) {
+                throw new IllegalStateException("Todo nicht gefunden: Id=" + todoId);
+            }
+
+        } catch (Exception exception) {
+            throw new RuntimeException("Todo aktualisieren fehlgeschlagen", exception);
+        }
+    }
+
+    public void deleteDoneByCategory(int categoryId) {
+        String sql = """
+                DELETE FROM TodoItems
+                WHERE Status = ? AND CategoryId = ?
+                """;
+
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, toDbStatus(TodoStatus.DONE));
+            preparedStatement.setInt(2, categoryId);
+
+            preparedStatement.executeUpdate();
+
+        } catch (Exception exception) {
+            throw new RuntimeException("Erledigte Todos löschen fehlgeschlagen", exception);
+        }
+    }
+
+    private TodoItem map(ResultSet resultSet) throws Exception {
         int id = resultSet.getInt("Id");
         int catId = resultSet.getInt("CategoryId");
         String title = resultSet.getString("Title");
@@ -127,19 +184,17 @@ public class TodoRepository { // Repository-Klasse für CRUD-/Query-Operationen 
         int status = resultSet.getInt("Status");
         int priority = resultSet.getInt("Priority");
 
-        LocalDate dueDate = (due == null || due.isBlank()) ? null : LocalDate.parse(due); // Konvertiert DueDate-String
-                                                                                          // zu LocalDate
+        LocalDate dueDate = (due == null || due.isBlank()) ? null : LocalDate.parse(due);
         TodoStatus todoStatus = fromDbStatus(status);
 
         return new TodoItem(id, catId, title, dueDate, notes, todoStatus, priority);
     }
 
-    private int toDbStatus(TodoStatus converStatus) { // Konvertiert TodoStatus-Enum zu DB-kompatiblen Integer-Wert
+    private int toDbStatus(TodoStatus converStatus) {
         return (converStatus == TodoStatus.DONE) ? 1 : 0;
     }
 
-    private TodoStatus fromDbStatus(int reverseConvertStatus) { // Konvertiert DB-kompatiblen Integer-Wert zu
-                                                                // TodoStatus-Enum
+    private TodoStatus fromDbStatus(int reverseConvertStatus) {
         return (reverseConvertStatus == 1) ? TodoStatus.DONE : TodoStatus.OPEN;
     }
 }
