@@ -1,24 +1,32 @@
-# Projekt: To-Do-Liste ZbW / Aufgabenverwaltung
+# Projektinformationen
+
+# Projekt: **TodoApp** – Aufgabenverwaltung
 
 ## 1. Ausgangslage
 
-Es soll im Rahmen des Programmierprojekts an der ZbW eine To-Do-Liste (Aufgabenverwaltung) entwickelt werden. Das Programm dient der strukturierten Erfassung, Bearbeitung und Verwaltung von Aufgaben. Die Daten werden persistent in einer Datenbank gespeichert. Zusaetzlich sind UML, ERM, GUI-Entwurf sowie eine Prozessbeschreibung zu erstellen. Die Versionierung erfolgt mit GitLab, inklusive Exportmoeglichkeit der Datenbank zur Wiederherstellung.
+Im Rahmen des Programmierprojekts an der ZbW wird eine moderne Aufgabenverwaltung (**TodoApp**) entwickelt.
+Die Anwendung dient der strukturierten Erfassung, Organisation und Bearbeitung von Aufgaben und Kategorien mit persistenter Speicherung in einer SQLite-Datenbank.
+
+Das Projekt umfasst neben der Implementierung auch konzeptionelle Artefakte wie UML-Klassendiagramm, ERM, GUI-Entwurf sowie eine Prozessbeschreibung.
+Die Versionierung erfolgt mittels Git. Eine Export- und Wiederherstellungsfunktion der Datenbank ist vorgesehen.
 
 ---
 
 ## 2. Zielsetzung
 
-Ziel ist die Entwicklung einer benutzerfreundlichen To-Do-Anwendung mit klarer Struktur, nachvollziehbarer Architektur und sauberem Datenmodell.
+Ziel ist die Entwicklung einer **klar strukturierten, benutzerfreundlichen Desktop-Anwendung** mit sauberer Architektur, konsistentem Design und erweiterbarer Codebasis.
 
-Ziele im Ueberblick:
+### Ziele im Überblick
 
 - Verwaltung von Aufgaben (CRUD)
-- Status-, Prioritaets- und Faelligkeitsverwaltung
-- Persistente Datenspeicherung
-- Grafische Benutzeroberflaeche (GUI)
+- Kategoriebasierte Organisation
+- Fälligkeits- und Statusverwaltung
+- Persistente Datenspeicherung (SQLite)
+- Moderne JavaFX-GUI
+- Mehrere UI-Farbthemes (umschaltbar)
 - UML-Klassendiagramm und ERM
 - Datenbank-Export und -Wiederherstellung
-- Versionsverwaltung mit GitLab
+- Versionsverwaltung mit Git
 
 ---
 
@@ -29,166 +37,131 @@ Ziele im Ueberblick:
 - Aufgabe erstellen
 - Aufgabe anzeigen (Listenansicht)
 - Aufgabe bearbeiten
-- Aufgabe loeschen
-- Status verwalten: Offen, In Arbeit, Erledigt
-- Prioritaet setzen
-- Faelligkeitsdatum erfassen
-- Suche und Filter (Status, Prioritaet, Kategorie)
+- Aufgabe löschen
+- Aufgabenstatus verwalten (Offen, Erledigt)
+- Fälligkeitsdatum erfassen
+- Kategorien erstellen, bearbeiten und löschen
+- Aufgaben nach Kategorie filtern
+- Persistente Speicherung in SQLite
+- Grafische Benutzeroberfläche (JavaFX)
 
-### 3.2 Kann-Funktionen
+### 3.2 Erweiterte Funktionen (bereits umgesetzt oder vorbereitet)
 
-- Kategorien
-- Tags (mehrere pro Aufgabe)
-- Archiv fuer erledigte Aufgaben
-- Export als CSV/JSON
+- Archivbereich für erledigte Aufgaben
+- Kontextmenüs (z. B. Kategorien bearbeiten)
+- Dynamische Themes (Light, Dim, Blue, Green, Purple, High Contrast)
+- Theme-Auswahl über Toggle-/Popup-Menue
+- Tastatur- und Mausinteraktion
+- Konsistente Styling-Variablen über alle Themes
 
 ---
 
-## 4. GUI-Uebersicht (Konzept)
+## 4. GUI-Übersicht
 
 ### Hauptfenster
 
-**Linke Seite: Aufgabenliste**
+#### Linke Seite – Kategorien
 
-- Suchfeld
-- Filter (Status, Prioritaet, Kategorie)
-- Aufgabenliste mit Spalten:
+- Kategorienliste
+- Aktive Kategorie hervorgehoben
+- Kontextmenü pro Kategorie (Bearbeiten / Löschen)
+- Button: **+ Neue Liste**
+
+#### Rechte Seite – Aufgaben
+
+- Aufgabenliste der selektierten Kategorie
+- Anzeige:
 
   - Titel
-  - Prioritaet
-  - Faelligkeitsdatum
-  - Status
+  - Fälligkeitsdatum
+  - Status (Checkbox)
 
-**Rechte Seite: Detailansicht**
+- Bereich **„Erledigt“** (einklappbar)
+- Button: **+ Neue Aufgabe**
 
-- Titel (Pflichtfeld)
-- Beschreibung
-- Prioritaet (Low / Medium / High)
-- Status
-- Faelligkeitsdatum (DatePicker)
-- Kategorie
-- Tags
+#### Kopfbereich
 
-**Buttons:**
-
-- Neu
-- Speichern
-- Bearbeiten
-- Loeschen
-- Abbrechen
-
-### Menue
-
-- Datei
-
-  - Datenbank exportieren
-  - Datenbank importieren
-
-- Hilfe
-
-  - About
+- Applikationstitel
+- Theme-Anzeige / Theme-Auswahl (Popup)
 
 ---
 
-## 5. UML – Klassendiagramm (Beschreibung)
+## 5. Architekturübersicht (UML – Beschreibung)
 
-### Klassen
+### Zentrale Klassen
 
 #### TodoItem
 
-**Attribute:**
+**Attribute**
 
-- Id: int (Eindeutiger Primaerschluessel der Aufgabe in der Datenbank.)
-- Title: string (Kurzbeschreibung der Aufgabe. Pflichtfeld, zentrales Identifikationsmerkmal fuer den Benutzer.)
-- Description: string (Optionale Detailbeschreibung der Aufgabe.)
-- DueDate: DateTime? (Faelligkeitsdatum der Aufgabe. Nullable, da Aufgaben auch ohne Termin existieren koennen.)
-- Status: TodoStatus (Aktueller Bearbeitungszustand der Aufgabe. Typischer Enum: Open, InProgress, Done)
-- Priority: Priority (Wichtigkeit der Aufgabe. Enum, z.B.: Low, Medium, High)
-- CategoryId: int? (Fremdschluessel auf Category.id. Ordnet die Aufgabe optional genau einer Kategorie zu.)
+- id : int
+- title : String
+- dueDate : LocalDate?
+- completed : boolean
+- categoryId : int
 
-**Methoden:**
+**Methoden**
 
-- MarkDone() (Setzt den Status der Aufgabe auf Done.)
-- SetStatus(status) (Aendert den Status gezielt auf einen definierten Wert (z.B. Open → InProgress).)
-- IsOverdue(now): bool (Prueft, ob das Faelligkeitsdatum vor dem aktuellen Zeitpunkt liegt und der Status nicht Done ist.)
+- isOverdue(today) : boolean
+- toggleCompleted()
+
+---
 
 #### Category
 
-**Attribute:**
+**Attribute**
 
-- Id: int (Primaerschluessel der Kategorie.)
-- Name: string (Bezeichnung der Kategorie (z.B. „Schule“, „Arbeit“, „Privat“). Muss eindeutig sein.)
+- id : int
+- name : String
 
-**Methoden:**
+**Methoden**
 
-- Rename(name) (Aendert den Namen der Kategorie.)
+- rename(name)
 
-#### Tag
+---
 
-**Attribute:**
+#### TodoService
 
-- Id: int (Primaerschluessel des Tags.)
-- Name: string (Bezeichnung des Tags (z.B. „dringend“, „optional“). Eindeutig.)
+Business-Logik-Schicht zwischen GUI und Persistence.
 
-**Methoden:**
+**Methoden**
 
-- Rename(name) (Aendert den Namen des Tags.)
+- createTodo(...)
+- updateTodo(...)
+- deleteTodo(id)
+- toggleDone(id)
+- getTodosByCategory(categoryId)
 
-#### TodoService (Business-Logik-Schicht. Vermittelt zwischen GUI und Repository.(Fachlogik und Validierung))
+---
 
-**Methoden:**
+#### Repository-Schicht
 
-- CreateTodo(dto) (Erstellt ein neues TodoItem aus GUI-Eingaben (DTO), validiert Daten und speichert es.)
-- UpdateTodo(id, dto) (Aktualisiert ein bestehendes TodoItem anhand der ID und neuer Eingabedaten.)
-- DeleteTodo(id) (Loescht eine Aufgabe inklusive zugehoeriger Tag-Zuordnungen.)
-- GetTodos(filter) (Liefert Aufgaben fuer die GUI, delegiert die Abfrage an das Repository.)
-- ToggleDone(id) (Wechselt den Status einer Aufgabe zwischen Done und Open/InProgress.)
-
-#### TodoRepository (Zugriffsschicht auf die Datenbank (Persistence Layer).Keine Business-Logik.)
-
-**Methoden:**
-
-- InsertTodo(todo) (Speichert ein neues TodoItem in der Datenbank.)
-- UpdateTodo(todo) (Aktualisiert ein bestehendes TodoItem in der Datenbank.)
-- DeleteTodo(id) (Entfernt ein TodoItem anhand seiner ID aus der Datenbank.)
-- QueryTodos(filter) (Liefert eine Liste von TodoItems basierend auf Filterkriterien (Status, Prioritaet, Textsuche, Kategorie).)
+- Kapselt SQLite-Zugriffe
+- Keine Business-Logik
+- Saubere Trennung von UI und Datenhaltung
 
 ---
 
 ## 6. ERM – Entity-Relationship-Modell
 
-### Entitaeten
+### Entitäten
 
 #### TodoItems
 
-- Id (PK)
-- Title
-- Description
-- DueDate
-- Status
-- Priority
-- CategoryId (FK)
+- id (PK)
+- title
+- dueDate
+- completed
+- categoryId (FK)
 
 #### Categories
 
-- Id (PK)
-- Name (UNIQUE)
-
-#### Tags
-
-- Id (PK)
-- Name (UNIQUE)
-
-#### TodoItemTags
-
-- TodoItemId (FK)
-- TagId (FK)
-- Zusammengesetzter PK (TodoItemId, TagId)
+- id (PK)
+- name (UNIQUE)
 
 ### Beziehungen
 
 - Category 1 : n TodoItems
-- TodoItems n : m Tags
 
 ---
 
@@ -196,67 +169,82 @@ Ziele im Ueberblick:
 
 ### Aufgabe erfassen
 
-1. Benutzer klickt auf "Neu"
-2. Formular wird angezeigt
+1. Benutzer klickt auf **„Neue Aufgabe“**
+2. Eingabefeld wird aktiviert
 3. Pflichtfelder werden validiert
 4. Aufgabe wird gespeichert
-5. Aufgabenliste wird aktualisiert
+5. UI wird automatisch aktualisiert
 
-### Aufgabe erledigen
+### Kategorie verwalten
 
-1. Aufgabe auswaehlen
-2. Status auf "Erledigt" setzen
-3. Datenbank aktualisieren
+1. Kontextmenü öffnen
+2. Kategorie bearbeiten oder löschen
+3. Änderungen werden persistent gespeichert
 
-### Filtern und Suchen
+### Theme wechseln
 
-1. Filter setzen oder Suchtext eingeben
-2. Aufgabenliste wird dynamisch aktualisiert
-
----
-
-## 8. Datenbank-Export und Wiederherstellung
-
-### Export
-
-- Export der SQLite-Datenbank als Datei (Backup)
-- Dateiname mit Zeitstempel
-
-### Import
-
-- Import einer bestehenden DB-Datei
-- Wiederherstellung des gesamten Datenbestands
+1. Theme-Toggle anklicken
+2. Popup mit Theme-Auswahl erscheint
+3. Theme wird sofort angewendet
+4. Auswahl wird persistent gespeichert
 
 ---
 
-## 9. Versionierung mit GitLab
+## 8. Datenhaltung
+
+- SQLite-Datenbank
+- Initialisierung beim ersten Start
+- Struktur über Code definiert
+- Vorbereitung für Export / Import vorhanden
+
+---
+
+## 9. Versionierung
 
 ### Repository-Struktur
 
-- src/ : Quellcode
-- docs/ : Dokumentation (Markdown, Diagramme)
-- db/ : Datenbank oder Migrationen
+- `src/` – Quellcode
+- `resources/` – FXML, CSS, Assets
+- `db/` – Datenbankdateien
+- `docs/` – Diagramme und Dokumentation
 
-### Versionierung
+### Vorgehen
 
-- Regelmaessige Commits
-- Saubere Commit-Messages
-- Finaler Release-Tag fuer Abgabe
+- Regelmässige Commits
+- Nachvollziehbare Commit-Messages
+- Erweiterbarkeit und Wartbarkeit im Fokus
 
 ---
 
 ## 10. Zusammenfassung
 
-Das Projekt To-Do-Liste erfuellt die Anforderungen der Aufgabenstellung durch eine klare Trennung von GUI, Logik und Datenhaltung. UML, ERM und Prozessbeschreibungen sorgen fuer Nachvollziehbarkeit und Wartbarkeit. Die Anwendung ist erweiterbar und praxisnah umgesetzt.
+**TodoApp** ist eine moderne, erweiterbare JavaFX-Aufgabenverwaltung mit klarer Architektur, konsistentem UI-Design und sauberer Trennung von Logik und Datenhaltung.
+Durch die Verwendung von CSS-Variablen, mehreren Themes und strukturierter Business-Logik eignet sich das Projekt sowohl als Ausbildungsprojekt als auch als Grundlage für weiterführende Erweiterungen.
 
-# **Klassendiagramm**
+---
 
-![[assets/UML-Klassendiagramm-ToDoListe.drawio.svg]]
+## Klassendiagramm
 
-# **ERM-Modell**
+```
+assets/UML-Klassendiagramm-ToDoListe.drawio.svg
+```
 
-![[assets/ERM-Modell-ToDoListe.drawio.svg]]
+## ERM-Modell
 
-# **Farbpalette**
+```
+assets/ERM-Modell-ToDoListe.drawio.svg
+```
 
-https://paletton.com/#uid=13b0u0kllllaFw0g0qFqFg0w0aF
+## Farbkonzept
+
+- Einheitliche CSS-Variablen (`-fx-c-*`)
+- Themes:
+
+  - Light
+  - Dim
+  - Blue
+  - Green
+  - Purple
+  - High Contrast
+
+---
