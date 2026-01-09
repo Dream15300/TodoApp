@@ -183,8 +183,9 @@
       "bases:Create new base": false
     }
   },
-  "active": "84e3c45535b66615",
+  "active": "2d5d9a305eb5fa6c",
   "lastOpenFiles": [
+    "image-1.png",
     "src/main/java/App.java",
     "src/main/java",
     "pom.xml",
@@ -195,7 +196,6 @@
     "src/main/resources/db",
     "src/main/resources",
     "src/main",
-    "src",
     "assets/ERM-Modell-ToDoListe.drawio.svg",
     "assets/UML-Klassendiagramm-ToDoListe.drawio.svg",
     "UML-Klassendiagramm-ToDoListe.drawio.svg"

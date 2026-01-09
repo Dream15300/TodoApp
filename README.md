@@ -1,5 +1,9 @@
 # Projektinformationen
 
+![alt text](image.png)
+
+![alt text](image-1.png)
+
 # Projekt: **TodoApp** – Aufgabenverwaltung
 
 ## 1. Ausgangslage
