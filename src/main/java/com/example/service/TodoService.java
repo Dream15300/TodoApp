@@ -47,6 +47,10 @@ public class TodoService {
         return todoRepo.findDoneByCategory(categoryId);
     }
 
+    public int countDoneTodosForCategory(int categoryId) {
+        return todoRepo.countByCategoryAndStatus(categoryId, TodoStatus.DONE);
+    }
+
     public int addTodo(int categoryId, String title, LocalDate dueDate) {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Titel ist Pflicht");
@@ -76,7 +80,6 @@ public class TodoService {
         todoRepo.deleteDoneByCategory(categoryId);
     }
 
-    // Todos erledigt / nicht erledigt
     public void markDone(int todoId) {
         todoRepo.updateStatus(todoId, TodoStatus.DONE);
     }

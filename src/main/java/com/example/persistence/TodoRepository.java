@@ -27,7 +27,28 @@ public class TodoRepository {
             }
 
         } catch (Exception exception) {
-            throw new RuntimeException("Todo-Existenz pruefen fehlgeschlagen", exception);
+            throw new RuntimeException("Todo-Existenz prüfen fehlgeschlagen", exception);
+        }
+    }
+
+    public int countByCategoryAndStatus(int categoryId, TodoStatus status) {
+        String sql = "SELECT COUNT(*) FROM TodoItems WHERE CategoryId = ? AND Status = ?";
+
+        try (Connection connection = Db.open();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, categoryId);
+            preparedStatement.setInt(2, status.getDbValue());
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+                return 0;
+            }
+
+        } catch (Exception exception) {
+            throw new RuntimeException("Todo-Count laden fehlgeschlagen", exception);
         }
     }
 
@@ -99,10 +120,10 @@ public class TodoRepository {
                     return keys.getInt(1);
                 }
             }
-            throw new RuntimeException("Keine ID zurueckgegeben");
+            throw new RuntimeException("Keine ID zurückgegeben");
 
         } catch (Exception exception) {
-            throw new RuntimeException("Todo einfuegen fehlgeschlagen", exception);
+            throw new RuntimeException("Todo einfügen fehlgeschlagen", exception);
         }
     }
 
@@ -125,11 +146,6 @@ public class TodoRepository {
         }
     }
 
-    /**
-     * Aktualisiert Title, DueDate und Notes.
-     * - DueDate: null -> DB NULL
-     * - Notes: blank/null -> DB NULL
-     */
     public void updateTodo(int todoId, String title, LocalDate dueDate, String notes) {
         String sql = "UPDATE TodoItems SET Title = ?, DueDate = ?, Notes = ? WHERE Id = ?";
 
@@ -177,7 +193,7 @@ public class TodoRepository {
             preparedStatement.executeUpdate();
 
         } catch (Exception exception) {
-            throw new RuntimeException("Erledigte Todos loeschen fehlgeschlagen", exception);
+            throw new RuntimeException("Erledigte Todos löschen fehlgeschlagen", exception);
         }
     }
 

@@ -8,14 +8,13 @@ import com.example.ui.TodoUiText;
 import com.example.ui.UiDialogs;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.layout.*;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
-import javafx.scene.control.OverrunStyle;
 
 public class TasksController {
 
@@ -95,35 +94,61 @@ public class TasksController {
 
     public void refresh() {
         Category category = selectedCategorySupplier.get();
-        tasksView.getItems().clear();
+
+        // Selektion merken (stabil über Refresh, weil Instanzen neu geladen werden)
+        Integer selectedId = null;
+        TodoItem selected = tasksView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            selectedId = selected.getId();
+        }
 
         if (category == null) {
+            suppressSelection = true;
+            try {
+                tasksView.getItems().setAll(List.of());
+                tasksView.getSelectionModel().clearSelection();
+            } finally {
+                suppressSelection = false;
+            }
             updateHistoryButtons(0);
-            clearSelectionProgrammatically();
             return;
         }
 
-        int doneCount = service.getDoneTodosForCategory(category.getId()).size();
+        int doneCount = service.countDoneTodosForCategory(category.getId());
 
         List<TodoItem> items = showingDone
                 ? service.getDoneTodosForCategory(category.getId())
                 : service.getOpenTodosForCategory(category.getId());
 
-        Comparator<TodoItem> byDueDateAsc = Comparator
-                .comparing(TodoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(TodoItem::getTitle, String.CASE_INSENSITIVE_ORDER);
-
-        items.sort(byDueDateAsc);
-
         suppressSelection = true;
         try {
             tasksView.getItems().setAll(items);
-            tasksView.getSelectionModel().clearSelection();
+
+            // Selektion wiederherstellen (per ID)
+            if (selectedId != null) {
+                int idx = indexOfId(items, selectedId);
+                if (idx >= 0) {
+                    tasksView.getSelectionModel().select(idx);
+                    tasksView.scrollTo(idx);
+                } else {
+                    tasksView.getSelectionModel().clearSelection();
+                }
+            } else {
+                tasksView.getSelectionModel().clearSelection();
+            }
         } finally {
             suppressSelection = false;
         }
 
         updateHistoryButtons(doneCount);
+    }
+
+    private int indexOfId(List<TodoItem> items, int id) {
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getId() == id)
+                return i;
+        }
+        return -1;
     }
 
     public void onAddTask() {
@@ -152,7 +177,6 @@ public class TasksController {
         if (category == null)
             return;
 
-        // Sicherstellen, dass init() gelaufen ist (Fallback)
         if (deleteDoneConfirmPopup == null) {
             deleteDoneConfirmPopup = new ConfirmPopupController(tasksView);
             deleteDoneConfirmPopup.init();
@@ -245,10 +269,11 @@ public class TasksController {
                         return;
 
                     try {
-                        if (item.getStatus() == TodoStatus.DONE)
+                        if (item.getStatus() == TodoStatus.DONE) {
                             service.markOpen(item.getId());
-                        else
+                        } else {
                             service.markDone(item.getId());
+                        }
                         refresh();
                     } catch (Exception exception) {
                         checkBox.setSelected(item.getStatus() == TodoStatus.DONE);
