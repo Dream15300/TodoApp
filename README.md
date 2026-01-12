@@ -1,10 +1,8 @@
 # Projektinformationen
 
-**Download (2 Möglichkeiten):**
+**Download:**
 
-1. Im Projekt im Ordner target/installer To Do-1.0.0.msi herunterladen.
-
-2. Falls Sicherheitsbedenken bestehen: Projektdateien kontrollieren, danach mvn clean package (erstellt den installer von neuem). Anschliessend wieder im Projekt im Ordner target/installer To Do-1.0.0.msi herunterladen.
+Projektdateien kontrollieren, danach im Terminal des Projektes "mvn clean package" (erstellt den installer von neuem). Anschliessend im Projekt im Ordner target/installer To Do-1.0.0.msi herunterladen.
 
 ![alt text](image.png)
 
