@@ -27,7 +27,7 @@ public class App extends Application {
         Scene scene = new Scene(loader.load(), 900, 600);
 
         scene.getStylesheets().add(
-                App.class.getResource("/com/example/style.css").toExternalForm());
+                App.class.getResource("/com/example/css/style.css").toExternalForm());
 
         ThemeManager.applySaved(scene);
 

@@ -27,7 +27,7 @@ public final class ThemeManager {
         }
 
         String getCssPath() {
-            return "/com/example/" + cssFile;
+            return "/com/example/css/" + cssFile;
         }
     }
 
@@ -64,7 +64,7 @@ public final class ThemeManager {
         }
 
         String baseCss = com.example.App.class
-                .getResource("/com/example/style.css")
+                .getResource("/com/example/css/style.css")
                 .toExternalForm();
 
         // Base-CSS sicherstellen (Layout, Komponenten)
@@ -73,7 +73,7 @@ public final class ThemeManager {
         }
 
         // Alle Theme-CSS entfernen
-        scene.getStylesheets().removeIf(s -> s.contains("/com/example/theme-"));
+        scene.getStylesheets().removeIf(s -> s.contains("/com/example/css/theme-"));
 
         // Neues Theme hinzufuegen
         String themeCss = com.example.App.class
