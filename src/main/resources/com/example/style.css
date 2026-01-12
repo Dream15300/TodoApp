@@ -631,6 +631,7 @@
     -fx-border-width: 1;
     -fx-border-radius: 10;
     -fx-border-insets: 0;
+    -fx-pref-width: 323;
 
     -fx-padding: 16;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 14, 0.2, 0, 4);
@@ -639,6 +640,8 @@
 /* Labels im Popup sicher auf Theme-Farbe setzen */
 .category-popup-card .label {
     -fx-text-fill: -fx-c-text;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
 }
 
 
@@ -708,10 +711,14 @@
    ========================================================= */
 .confirm-popup-card {
     -fx-padding: 10 16 14 16; /* oben kleiner */
+    -fx-pref-width: -1;
+    -fx-min-width: -1;
+    -fx-max-width: -1;
 }
 
 .confirm-message {
     -fx-padding: 0;
+    -fx-wrap-text: false;
 }
 
 /* =========================

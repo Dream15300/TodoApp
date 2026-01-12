@@ -34,8 +34,8 @@ public class NewListPopupController {
     private String selectedIcon = "📁";
 
     private static final List<String> ICONS = List.of(
-            "📁", "💼", "🎓", "🏠", "⭐",
-            "🛒", "💡", "🧾", "📌", "✅");
+            "📁", "🛒", "💼", "🎓", "🏠",
+            "⭐", "💡", "📌", "✅", "🍕", "🎾", "💘");
 
     public NewListPopupController(ListView<Category> ownerListsView, TodoService service, IntConsumer onCreated) {
         this.ownerListsView = ownerListsView;
@@ -56,8 +56,8 @@ public class NewListPopupController {
 
         nameField.getStyleClass().add("category-popup-input");
 
-        Label lblIcon = new Label("Icon:");
-        lblIcon.getStyleClass().add("category-popup-label");
+        // Label lblIcon = new Label("Icon:");
+        // lblIcon.getStyleClass().add("category-popup-label");
 
         FlowPane iconGrid = buildIconGrid();
         iconGrid.getStyleClass().add("icon-grid");
@@ -74,7 +74,8 @@ public class NewListPopupController {
         HBox buttons = new HBox(6, spacer, btnCancel, btnSave);
         buttons.setAlignment(Pos.CENTER_RIGHT);
 
-        card.getChildren().addAll(lblName, nameField, lblIcon, iconGrid, buttons);
+        card.getChildren().addAll(lblName, nameField, iconGrid, buttons); // lblIcon in Klammern setzen, wenn
+                                                                          // Icon-Auswahl wieder rein soll
 
         popup.getScene().setRoot(card);
 
