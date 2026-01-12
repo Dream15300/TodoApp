@@ -193,6 +193,9 @@ public class PrimaryController {
         if (ok) {
             detailsController.close();
             tasksController.refresh();
+            tasksController.clearSelectionProgrammatically();
+            tasksView.requestFocus(); // optional: Fokus in Liste statt im Details-Panel
+
         }
     }
 

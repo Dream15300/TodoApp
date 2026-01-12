@@ -8,7 +8,6 @@ import com.example.ui.TodoUiText;
 import com.example.ui.UiDialogs;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.OverrunStyle;
 import javafx.scene.layout.*;
 
 import java.time.format.DateTimeFormatter;

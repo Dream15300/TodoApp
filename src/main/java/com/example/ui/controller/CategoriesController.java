@@ -67,7 +67,7 @@ public class CategoriesController {
         nameEditor.getStyleClass().add("category-popup-input");
         nameEditor.setMaxWidth(Double.MAX_VALUE);
 
-        Label lblName = new Label("Name:");
+        Label lblName = new Label("Name der Liste:");
 
         iconGrid = buildIconGrid();
 
