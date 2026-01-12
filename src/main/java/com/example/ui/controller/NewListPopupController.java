@@ -134,17 +134,21 @@ public class NewListPopupController {
 
         for (String icon : ICONS) {
             Button b = new Button(icon);
-            b.getStyleClass().add("icon-btn");
+            b.getStyleClass().add("category-icon-btn");
+
             if (icon.equals(selectedIcon)) {
-                b.getStyleClass().add("icon-btn-selected");
+                b.getStyleClass().add("selected");
             }
 
             b.setOnAction(e -> {
                 selectedIcon = icon;
 
                 // alle Buttons entmarkieren, dann aktuellen markieren
-                pane.getChildren().forEach(n -> n.getStyleClass().remove("icon-btn-selected"));
-                b.getStyleClass().add("icon-btn-selected");
+                pane.getChildren().forEach(n -> n.getStyleClass().remove("selected"));
+                b.getStyleClass().add("selected");
+
+                // optional: echter Fokus (Tastaturfokus) falls gewünscht
+                // b.requestFocus();
             });
 
             pane.getChildren().add(b);
