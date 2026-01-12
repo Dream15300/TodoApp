@@ -272,7 +272,7 @@
 }
 
 /* =========================================================
-   DatePicker Popup (Kalender) – theme-faehig (LIGHT/DIM)
+   DatePicker Popup (Kalender) – theme-fähig (LIGHT/DIM)
    ========================================================= */
 
 /* Popup-Container */
@@ -288,7 +288,7 @@
     -fx-padding: 8;
 }
 
-/* Innenflaechen transparent halten, damit der Popup-Background sauber greift */
+/* Innenflächen transparent halten, damit der Popup-Background sauber greift */
 .date-picker-popup > .month-year-pane,
 .date-picker-popup > .calendar-grid {
     -fx-background-color: transparent;
@@ -354,7 +354,7 @@
     -fx-background-color: -fx-c-hover;
 }
 
-/* Ausgewaehlter Tag */
+/* Ausgewählter Tag */
 .date-picker-popup .day-cell:selected {
     -fx-background-color: -fx-c-selected;
     -fx-text-fill: -fx-c-text;
@@ -555,13 +555,13 @@
     -fx-background-color: transparent;
     -fx-padding: 0;
     -fx-spacing: 12;
-    -fx-min-width: 420;
+    -fx-pref-width: 339;
 }
 
 /* Titel/Label im Kategorien-Popup angleichen */
 .category-popup-box .label {
-    -fx-font-size: 14px;   /* oder 13px, je nachdem wie "Name der neuen Liste" aussieht */
-    -fx-font-weight: bold; /* optional */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
 }
 
 /* TextField im Kategorien-Popup angleichen */
@@ -689,7 +689,6 @@
     -fx-background-color: -fx-c-btn-pressed;
 }
 
-/* AUSGEWAEHLT (deine Klasse "selected") */
 .category-icon-btn.selected {
     -fx-background-color: -fx-c-accent;
     -fx-text-fill: white;
@@ -716,7 +715,7 @@
 }
 
 /* =========================
-   Checkbox (vollstaendig eigenes Skinning)
+   Checkbox
    ========================= */
 .check-box {
     -fx-padding: 0 10 0 0;

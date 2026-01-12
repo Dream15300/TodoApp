@@ -14,6 +14,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
@@ -66,8 +68,11 @@ public class NewListPopupController {
         Button btnSave = new Button("Speichern");
         btnSave.getStyleClass().add("category-popup-btn-save");
 
-        HBox buttons = new HBox(12, btnCancel, btnSave);
-        buttons.setAlignment(Pos.CENTER);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox buttons = new HBox(6, spacer, btnCancel, btnSave);
+        buttons.setAlignment(Pos.CENTER_RIGHT);
 
         card.getChildren().addAll(lblName, nameField, lblIcon, iconGrid, buttons);
 

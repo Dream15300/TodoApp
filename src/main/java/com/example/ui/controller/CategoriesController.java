@@ -27,7 +27,7 @@ public class CategoriesController {
     // Icon-Set
     private static final List<String> ICONS = List.of(
             "📁", "🛒", "💼", "🎓", "🏠",
-            "⭐", "💡", "🧾", "📌", "✅");
+            "⭐", "💡", "📌", "✅", "🍕", "🎾", "💘");
 
     public CategoriesController(ListView<Category> listsView, TodoService service) {
         this.listsView = listsView;
