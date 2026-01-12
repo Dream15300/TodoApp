@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS Categories (
   Id    INTEGER PRIMARY KEY AUTOINCREMENT,
-  Name  TEXT NOT NULL UNIQUE
+  Name  TEXT NOT NULL UNIQUE,
+  Icon  TEXT
 );
 
 CREATE TABLE IF NOT EXISTS TodoItems (
@@ -10,7 +11,6 @@ CREATE TABLE IF NOT EXISTS TodoItems (
   DueDate     TEXT,
   Notes       TEXT,
   Status      INTEGER NOT NULL,
-  Priority    INTEGER NOT NULL,
   CategoryId  INTEGER,
   FOREIGN KEY (CategoryId) REFERENCES Categories(Id)
     ON DELETE SET NULL

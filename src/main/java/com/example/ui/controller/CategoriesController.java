@@ -3,8 +3,10 @@ package com.example.ui.controller;
 import com.example.domain.Category;
 import com.example.service.TodoService;
 import com.example.ui.UiDialogs;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -16,12 +18,24 @@ public class CategoriesController {
     private final TodoService service;
     private ConfirmPopupController deleteConfirmPopup;
 
+    // Edit-Popup (PopupControl statt ContextMenu -> kein Abschneiden)
+    private final PopupControl editPopup = new PopupControl();
+    private TextField nameEditor;
+    private FlowPane iconGrid;
+    private String selectedIcon;
+
+    // Icon-Set
+    private static final List<String> ICONS = List.of(
+            "📁", "🛒", "💼", "🎓", "🏠",
+            "⭐", "💡", "🧾", "📌", "✅");
+
     public CategoriesController(ListView<Category> listsView, TodoService service) {
         this.listsView = listsView;
         this.service = service;
     }
 
     public void init() {
+        setupEditPopup();
         setupCategoryCells();
         loadCategories();
 
@@ -45,6 +59,139 @@ public class CategoriesController {
                 .ifPresent(c -> listsView.getSelectionModel().select(c));
     }
 
+    private void setupEditPopup() {
+        editPopup.setAutoHide(true);
+        editPopup.setHideOnEscape(true);
+
+        nameEditor = new TextField();
+        nameEditor.getStyleClass().add("category-popup-input");
+        nameEditor.setMaxWidth(Double.MAX_VALUE);
+
+        Label lblName = new Label("Name:");
+
+        iconGrid = buildIconGrid();
+
+        Button btnSave = new Button("Speichern");
+        Button btnCancel = new Button("Abbrechen");
+        Button btnDelete = new Button("Löschen");
+
+        btnSave.getStyleClass().add("category-popup-btn-save");
+        btnCancel.getStyleClass().add("category-popup-btn-cancel");
+        btnDelete.getStyleClass().add("category-popup-btn-danger");
+
+        HBox buttonsRow = new HBox(6, btnDelete, btnCancel, btnSave);
+        buttonsRow.setAlignment(Pos.CENTER_RIGHT);
+
+        VBox editorBox = new VBox(10);
+        editorBox.getStyleClass().addAll("category-popup-box", "category-edit-popup-card");
+
+        editorBox.setFillWidth(true);
+        editorBox.setPadding(new Insets(12));
+        editorBox.getChildren().setAll(lblName, nameEditor, iconGrid, buttonsRow);
+
+        // Root ins Popup
+        editPopup.getScene().setRoot(editorBox);
+        editPopup.setOnShown(e -> {
+            var owner = listsView.getScene();
+            if (owner != null) {
+                // wie NewListPopup: Stylesheets sauber uebernehmen
+                editPopup.getScene().getStylesheets().setAll(owner.getStylesheets());
+
+                // optional: Theme-Klassen vom Haupt-Root uebernehmen (falls du sowas nutzt)
+                var mainRoot = owner.getRoot();
+                var popupRoot = editPopup.getScene().getRoot();
+
+                popupRoot.getStyleClass().removeIf(c -> c.equals("dim") || c.equals("light"));
+                if (mainRoot.getStyleClass().contains("dim"))
+                    popupRoot.getStyleClass().add("dim");
+                if (mainRoot.getStyleClass().contains("light"))
+                    popupRoot.getStyleClass().add("light");
+            }
+
+            Platform.runLater(() -> {
+                nameEditor.requestFocus();
+                nameEditor.selectAll();
+            });
+        });
+
+        // Actions (Category wird über userData am Popup gehalten)
+        btnCancel.setOnAction(e -> editPopup.hide());
+        btnSave.setOnAction(e -> commitEdit());
+        nameEditor.setOnAction(e -> commitEdit());
+
+        btnDelete.setOnAction(e -> {
+            Category category = (Category) editPopup.getUserData();
+            if (category == null) {
+                editPopup.hide();
+                return;
+            }
+            editPopup.hide();
+            confirmAndDelete(category);
+        });
+    }
+
+    private FlowPane buildIconGrid() {
+        FlowPane pane = new FlowPane();
+        pane.getStyleClass().add("category-icon-grid");
+        pane.setHgap(8);
+        pane.setVgap(8);
+
+        for (String icon : ICONS) {
+            Button b = new Button(icon);
+            b.getStyleClass().add("category-icon-btn");
+            b.setFocusTraversable(false);
+            b.setOnAction(e -> {
+                selectedIcon = icon;
+                applyIconSelection();
+            });
+            pane.getChildren().add(b);
+        }
+        return pane;
+    }
+
+    private void applyIconSelection() {
+        for (Node n : iconGrid.getChildren()) {
+            if (n instanceof Button b) {
+                boolean isSelected = b.getText().equals(selectedIcon);
+                if (isSelected) {
+                    if (!b.getStyleClass().contains("selected")) {
+                        b.getStyleClass().add("selected");
+                    }
+                } else {
+                    b.getStyleClass().remove("selected");
+                }
+            }
+        }
+    }
+
+    private void showEditPopup(Node anchor, Category category) {
+        if (category == null)
+            return;
+
+        editPopup.setUserData(category);
+
+        nameEditor.setText(category.getName());
+        nameEditor.selectAll();
+
+        String icon = category.getIcon();
+        selectedIcon = (icon == null || icon.isBlank()) ? ICONS.getFirst() : icon.trim();
+        applyIconSelection();
+
+        // Falls Popup bereits offen: neu positionieren
+        if (editPopup.isShowing()) {
+            editPopup.hide();
+        }
+
+        // Position: unterhalb des Buttons (Screen-Koordinaten)
+        var bounds = anchor.localToScreen(anchor.getBoundsInLocal());
+        double x = bounds.getMinX();
+        double y = bounds.getMaxY() + 6;
+
+        editPopup.show(anchor, x, y);
+
+        Platform.runLater(() -> nameEditor.requestFocus());
+    }
+
     private void setupCategoryCells() {
         listsView.setCellFactory(lv -> new ListCell<>() {
 
@@ -53,73 +200,24 @@ public class CategoriesController {
             private final Region spacer = new Region();
             private final HBox root = new HBox(8, nameLabel, spacer, btnEdit);
 
-            private final ContextMenu editMenu = new ContextMenu();
-            private final TextField nameEditor = new TextField();
-            private final Button btnSave = new Button("Speichern");
-            private final Button btnCancel = new Button("Abbrechen");
-            private final Button btnDelete = new Button("Löschen");
-
-            private final VBox editorBox = new VBox(6);
-            private final HBox buttonsRow = new HBox(6);
-            private final CustomMenuItem editorItem = new CustomMenuItem();
-
             {
                 root.setAlignment(Pos.CENTER_LEFT);
                 HBox.setHgrow(spacer, Priority.ALWAYS);
 
                 btnEdit.getStyleClass().add("category-edit-btn");
-                nameEditor.getStyleClass().add("category-popup-input");
-                nameEditor.setMaxWidth(Double.MAX_VALUE);
-                HBox.setHgrow(nameEditor, Priority.ALWAYS);
-
-                btnSave.getStyleClass().add("category-popup-btn-save");
-                btnCancel.getStyleClass().add("category-popup-btn-cancel");
-                btnDelete.getStyleClass().add("category-popup-btn-danger");
-
-                buttonsRow.getChildren().setAll(btnDelete, btnCancel, btnSave);
-                buttonsRow.setAlignment(Pos.CENTER_RIGHT);
-
-                editorBox.getStyleClass().add("category-popup-box");
-                editorBox.getChildren().setAll(new Label("Name:"), nameEditor, buttonsRow);
-
-                editorItem.setContent(editorBox);
-                editorItem.setHideOnClick(false);
-                editorItem.setMnemonicParsing(false);
-                editorItem.getStyleClass().add("category-popup-item");
-
-                editMenu.getItems().setAll(editorItem);
-                editMenu.getStyleClass().add("category-edit-menu");
+                nameLabel.getStyleClass().add("category-name");
 
                 btnEdit.setOnAction(e -> {
                     Category category = getItem();
                     if (category == null)
                         return;
-
-                    nameEditor.setText(category.getName());
-                    nameEditor.selectAll();
-
-                    if (editMenu.isShowing())
-                        editMenu.hide();
-                    editMenu.show(btnEdit, Side.BOTTOM, 0, 6);
-
-                    nameEditor.requestFocus();
+                    showEditPopup(btnEdit, category);
                 });
 
-                btnCancel.setOnAction(e -> editMenu.hide());
-                btnSave.setOnAction(e -> commitRename());
-                nameEditor.setOnAction(e -> commitRename());
-
-                btnDelete.setOnAction(e -> {
-                    Category category = getItem();
-                    if (category == null)
-                        return;
-                    editMenu.hide();
-                    confirmAndDelete(category);
-                });
-
+                // Popup schliessen, wenn Cell-Item wechselt (scroll/refresh)
                 itemProperty().addListener((obs, oldV, newV) -> {
-                    if (editMenu.isShowing())
-                        editMenu.hide();
+                    if (editPopup.isShowing())
+                        editPopup.hide();
                 });
             }
 
@@ -130,40 +228,48 @@ public class CategoriesController {
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
-                    if (editMenu.isShowing())
-                        editMenu.hide();
+                    setContentDisplay(ContentDisplay.TEXT_ONLY);
                     return;
                 }
 
-                nameLabel.setText(item.getName());
+                String icon = item.getIcon();
+                if (icon != null && !icon.isBlank()) {
+                    nameLabel.setText(icon.trim() + " " + item.getName());
+                } else {
+                    nameLabel.setText(item.getName());
+                }
+
                 setText(null);
                 setGraphic(root);
-            }
-
-            private void commitRename() {
-                Category category = getItem();
-                if (category == null) {
-                    editMenu.hide();
-                    return;
-                }
-
-                String newName = nameEditor.getText() == null ? "" : nameEditor.getText().trim();
-                if (newName.isEmpty()) {
-                    editMenu.hide();
-                    return;
-                }
-
-                try {
-                    service.renameCategory(category.getId(), newName);
-                    loadCategories();
-                    reselectById(category.getId());
-                    editMenu.hide();
-                } catch (Exception exception) {
-                    editMenu.hide();
-                    UiDialogs.error("Bearbeiten fehlgeschlagen: " + exception.getMessage(), exception);
-                }
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             }
         });
+    }
+
+    private void commitEdit() {
+        Category category = (Category) editPopup.getUserData();
+        if (category == null) {
+            editPopup.hide();
+            return;
+        }
+
+        String newName = nameEditor.getText() == null ? "" : nameEditor.getText().trim();
+        if (newName.isEmpty()) {
+            editPopup.hide();
+            return;
+        }
+
+        try {
+            // Voraussetzung: TodoService.updateCategory(id, name, icon) existiert.
+            service.updateCategory(category.getId(), newName, selectedIcon);
+
+            loadCategories();
+            reselectById(category.getId());
+            editPopup.hide();
+        } catch (Exception exception) {
+            editPopup.hide();
+            UiDialogs.error("Bearbeiten fehlgeschlagen: " + exception.getMessage(), exception);
+        }
     }
 
     private void confirmAndDelete(Category category) {
@@ -177,11 +283,8 @@ public class CategoriesController {
                     listsView.getSelectionModel().selectFirst();
                 }
             } catch (Exception exception) {
-                com.example.ui.UiDialogs.error(
-                        "Löschen fehlgeschlagen: " + exception.getMessage(),
-                        exception);
+                UiDialogs.error("Löschen fehlgeschlagen: " + exception.getMessage(), exception);
             }
         });
     }
-
 }

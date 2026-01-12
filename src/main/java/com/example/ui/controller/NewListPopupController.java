@@ -4,27 +4,36 @@ import com.example.domain.Category;
 import com.example.service.TodoService;
 import com.example.ui.UiDialogs;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.ListView;
 
+import java.util.List;
 import java.util.function.IntConsumer;
 
 public class NewListPopupController {
 
     private final PopupControl popup = new PopupControl();
+
     private final TextField nameField = new TextField();
 
     private final ListView<Category> ownerListsView;
     private final TodoService service;
-
-    // Callback: neue Kategorie-ID (damit caller reselect/refresh machen kann)
     private final IntConsumer onCreated;
+
+    private String selectedIcon = "📁";
+
+    private static final List<String> ICONS = List.of(
+            "📁", "💼", "🎓", "🏠", "⭐",
+            "🛒", "💡", "🧾", "📌", "✅");
 
     public NewListPopupController(ListView<Category> ownerListsView, TodoService service, IntConsumer onCreated) {
         this.ownerListsView = ownerListsView;
@@ -36,12 +45,20 @@ public class NewListPopupController {
         popup.setAutoHide(true);
         popup.setHideOnEscape(true);
 
-        VBox card = new VBox(10);
+        VBox card = new VBox(12);
         card.getStyleClass().add("category-popup-card");
         card.setFillWidth(true);
 
-        Label lbl = new Label("Name der neuen Liste:");
+        Label lblName = new Label("Name der neuen Liste:");
+        lblName.getStyleClass().add("category-popup-label");
+
         nameField.getStyleClass().add("category-popup-input");
+
+        Label lblIcon = new Label("Icon:");
+        lblIcon.getStyleClass().add("category-popup-label");
+
+        FlowPane iconGrid = buildIconGrid();
+        iconGrid.getStyleClass().add("icon-grid");
 
         Button btnCancel = new Button("Abbrechen");
         btnCancel.getStyleClass().add("category-popup-btn-cancel");
@@ -52,7 +69,7 @@ public class NewListPopupController {
         HBox buttons = new HBox(12, btnCancel, btnSave);
         buttons.setAlignment(Pos.CENTER);
 
-        card.getChildren().addAll(lbl, nameField, buttons);
+        card.getChildren().addAll(lblName, nameField, lblIcon, iconGrid, buttons);
 
         popup.getScene().setRoot(card);
 
@@ -62,15 +79,12 @@ public class NewListPopupController {
                 popup.getScene().getStylesheets().setAll(owner.getStylesheets());
             }
 
-            // Nach dem Anzeigen: zentrieren + Fokus sicher aufs Popup/Textfeld setzen
             Platform.runLater(() -> {
                 centerInOwnerScene();
-
                 var popupWindow = popup.getScene().getWindow();
                 if (popupWindow != null) {
                     popupWindow.requestFocus();
                 }
-
                 nameField.requestFocus();
                 nameField.selectAll();
             });
@@ -78,7 +92,16 @@ public class NewListPopupController {
 
         btnCancel.setOnAction(e -> popup.hide());
         btnSave.setOnAction(e -> commit());
+
+        // ENTER im Textfeld = speichern
         nameField.setOnAction(e -> commit());
+
+        // ESC im Textfeld = schliessen
+        nameField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                popup.hide();
+            }
+        });
     }
 
     public void toggleShowCentered() {
@@ -92,7 +115,36 @@ public class NewListPopupController {
         }
 
         nameField.clear();
+        selectedIcon = "📁";
+
         popup.show(ownerListsView, 0, 0);
+    }
+
+    private FlowPane buildIconGrid() {
+        FlowPane pane = new FlowPane();
+        pane.setHgap(8);
+        pane.setVgap(8);
+        pane.setPadding(new Insets(2, 0, 2, 0));
+
+        for (String icon : ICONS) {
+            Button b = new Button(icon);
+            b.getStyleClass().add("icon-btn");
+            if (icon.equals(selectedIcon)) {
+                b.getStyleClass().add("icon-btn-selected");
+            }
+
+            b.setOnAction(e -> {
+                selectedIcon = icon;
+
+                // alle Buttons entmarkieren, dann aktuellen markieren
+                pane.getChildren().forEach(n -> n.getStyleClass().remove("icon-btn-selected"));
+                b.getStyleClass().add("icon-btn-selected");
+            });
+
+            pane.getChildren().add(b);
+        }
+
+        return pane;
     }
 
     private void centerInOwnerScene() {
@@ -120,7 +172,7 @@ public class NewListPopupController {
         }
 
         try {
-            int newId = service.createCategory(name);
+            int newId = service.createCategory(name, selectedIcon);
             popup.hide();
             onCreated.accept(newId);
         } catch (Exception exception) {

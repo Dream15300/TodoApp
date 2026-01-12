@@ -3,6 +3,7 @@ package com.example.domain;
 public class Category {
     private int id;
     private String name;
+    private String icon;
 
     public Category() {
     }
@@ -10,6 +11,12 @@ public class Category {
     public Category(int id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Category(int id, String name, String icon) {
+        this.id = id;
+        this.name = name;
+        this.icon = icon;
     }
 
     public int getId() {
@@ -26,6 +33,14 @@ public class Category {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
     @Override

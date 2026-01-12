@@ -1,1 +1,4 @@
-INSERT OR IGNORE INTO Categories (Name) VALUES ('Schule'), ('Arbeit'), ('Privat');
+INSERT OR IGNORE INTO Categories (Name, Icon) VALUES
+  ('Schule', '🎓'),
+  ('Arbeit', '💼'),
+  ('Privat', '🏠');

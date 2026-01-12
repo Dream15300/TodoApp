@@ -41,4 +41,8 @@
   -fx-c-danger-hover: #e11d48;
   -fx-c-neutral: #a1a1aa;
   -fx-c-neutral-hover: #d4d4d8;
+
+  -fx-c-popup-bg: rgba(47,37,64,0.98);
+  -fx-c-popup-border: rgba(245,243,255,0.14);
+  -fx-c-popup-shadow: rgba(0,0,0,0.62);
 }

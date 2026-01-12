@@ -122,11 +122,19 @@ public class PrimaryController {
         }
     }
 
+    // ------- Icon für Kategorien-Titel in der rechten Spalte -------
+
     private String iconFor(Category c) {
-        if (c == null) {
+        if (c == null)
             return "";
+
+        // 1) Icon aus DB bevorzugen
+        String dbIcon = c.getIcon();
+        if (dbIcon != null && !dbIcon.isBlank()) {
+            return dbIcon.trim() + " ";
         }
 
+        // 2) Fallback (falls alte Kategorien noch kein Icon haben)
         return switch (c.getName()) {
             case "Arbeit" -> "💼 ";
             case "Schule" -> "🎓 ";

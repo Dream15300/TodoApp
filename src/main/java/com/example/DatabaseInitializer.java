@@ -16,6 +16,7 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
 
     public static void init() {
         executeSqlResource("db/init_schema.sql");
+        migrateCategoriesAddIconColumn();
         executeSqlResource("db/seed_base_data.sql");
     }
 
@@ -53,4 +54,51 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
             throw new RuntimeException("Failed to read resource: " + path, exception);
         }
     }
+
+    /**
+     * Migration für bestehende DBs: Spalte "Icon" in Categories nachträglich
+     * hinzufügen.
+     * (CREATE TABLE IF NOT EXISTS ändert bestehende Tabellen nicht.)
+     */
+    private static void migrateCategoriesAddIconColumn() {
+        try (Connection connection = Db.open();
+                Statement statement = connection.createStatement();
+                var rs = statement.executeQuery("PRAGMA table_info(Categories)")) {
+
+            boolean hasIcon = false;
+            while (rs.next()) {
+                String col = rs.getString("name");
+                if ("Icon".equalsIgnoreCase(col)) {
+                    hasIcon = true;
+                    break;
+                }
+            }
+
+            if (!hasIcon) {
+                statement.execute("ALTER TABLE Categories ADD COLUMN Icon TEXT");
+            }
+
+            // Backfill: nur dort setzen, wo Icon noch NULL/leer ist
+            statement.execute("""
+                        UPDATE Categories SET Icon='💼'
+                        WHERE (Icon IS NULL OR TRIM(Icon)='') AND Name='Arbeit'
+                    """);
+            statement.execute("""
+                        UPDATE Categories SET Icon='🎓'
+                        WHERE (Icon IS NULL OR TRIM(Icon)='') AND Name='Schule'
+                    """);
+            statement.execute("""
+                        UPDATE Categories SET Icon='🏠'
+                        WHERE (Icon IS NULL OR TRIM(Icon)='') AND Name='Privat'
+                    """);
+            statement.execute("""
+                        UPDATE Categories SET Icon='📁'
+                        WHERE (Icon IS NULL OR TRIM(Icon)='')
+                    """);
+
+        } catch (Exception exception) {
+            throw new RuntimeException("DB migration failed: Categories.Icon", exception);
+        }
+    }
+
 }

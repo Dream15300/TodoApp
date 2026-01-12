@@ -29,4 +29,8 @@
   -fx-c-danger-hover: #991b1b;
   -fx-c-neutral: #6b7280;
   -fx-c-neutral-hover: #4b5563;
+
+    -fx-c-popup-bg: rgba(255,255,255,0.98);
+  -fx-c-popup-border: rgba(17,24,39,0.18); 
+  -fx-c-popup-shadow: rgba(0,0,0,0.25);    
 }

@@ -18,11 +18,13 @@ public class TodoService {
         return categoryRepo.findAll();
     }
 
-    public int createCategory(String name) {
+    public int createCategory(String name, String icon) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name ist Pflicht");
         }
-        return categoryRepo.insert(name.trim());
+        String trimmedName = name.trim();
+        String trimmedIcon = icon == null ? null : icon.trim();
+        return categoryRepo.insert(trimmedName, trimmedIcon);
     }
 
     public void renameCategory(int id, String newName) {
@@ -30,6 +32,21 @@ public class TodoService {
             throw new IllegalArgumentException("Name ist Pflicht");
         }
         categoryRepo.updateName(id, newName.trim());
+    }
+
+    public void updateCategory(int id, String newName, String newIcon) {
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name ist Pflicht");
+        }
+
+        String trimmedName = newName.trim();
+        String trimmedIcon = (newIcon == null) ? null : newIcon.trim();
+        if (trimmedIcon != null && trimmedIcon.isEmpty()) {
+            trimmedIcon = null;
+        }
+
+        categoryRepo.updateName(id, trimmedName);
+        categoryRepo.updateIcon(id, trimmedIcon);
     }
 
     public void deleteCategory(int categoryId) {

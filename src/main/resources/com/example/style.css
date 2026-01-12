@@ -198,7 +198,8 @@
     -fx-border-radius: 14;
     -fx-border-width: 1;
 
-    -fx-padding: 10 12;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 9 12 9 12;
     -fx-text-fill: -fx-c-text;
 
     -fx-min-height: 44;
@@ -210,6 +211,13 @@
     -fx-border-color: -fx-c-accent;
     -fx-border-width: 2;
 }
+
+/* Fix für Skin-Content im TextField (Baseline-Problem) */
+.text-field.details-input .content,
+.text-field.category-popup-input .content {
+    -fx-padding: 0;
+}
+
 
 /* =========================
    Inputs: DatePicker (Details + Popup)
@@ -559,9 +567,26 @@
 /* TextField im Kategorien-Popup angleichen */
 .category-popup-box .text-field {
     -fx-font-size: 13px;
-    -fx-min-height: 34px;
-    -fx-pref-height: 34px;
     -fx-background-radius: 13;
+}
+
+/* Kategorien-Edit PopupControl: gleiche Karte wie Neue Liste */
+.category-edit-popup-card {
+    -fx-background-color: -fx-c-popup-bg;   /* nicht -fx-c-card-bg */
+    -fx-background-radius: 10;
+    -fx-background-insets: 0;
+
+    -fx-border-color: -fx-c-popup-border;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, -fx-c-popup-shadow, 14, 0.2, 0, 4);
+}
+
+/* Labels im Popup lesbar */
+.category-edit-popup-card .label {
+    -fx-text-fill: -fx-c-text;
 }
 
 
@@ -585,6 +610,12 @@
 
 .category-popup-btn-danger { -fx-background-color: -fx-c-danger; }
 .category-popup-btn-danger:hover { -fx-background-color: -fx-c-danger-hover; }
+
+
+/* Kategorie-Name (Label in ListCell-Grafik) */
+.category-name {
+    -fx-text-fill: -fx-c-text;
+}
 
 /* =========================================================
    Neue Liste – Popup
@@ -621,6 +652,57 @@
 .category-add-full-btn:hover   { -fx-background-color: -fx-c-btn-hover; }
 .category-add-full-btn:pressed { -fx-background-color: -fx-c-btn-pressed; }
 .category-add-full-btn:disabled { -fx-opacity: 0.6; }
+
+/* =========================================================
+   Icon Picker (Neue Liste Popup)
+   ========================================================= */
+.category-popup-label {
+    -fx-text-fill: -fx-c-text;
+    -fx-font-size: 12px;
+}
+
+.icon-grid {
+    -fx-background-color: transparent;
+}
+
+/* Icon-Buttons im Kategorien-Edit-Popup */
+.category-icon-btn {
+    -fx-min-width: 44;
+    -fx-min-height: 34;
+
+    -fx-background-radius: 10;
+    -fx-background-color: -fx-c-btn-bg;
+    -fx-text-fill: -fx-c-text;
+
+    -fx-font-size: 16px;
+    -fx-padding: 4 0 4 0;
+
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.category-icon-btn:hover {
+    -fx-background-color: -fx-c-btn-hover;
+}
+
+.category-icon-btn:pressed {
+    -fx-background-color: -fx-c-btn-pressed;
+}
+
+/* AUSGEWAEHLT (deine Klasse "selected") */
+.category-icon-btn.selected {
+    -fx-background-color: -fx-c-accent;
+    -fx-text-fill: white;
+
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+}
+
+.category-icon-btn.selected:hover {
+    -fx-background-color: -fx-c-accent-strong;
+}
+
+
 
 /* =========================================================
    Neue Liste löschen – Popup
