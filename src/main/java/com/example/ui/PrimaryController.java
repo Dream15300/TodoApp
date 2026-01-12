@@ -26,6 +26,9 @@ public class PrimaryController {
     private DatePicker dpNewTaskDueDate;
 
     @FXML
+    private Label tasksTitleLabel;
+
+    @FXML
     private Button btnShowDone;
     @FXML
     private Button btnBack;
@@ -85,11 +88,20 @@ public class PrimaryController {
         tasksController.init();
         newListPopupController.init();
 
+        // Initialen Titel setzen
+        Category selected = listsView.getSelectionModel().getSelectedItem();
+        if (tasksTitleLabel != null) {
+            tasksTitleLabel.setText(selected != null ? (iconFor(selected) + selected.getName()) : "Aufgaben");
+        }
+
         // Initialzustand: Details geschlossen
         detailsController.close();
 
         // Kategorie-Wechsel
         listsView.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            if (tasksTitleLabel != null) {
+                tasksTitleLabel.setText(newV != null ? (iconFor(newV) + newV.getName()) : "Aufgaben");
+            }
             tasksController.showOpen();
             detailsController.close();
             tasksController.refresh();
@@ -108,7 +120,19 @@ public class PrimaryController {
         if (tglTheme != null) {
             setupThemeMenu();
         }
+    }
 
+    private String iconFor(Category c) {
+        if (c == null) {
+            return "";
+        }
+
+        return switch (c.getName()) {
+            case "Arbeit" -> "💼 ";
+            case "Schule" -> "🎓 ";
+            case "Privat" -> "🏠 ";
+            default -> "📁 ";
+        };
     }
 
     // ------- FXML Actions: delegieren -------

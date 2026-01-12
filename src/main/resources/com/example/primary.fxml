@@ -22,7 +22,7 @@
                     <Insets top="12" right="12" bottom="12" left="12"/>
                 </padding>
 
-                <Label text="Listen" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Label text="📁 Listen" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
 
                 <VBox spacing="6.0"
                       styleClass="category-container"
@@ -44,7 +44,9 @@
                 </padding>
 
                 <HBox spacing="8.0">
-                    <Label text="Aufgaben" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Label fx:id="tasksTitleLabel"
+                            text="Aufgaben"
+                            style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
                     <HBox HBox.hgrow="ALWAYS"/>
                     <ToggleButton fx:id="tglTheme"
                                   text="Dim"/>
