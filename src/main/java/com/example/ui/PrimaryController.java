@@ -133,7 +133,7 @@ public class PrimaryController {
             categoriesController.reselectById(newId);
 
             detailsController.close();
-            sizing.apply();
+            sizing.apply(layout.isCompactMode());
 
             tasksController.showOpen();
             tasksController.refresh();
@@ -150,6 +150,17 @@ public class PrimaryController {
         // Responsive Layout (Compact Mode)
         layout = new PrimaryLayoutController(listsPane, rootSplit, tasksTitleLabel, btnListMenu, COMPACT_BREAKPOINT);
         layout.init();
+        javafx.application.Platform.runLater(() -> {
+            var scene = listsPane.getScene();
+            if (scene == null)
+                return;
+
+            // einmal initial
+            sizing.apply(layout.isCompactMode());
+
+            // bei jeder Breitenänderung erneut anwenden
+            scene.widthProperty().addListener((o, oldW, newW) -> sizing.apply(layout.isCompactMode()));
+        });
 
         // Sizing zwischen tasksView und detailsPane (50/50 wenn Details offen)
         sizing = new PrimaryDetailsSizingController(tasksAndDetailsContainer, tasksView, detailsPane);
@@ -174,7 +185,8 @@ public class PrimaryController {
 
         // Initialzustand: Details geschlossen
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
+
         updateHeaderTexts();
 
         /*
@@ -189,7 +201,8 @@ public class PrimaryController {
             updateHeaderTexts();
             tasksController.showOpen();
             detailsController.close();
-            sizing.apply();
+            sizing.apply(layout.isCompactMode());
+
             tasksController.refresh();
             if (listMenuCtl.isShowing())
                 listMenuCtl.rebuild();
@@ -205,7 +218,8 @@ public class PrimaryController {
                 detailsController.close();
             else
                 detailsController.open(newV);
-            sizing.apply();
+            sizing.apply(layout.isCompactMode());
+
         });
 
         // Initiale Tasks laden (abhängig von initial selektierter Kategorie in
@@ -275,7 +289,8 @@ public class PrimaryController {
     @FXML
     private void onAddTask() {
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
+
         tasksController.onAddTask();
     }
 
@@ -286,7 +301,8 @@ public class PrimaryController {
     private void onShowHistory() {
         tasksController.showDone();
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
+
         tasksController.refresh();
     }
 
@@ -297,7 +313,8 @@ public class PrimaryController {
     private void onBackFromHistory() {
         tasksController.showOpen();
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
+
         tasksController.refresh();
     }
 
@@ -307,7 +324,8 @@ public class PrimaryController {
     @FXML
     private void onClearDone() {
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
+
         tasksController.onClearDone();
     }
 
@@ -321,7 +339,8 @@ public class PrimaryController {
     @FXML
     private void onCloseDetails() {
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
+
         tasksController.clearSelectionProgrammatically();
     }
 
@@ -347,7 +366,8 @@ public class PrimaryController {
         boolean ok = detailsController.save();
         if (ok) {
             detailsController.close();
-            sizing.apply();
+            sizing.apply(layout.isCompactMode());
+
             tasksController.refresh();
             tasksController.clearSelectionProgrammatically();
             tasksView.requestFocus();

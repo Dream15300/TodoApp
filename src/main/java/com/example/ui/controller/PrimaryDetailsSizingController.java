@@ -82,4 +82,59 @@ public class PrimaryDetailsSizingController {
             detailsPane.setPrefWidth(Region.USE_COMPUTED_SIZE);
         }
     }
+
+    public void apply(boolean compactMode) {
+        if (tasksAndDetailsContainer == null || tasksView == null || detailsPane == null)
+            return;
+
+        boolean detailsOpen = detailsPane.isManaged() && detailsPane.isVisible();
+
+        // --- COMPACT MODE ---
+        if (compactMode) {
+            if (detailsOpen) {
+                // Details: 100%
+                if (detailsPane.prefWidthProperty().isBound())
+                    detailsPane.prefWidthProperty().unbind();
+                if (tasksView.prefWidthProperty().isBound())
+                    tasksView.prefWidthProperty().unbind();
+
+                detailsPane.setPrefWidth(Region.USE_COMPUTED_SIZE);
+
+                tasksView.setVisible(false);
+                tasksView.setManaged(false);
+            } else {
+                // Keine Details -> Tasks 100%
+                tasksView.setVisible(true);
+                tasksView.setManaged(true);
+
+                detailsPane.setVisible(false);
+                detailsPane.setManaged(false);
+            }
+            return;
+        }
+
+        // --- NORMAL MODE ---
+        tasksView.setVisible(true);
+        tasksView.setManaged(true);
+
+        if (detailsOpen) {
+            if (!detailsPane.prefWidthProperty().isBound()) {
+                detailsPane.prefWidthProperty()
+                        .bind(tasksAndDetailsContainer.widthProperty().multiply(0.5));
+            }
+            if (!tasksView.prefWidthProperty().isBound()) {
+                tasksView.prefWidthProperty()
+                        .bind(tasksAndDetailsContainer.widthProperty().multiply(0.5));
+            }
+        } else {
+            if (detailsPane.prefWidthProperty().isBound())
+                detailsPane.prefWidthProperty().unbind();
+            if (tasksView.prefWidthProperty().isBound())
+                tasksView.prefWidthProperty().unbind();
+
+            tasksView.setPrefWidth(Region.USE_COMPUTED_SIZE);
+            detailsPane.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        }
+    }
+
 }

@@ -917,7 +917,7 @@
    - dunkel: eher hell
 */
 .root .scroll-bar .thumb {
-    -fx-background-color: derive(-fx-c-text, -70%); /* funktioniert in allen Themes */
+    -fx-background-color: derive(-fx-c-text, -70%);
     -fx-opacity: 0.35;
 }
 .root .scroll-bar:hover .thumb { -fx-opacity: 0.55; }
