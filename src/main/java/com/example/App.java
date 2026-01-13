@@ -88,7 +88,15 @@ public class App extends Application {
          */
         TodoService service = new TodoService();
         dueNotifier = new TaskbarDueNotifier(service);
-        dueNotifier.start();
+
+        // verzögert starten, aber nur wenn initialisiert
+        javafx.animation.PauseTransition pt = new javafx.animation.PauseTransition(javafx.util.Duration.millis(800));
+        pt.setOnFinished(ev -> {
+            if (dueNotifier != null) {
+                dueNotifier.start();
+            }
+        });
+        pt.play();
 
         /*
          * Schliessen:

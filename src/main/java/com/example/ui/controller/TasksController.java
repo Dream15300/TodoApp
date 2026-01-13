@@ -6,10 +6,11 @@ import com.example.domain.TodoStatus;
 import com.example.service.TodoService;
 import com.example.ui.TodoUiText;
 import com.example.ui.UiDialogs;
+
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-
+import javafx.concurrent.Task;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -59,6 +60,9 @@ public class TasksController {
 
     // verhindert, dass programatische Selektion (Refresh) Details öffnet
     private boolean suppressSelection = false;
+
+    // Token für nebenläufige Refreshes (nur letzter Effektiv)
+    private volatile long refreshToken = 0;
 
     public TasksController(ListView<TodoItem> tasksView,
             TextField txtNewTaskTitle,
@@ -160,12 +164,6 @@ public class TasksController {
         }
 
         if (category == null) {
-            /*
-             * Kein Kontext (keine Kategorie ausgewählt):
-             * - leere Liste anzeigen
-             * - Selektion löschen
-             * - Buttons zurücksetzen
-             */
             suppressSelection = true;
             try {
                 tasksView.getItems().setAll(List.of());
@@ -177,35 +175,69 @@ public class TasksController {
             return;
         }
 
-        // Anzahl erledigter Todos für Button-Text
-        int doneCount = service.countDoneTodosForCategory(category.getId());
+        final int categoryId = category.getId();
+        final boolean loadDone = showingDone;
+        final Integer keepSelectedId = selectedId;
 
-        // Items gemäss Modus laden
-        List<TodoItem> items = showingDone
-                ? service.getDoneTodosForCategory(category.getId())
-                : service.getOpenTodosForCategory(category.getId());
+        // Token: nur letzter Refresh darf UI setzen
+        final long token = ++refreshToken;
 
-        suppressSelection = true;
-        try {
-            tasksView.getItems().setAll(items);
+        Task<RefreshResult> task = new Task<>() {
+            @Override
+            protected RefreshResult call() {
+                int doneCount = service.countDoneTodosForCategory(categoryId);
 
-            // Selektion wiederherstellen (per ID)
-            if (selectedId != null) {
-                int idx = indexOfId(items, selectedId);
-                if (idx >= 0) {
-                    tasksView.getSelectionModel().select(idx);
-                    tasksView.scrollTo(idx);
+                List<TodoItem> items = loadDone
+                        ? service.getDoneTodosForCategory(categoryId)
+                        : service.getOpenTodosForCategory(categoryId);
+
+                return new RefreshResult(doneCount, items);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            if (token != refreshToken) {
+                return; // veraltet
+            }
+
+            RefreshResult result = task.getValue();
+
+            suppressSelection = true;
+            try {
+                tasksView.getItems().setAll(result.items);
+
+                // Selektion wiederherstellen (per ID)
+                if (keepSelectedId != null) {
+                    int idx = indexOfId(result.items, keepSelectedId);
+                    if (idx >= 0) {
+                        tasksView.getSelectionModel().select(idx);
+                        tasksView.scrollTo(idx);
+                    } else {
+                        tasksView.getSelectionModel().clearSelection();
+                    }
                 } else {
                     tasksView.getSelectionModel().clearSelection();
                 }
-            } else {
-                tasksView.getSelectionModel().clearSelection();
+            } finally {
+                suppressSelection = false;
             }
-        } finally {
-            suppressSelection = false;
-        }
 
-        updateHistoryButtons(doneCount);
+            updateHistoryButtons(result.doneCount);
+        });
+
+        task.setOnFailed(e -> {
+            if (token != refreshToken) {
+                return;
+            }
+            Throwable ex = task.getException();
+            UiDialogs.error(
+                    "Todos laden fehlgeschlagen: " + (ex == null ? "" : ex.getMessage()),
+                    ex instanceof Exception ? (Exception) ex : new Exception(ex));
+        });
+
+        Thread t = new Thread(task, "load-todos");
+        t.setDaemon(true);
+        t.start();
     }
 
     /**
@@ -457,4 +489,15 @@ public class TasksController {
 
         });
     }
+
+    private static final class RefreshResult {
+        final int doneCount;
+        final List<TodoItem> items;
+
+        RefreshResult(int doneCount, List<TodoItem> items) {
+            this.doneCount = doneCount;
+            this.items = items;
+        }
+    }
+
 }

@@ -62,14 +62,9 @@ public class CategoriesController {
     public void init() {
         setupEditPopup();
         setupCategoryCells();
-        loadCategories();
 
         deleteConfirmPopup = new ConfirmPopupController(listsView);
         deleteConfirmPopup.init();
-
-        if (!listsView.getItems().isEmpty()) {
-            listsView.getSelectionModel().selectFirst();
-        }
     }
 
     /**
