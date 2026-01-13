@@ -10,25 +10,29 @@
             styleClass="app-root">
 
     <center>
-        <SplitPane dividerPositions="0.28">
+        <SplitPane fx:id="rootSplit" dividerPositions="0.28">
 
-            <!-- LINKS: LISTEN (fixe Breite, damit konstant) -->
+            <!-- LINKS: LISTEN (darf nicht "zusammenfallen") -->
             <VBox fx:id="listsPane"
                   spacing="10.0"
                   prefWidth="260.0"
-                  minWidth="260.0"
-                  maxWidth="260.0">
+                  minWidth="220.0"
+                  maxWidth="320.0">
                 <padding>
                     <Insets top="12" right="12" bottom="12" left="12"/>
                 </padding>
 
-                <Label text="Listen" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Label text="Listen"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
 
                 <VBox spacing="6.0"
                       styleClass="category-container"
-                      VBox.vgrow="ALWAYS">
+                      VBox.vgrow="ALWAYS"
+                      minWidth="0">
 
-                    <ListView fx:id="listsView" VBox.vgrow="ALWAYS"/>
+                    <ListView fx:id="listsView"
+                              VBox.vgrow="ALWAYS"
+                              minWidth="0"/>
 
                     <Button text="+ Neue Liste"
                             onAction="#onNewList"
@@ -38,39 +42,55 @@
             </VBox>
 
             <!-- RECHTS: AUFGABEN -->
-            <VBox spacing="10.0">
+            <VBox spacing="10.0"
+                  minWidth="320.0">
                 <padding>
                     <Insets top="12" right="12" bottom="12" left="12"/>
                 </padding>
 
-                <HBox spacing="8.0">
-                    <Label fx:id="tasksTitleLabel"
-                            text="Aufgaben"
-                            style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-                    <HBox HBox.hgrow="ALWAYS"/>
-                    <ToggleButton fx:id="tglTheme"
-                                  text="Dim"/>
+                <HBox spacing="8.0" alignment="CENTER_LEFT" minWidth="0">
+                    <!-- NEU: Listen-Dropdown-Button (nur bei schmaler Ansicht sichtbar) -->
+                    <Button fx:id="btnListMenu"
+                            text="Listen"
+                            visible="false"
+                            managed="false"/>
 
+                    <Label fx:id="tasksTitleLabel"
+                        text="Aufgaben"
+                        style="-fx-font-size: 16px; -fx-font-weight: bold;"
+                        minWidth="0"
+                        maxWidth="Infinity"
+                        HBox.hgrow="ALWAYS"/>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <ToggleButton fx:id="tglTheme" text="Dim"/>
                 </HBox>
 
-                <!-- Weisser Container -->
+
+                <!-- Container Tasks + Details -->
                 <VBox spacing="6.0"
                       styleClass="tasks-container"
-                      VBox.vgrow="ALWAYS">
+                      VBox.vgrow="ALWAYS"
+                      minWidth="0">
 
-                    <!-- Tasks + Details (nur innerhalb dieses Containers) -->
-                    <HBox fx:id="tasksAndDetailsContainer" spacing="12.0" VBox.vgrow="ALWAYS">
+                    <HBox fx:id="tasksAndDetailsContainer"
+                          spacing="12.0"
+                          VBox.vgrow="ALWAYS"
+                          minWidth="0">
 
                         <ListView fx:id="tasksView"
                                   styleClass="tasks-view"
-                                  HBox.hgrow="ALWAYS"/>
+                                  HBox.hgrow="ALWAYS"
+                                  minWidth="0"/>
 
-                        <!-- DETAILS: nimmt nur Platz im Container -->
+                        <!-- DETAILS (nimmt Platz nur wenn sichtbar/managed) -->
                         <VBox fx:id="detailsPane"
                               spacing="10.0"
                               visible="false"
                               managed="false"
-                              HBox.hgrow="ALWAYS"
+                              minWidth="260.0"
+                              prefWidth="360.0"
                               maxWidth="Infinity"
                               styleClass="details-pane">
                             <padding>
@@ -94,71 +114,74 @@
                             <Label text="Fälligkeit"/>
                             <DatePicker fx:id="detailsDueDate"
                                         maxWidth="Infinity"
-                                        prefWidth="Infinity"
                                         styleClass="details-input"/>
 
                             <Label text="Notizen"/>
                             <TextArea fx:id="detailsNotes"
-                                    promptText="Notizen..."
-                                    wrapText="true"
-                                    prefRowCount="6"
-                                    maxWidth="Infinity"
-                                    VBox.vgrow="ALWAYS"
-                                    styleClass="details-notes"/>
-
+                                      promptText="Notizen..."
+                                      wrapText="true"
+                                      prefRowCount="6"
+                                      VBox.vgrow="ALWAYS"
+                                      maxWidth="Infinity"
+                                      styleClass="details-notes"/>
 
                             <HBox spacing="8.0">
                                 <Button text="Datum entfernen"
                                         onAction="#onClearDetailsDueDate"
-                                        maxWidth="Infinity"
-                                        HBox.hgrow="ALWAYS"/>
+                                        HBox.hgrow="ALWAYS"
+                                        maxWidth="Infinity"/>
 
                                 <Button text="Speichern"
                                         onAction="#onSaveDetails"
-                                        maxWidth="Infinity"
-                                        HBox.hgrow="ALWAYS"/>
+                                        HBox.hgrow="ALWAYS"
+                                        maxWidth="Infinity"/>
                             </HBox>
                         </VBox>
 
                     </HBox>
 
                     <!-- Footer -->
-                    <HBox spacing="8.0">
+                    <HBox spacing="8.0" minWidth="0">
                         <Button fx:id="btnShowDone"
                                 text="› Erledigt"
                                 onAction="#onShowHistory"
-                                maxWidth="Infinity"
                                 HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity"
                                 styleClass="tasks-footer-btn"/>
 
                         <Button fx:id="btnBack"
                                 text="‹ Zurück"
                                 onAction="#onBackFromHistory"
-                                maxWidth="Infinity"
                                 HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity"
                                 styleClass="tasks-footer-btn"/>
 
                         <Button fx:id="btnClearDone"
                                 text="Alle erledigten löschen"
                                 onAction="#onClearDone"
-                                maxWidth="Infinity"
                                 HBox.hgrow="ALWAYS"
+                                maxWidth="Infinity"
                                 styleClass="tasks-footer-btn"/>
                     </HBox>
 
                 </VBox>
 
                 <!-- Eingabezeile -->
-                <HBox spacing="0.0" styleClass="todo-input">
+                <HBox spacing="0.0"
+                      styleClass="todo-input"
+                      minWidth="0">
                     <padding>
                         <Insets top="6" right="6" bottom="6" left="6"/>
                     </padding>
 
-                    <Button text="+" onAction="#onAddTask" styleClass="todo-input-btn"/>
+                    <Button text="+"
+                            onAction="#onAddTask"
+                            styleClass="todo-input-btn"/>
 
                     <TextField fx:id="txtNewTaskTitle"
                                promptText="Neue Aufgabe..."
                                HBox.hgrow="ALWAYS"
+                               minWidth="0"
                                styleClass="todo-input-field"/>
 
                     <DatePicker fx:id="dpNewTaskDueDate"

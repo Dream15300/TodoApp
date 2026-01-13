@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Window;
 
 import java.util.List;
 
@@ -59,6 +60,25 @@ public class CategoriesController {
                 .ifPresent(c -> listsView.getSelectionModel().select(c));
     }
 
+    /**
+     * öffentliche API für compact Listen-Dropdown:
+     * öffnet exakt denselben Edit-Popup wie der "…" Button in der ListCell.
+     */
+    public void showEditFor(Category category, Node stableAnchor) {
+        if (stableAnchor == null)
+            stableAnchor = listsView; // Fallback
+        showEditPopup(stableAnchor, category);
+
+        // sicherstellen, dass editierbar + Fokus
+        Platform.runLater(() -> {
+            nameEditor.setEditable(true);
+            nameEditor.setDisable(false);
+            nameEditor.setMouseTransparent(false);
+            nameEditor.requestFocus();
+            nameEditor.selectAll();
+        });
+    }
+
     private void setupEditPopup() {
         editPopup.setAutoHide(true);
         editPopup.setHideOnEscape(true);
@@ -89,15 +109,12 @@ public class CategoriesController {
         editorBox.setPadding(new Insets(12));
         editorBox.getChildren().setAll(lblName, nameEditor, iconGrid, buttonsRow);
 
-        // Root ins Popup
         editPopup.getScene().setRoot(editorBox);
         editPopup.setOnShown(e -> {
             var owner = listsView.getScene();
             if (owner != null) {
-                // wie NewListPopup: Stylesheets sauber uebernehmen
                 editPopup.getScene().getStylesheets().setAll(owner.getStylesheets());
 
-                // optional: Theme-Klassen vom Haupt-Root uebernehmen (falls du sowas nutzt)
                 var mainRoot = owner.getRoot();
                 var popupRoot = editPopup.getScene().getRoot();
 
@@ -114,7 +131,6 @@ public class CategoriesController {
             });
         });
 
-        // Actions (Category wird über userData am Popup gehalten)
         btnCancel.setOnAction(e -> editPopup.hide());
         btnSave.setOnAction(e -> commitEdit());
         nameEditor.setOnAction(e -> commitEdit());
@@ -154,9 +170,8 @@ public class CategoriesController {
             if (n instanceof Button b) {
                 boolean isSelected = b.getText().equals(selectedIcon);
                 if (isSelected) {
-                    if (!b.getStyleClass().contains("selected")) {
+                    if (!b.getStyleClass().contains("selected"))
                         b.getStyleClass().add("selected");
-                    }
                 } else {
                     b.getStyleClass().remove("selected");
                 }
@@ -164,7 +179,7 @@ public class CategoriesController {
         }
     }
 
-    private void showEditPopup(Node anchor, Category category) {
+    private void showEditPopup(Node ownerNode, Category category) {
         if (category == null)
             return;
 
@@ -177,19 +192,29 @@ public class CategoriesController {
         selectedIcon = (icon == null || icon.isBlank()) ? ICONS.getFirst() : icon.trim();
         applyIconSelection();
 
-        // Falls Popup bereits offen: neu positionieren
         if (editPopup.isShowing()) {
             editPopup.hide();
         }
 
-        // Position: unterhalb des Buttons (Screen-Koordinaten)
-        var bounds = anchor.localToScreen(anchor.getBoundsInLocal());
-        double x = bounds.getMinX();
-        double y = bounds.getMaxY() + 6;
+        // --- ZENTRIERUNG ---
+        Window ownerWindow = ownerNode.getScene().getWindow();
 
-        editPopup.show(anchor, x, y);
+        editPopup.show(ownerWindow);
 
-        Platform.runLater(() -> nameEditor.requestFocus());
+        Platform.runLater(() -> {
+            Window popupWindow = editPopup.getScene().getWindow();
+
+            double x = ownerWindow.getX()
+                    + (ownerWindow.getWidth() - popupWindow.getWidth()) / 2;
+            double y = ownerWindow.getY()
+                    + (ownerWindow.getHeight() - popupWindow.getHeight()) / 2;
+
+            popupWindow.setX(x);
+            popupWindow.setY(y);
+
+            nameEditor.requestFocus();
+            nameEditor.selectAll();
+        });
     }
 
     private void setupCategoryCells() {
@@ -214,7 +239,6 @@ public class CategoriesController {
                     showEditPopup(btnEdit, category);
                 });
 
-                // Popup schliessen, wenn Cell-Item wechselt (scroll/refresh)
                 itemProperty().addListener((obs, oldV, newV) -> {
                     if (editPopup.isShowing())
                         editPopup.hide();
@@ -260,7 +284,6 @@ public class CategoriesController {
         }
 
         try {
-            // Voraussetzung: TodoService.updateCategory(id, name, icon) existiert.
             service.updateCategory(category.getId(), newName, selectedIcon);
 
             loadCategories();

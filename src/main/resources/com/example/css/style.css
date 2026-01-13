@@ -833,3 +833,86 @@
     -fx-background-radius: 8;
 }
 
+/* =========================
+   ScrollBars (global, theme-fähig)
+   ========================= */
+
+/* Grundflächen transparent */
+.scroll-bar,
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+/* Track */
+.scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 999;
+}
+
+/* Thumb */
+.scroll-bar .thumb {
+    -fx-background-color: rgba(255,255,255,0.14); /* Default fuer Dark-Themes */
+    -fx-background-insets: 0;
+    -fx-background-radius: 999;
+}
+
+/* Hover/Pressed */
+.scroll-bar:hover .thumb {
+    -fx-background-color: rgba(255,255,255,0.22);
+}
+.scroll-bar:pressed .thumb {
+    -fx-background-color: rgba(255,255,255,0.30);
+}
+
+/* Buttons (▲▼) ausblenden */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+/* Grösse */
+.scroll-bar:vertical {
+    -fx-pref-width: 10;
+    -fx-padding: 2;
+}
+.scroll-bar:horizontal {
+    -fx-pref-height: 10;
+    -fx-padding: 2;
+}
+
+/* Horizontal-Scrollbar in ListViews praktisch eliminieren */
+.list-view .scroll-bar:horizontal {
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+    -fx-max-height: 0;
+    -fx-opacity: 0;
+}
+
+/* Thumb-Farbe an Theme-Variablen koppeln (besser als fixe RGB):
+   - hell: eher dunkel
+   - dunkel: eher hell
+*/
+.root .scroll-bar .thumb {
+    -fx-background-color: derive(-fx-c-text, -70%); /* funktioniert in allen Themes */
+    -fx-opacity: 0.35;
+}
+.root .scroll-bar:hover .thumb { -fx-opacity: 0.55; }
+.root .scroll-bar:pressed .thumb { -fx-opacity: 0.70; }
+
+/* =========================
+   SplitPane Compact Mode (keine sichtbaren Divider)
+   ========================= */
+.split-pane.compact > .split-pane-divider {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+
