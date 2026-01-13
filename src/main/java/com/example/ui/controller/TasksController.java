@@ -15,6 +15,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
 
+/**
+ * Verantwortlichkeiten:
+ * - Laden/Anzeige von offenen oder erledigten Todos (showingDone)
+ * - Hinzufügen neuer Todos (Titel + optional DueDate)
+ * - Umschalten Status (Checkbox)
+ * - History-UI steuern ("Erledigt", "Zurück", "Alle löschen")
+ * - stabiler Refresh inkl. Wiederherstellung der Selektion (per ID)
+ *
+ * Technische Schwerpunkte:
+ * - ListCell-Rendering mit WrapText und dynamischen Elementen
+ * (DueDate/NotesIcon)
+ * - suppressSelection verhindert Side-Effects bei programatischer Selektion
+ * (Details öffnen)
+ */
 public class TasksController {
 
     private final ListView<TodoItem> tasksView;
@@ -26,12 +40,21 @@ public class TasksController {
     private final Button btnClearDone;
 
     private final TodoService service;
+
+    /*
+     * Supplier statt direkter Referenz:
+     * - entkoppelt TasksController vom "State Holder" (z. B. PrimaryController),
+     * - liefert immer aktuelle Selektion.
+     */
     private final Supplier<Category> selectedCategorySupplier;
 
+    // Datumsformat für DueDate-Anzeige (Deutsch)
     private final DateTimeFormatter dueFmt = DateTimeFormatter.ofPattern("EEE, d. MMM", Locale.GERMAN);
 
+    // false = offene Todos, true = erledigte Todos
     private boolean showingDone = false;
 
+    // Bestätigungs-Popup für "alle erledigten löschen"
     private ConfirmPopupController deleteDoneConfirmPopup;
 
     // verhindert, dass programatische Selektion (Refresh) Details öffnet
@@ -55,6 +78,14 @@ public class TasksController {
         this.selectedCategorySupplier = selectedCategorySupplier;
     }
 
+    /**
+     * Initialisiert CellFactory und Popup-Controller.
+     *
+     * Hinweis:
+     * - deleteDoneConfirmPopup wird hier bereits erstellt; zusätzlich gibt es
+     * später
+     * noch einen defensiven Null-Check in onClearDone().
+     */
     public void init() {
         setupTodoCells();
 
@@ -62,6 +93,14 @@ public class TasksController {
         deleteDoneConfirmPopup.init();
     }
 
+    /**
+     * Registriert einen Listener, der nur auf echte User-Selektion reagiert.
+     *
+     * Umsetzung:
+     * - Listener wird immer an selectedItemProperty gehängt
+     * - suppressSelection unterdrückt Callbacks während
+     * refresh()/clearSelectionProgrammatically()
+     */
     public void setOnUserSelection(javafx.beans.value.ChangeListener<TodoItem> listener) {
         tasksView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldV, newV) -> {
             if (suppressSelection)
@@ -70,6 +109,9 @@ public class TasksController {
         });
     }
 
+    /**
+     * Löscht Selektion ohne Nebenwirkungen (kein Details-open).
+     */
     public void clearSelectionProgrammatically() {
         suppressSelection = true;
         try {
@@ -79,10 +121,18 @@ public class TasksController {
         }
     }
 
+    /**
+     * Setzt View auf offene Todos.
+     * Hinweis: UI wird erst mit refresh() aktualisiert.
+     */
     public void showOpen() {
         showingDone = false;
     }
 
+    /**
+     * Setzt View auf erledigte Todos.
+     * Hinweis: UI wird erst mit refresh() aktualisiert.
+     */
     public void showDone() {
         showingDone = true;
     }
@@ -91,6 +141,14 @@ public class TasksController {
         return showingDone;
     }
 
+    /**
+     * Lädt Todos neu basierend auf ausgewählter Kategorie und showingDone.
+     *
+     * Wichtige Punkte:
+     * - merkt aktuelle Selektion per ID (weil neue Instanzen geladen werden)
+     * - suppressSelection verhindert Details-Trigger beim select(...) nach Refresh
+     * - aktualisiert History-Buttons anhand doneCount
+     */
     public void refresh() {
         Category category = selectedCategorySupplier.get();
 
@@ -102,6 +160,12 @@ public class TasksController {
         }
 
         if (category == null) {
+            /*
+             * Kein Kontext (keine Kategorie ausgewählt):
+             * - leere Liste anzeigen
+             * - Selektion löschen
+             * - Buttons zurücksetzen
+             */
             suppressSelection = true;
             try {
                 tasksView.getItems().setAll(List.of());
@@ -113,8 +177,10 @@ public class TasksController {
             return;
         }
 
+        // Anzahl erledigter Todos für Button-Text
         int doneCount = service.countDoneTodosForCategory(category.getId());
 
+        // Items gemäss Modus laden
         List<TodoItem> items = showingDone
                 ? service.getDoneTodosForCategory(category.getId())
                 : service.getOpenTodosForCategory(category.getId());
@@ -142,6 +208,12 @@ public class TasksController {
         updateHistoryButtons(doneCount);
     }
 
+    /**
+     * Hilfsfunktion: Index eines TodoItem anhand ID in einer Liste.
+     *
+     * Laufzeit:
+     * - O(n) pro Refresh; bei typischer Todo-Listen-Grösse ok.
+     */
     private int indexOfId(List<TodoItem> items, int id) {
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i).getId() == id)
@@ -150,6 +222,18 @@ public class TasksController {
         return -1;
     }
 
+    /**
+     * Handler: neues Todo hinzufügen.
+     *
+     * Validierung:
+     * - Titel darf nicht leer sein
+     *
+     * Ablauf:
+     * - service.addTodo(...)
+     * - Eingabefelder zurücksetzen
+     * - showingDone=false (nach Insert wieder in offene Ansicht)
+     * - refresh()
+     */
     public void onAddTask() {
         Category category = selectedCategorySupplier.get();
         if (category == null)
@@ -171,6 +255,14 @@ public class TasksController {
         }
     }
 
+    /**
+     * Handler: "Alle erledigten löschen" (nur im History-Mode sichtbar).
+     *
+     * Ablauf:
+     * - Bestätigungs-Popup anzeigen
+     * - bei Confirm: service.deleteDoneTodosByCategory(...)
+     * - refresh()
+     */
     public void onClearDone() {
         Category category = selectedCategorySupplier.get();
         if (category == null)
@@ -194,6 +286,14 @@ public class TasksController {
                 });
     }
 
+    /**
+     * Steuert Sichtbarkeit/Managed der History-Buttons.
+     *
+     * Logik:
+     * - inHistory = showingDone
+     * - btnShowDone: nur sichtbar wenn NICHT inHistory; Text enthält doneCount
+     * - btnBack + btnClearDone: nur sichtbar wenn inHistory
+     */
     private void updateHistoryButtons(int doneCount) {
         boolean inHistory = showingDone;
 
@@ -212,6 +312,19 @@ public class TasksController {
         }
     }
 
+    /**
+     * Konfiguriert die ListCell für TodoItems.
+     *
+     * Aufbau:
+     * - CheckBox links (Status)
+     * - VBox: Title (wrap) + optional Due-Date
+     * - Spacer
+     * - Notes-Icon "✎" nur sichtbar, wenn Notes vorhanden
+     *
+     * Wichtige Cell-Reuse Punkte:
+     * - Due-Style "overdue" immer resetten, bevor neu gesetzt wird
+     * - managed/visible für Due und NotesIcon jedes Mal korrekt setzen
+     */
     private void setupTodoCells() {
         tasksView.setEditable(false);
         tasksView.setFixedCellSize(-1);
@@ -228,6 +341,11 @@ public class TasksController {
             private final HBox root = new HBox(8, checkBox, textBox, spacer, notesIcon);
 
             {
+                /*
+                 * Breite der ListCell an ListView koppeln:
+                 * - setPrefWidth(0) + binding auf lv.widthProperty()-18 wirkt wie ein
+                 * "fit-to-width"
+                 */
                 setPrefWidth(0);
                 prefWidthProperty().bind(lv.widthProperty().subtract(18));
 
@@ -262,6 +380,14 @@ public class TasksController {
                 notesIcon.setManaged(false);
                 notesIcon.setVisible(false);
 
+                /*
+                 * Statuswechsel:
+                 * - Checkbox toggelt DONE/OPEN
+                 * - refresh() lädt Liste neu und setzt Checkbox-Status konsistent
+                 *
+                 * Hinweis:
+                 * - Bei refresh() wird die Liste neu gesetzt; ListCell wird recycelt.
+                 */
                 checkBox.setOnAction(e -> {
                     TodoItem item = getItem();
                     if (item == null)
@@ -275,6 +401,7 @@ public class TasksController {
                         }
                         refresh();
                     } catch (Exception exception) {
+                        // UI zurücksetzen auf tatsächlichen Status
                         checkBox.setSelected(item.getStatus() == TodoStatus.DONE);
                         UiDialogs.error("Status konnte nicht geändert werden: " + exception.getMessage(), exception);
                     }
@@ -292,6 +419,12 @@ public class TasksController {
                 }
 
                 checkBox.setSelected(item.getStatus() == TodoStatus.DONE);
+
+                /*
+                 * TodoUiText.breakAnywhere:
+                 * - verhindert Layout-Probleme bei sehr langen Wörtern/Strings ohne Leerzeichen
+                 * - typischer Ansatz: Zero-Width-Spaces oder Soft-Hyphen einfügen
+                 */
                 title.setText(TodoUiText.breakAnywhere(item.getTitle()));
 
                 // Reset (wichtig wegen Cell-Reuse)
@@ -305,6 +438,7 @@ public class TasksController {
                     boolean isDone = item.getStatus() == TodoStatus.DONE;
                     boolean isOverdue = !isDone && item.getDueDate().isBefore(java.time.LocalDate.now());
 
+                    // Overdue nur bei offenen Tasks (nicht bei erledigten)
                     if (isOverdue) {
                         due.getStyleClass().add("overdue");
                     }

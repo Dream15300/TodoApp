@@ -13,28 +13,52 @@ import javafx.stage.Window;
 
 import java.util.List;
 
+/**
+ * Verantwortlichkeiten:
+ * - Laden/Anzeigen von Kategorien in einer ListView
+ * - Öffnen eines Edit-Popups (Name/Icon ändern, Kategorie löschen)
+ * - Delegation an TodoService für Geschäftslogik (Update/Delete)
+ *
+ * UI-Technik:
+ * - Custom ListCell mit "⋯" Button pro Zeile
+ * - Edit-Popup als PopupControl (statt ContextMenu), damit es nicht
+ * abgeschnitten wird
+ */
 public class CategoriesController {
 
     private final ListView<Category> listsView;
     private final TodoService service;
     private ConfirmPopupController deleteConfirmPopup;
 
-    // Edit-Popup (PopupControl statt ContextMenu -> kein Abschneiden)
+    // Edit-Popup (PopupControl statt ContextMenu → kein Abschneiden am Fensterrand)
     private final PopupControl editPopup = new PopupControl();
     private TextField nameEditor;
     private FlowPane iconGrid;
     private String selectedIcon;
 
-    // Icon-Set
+    // Icon-Set (UI-Optionen für Kategorie-Icon)
     private static final List<String> ICONS = List.of(
             "📁", "🛒", "💼", "🎓", "🏠",
             "⭐", "💡", "📌", "✅", "🍕", "🎾", "💘");
 
+    /**
+     * Konstruktor mit Abhängigkeiten.
+     */
     public CategoriesController(ListView<Category> listsView, TodoService service) {
         this.listsView = listsView;
         this.service = service;
     }
 
+    /**
+     * Initialisiert die UI-Logik.
+     *
+     * Reihenfolge:
+     * - Popup aufbauen
+     * - CellFactory setzen
+     * - Kategorien laden
+     * - Delete-Confirm-Popup initialisieren
+     * - Default-Selection: erste Kategorie auswählen (falls vorhanden)
+     */
     public void init() {
         setupEditPopup();
         setupCategoryCells();
@@ -48,11 +72,22 @@ public class CategoriesController {
         }
     }
 
+    /**
+     * Lädt Kategorien aus dem Service und ersetzt die komplette
+     * ListView-Items-Liste.
+     */
     public void loadCategories() {
         List<Category> categories = service.getCategories();
         listsView.getItems().setAll(categories);
     }
 
+    /**
+     * Selektiert eine Kategorie anhand ID (nach Reload sinnvoll).
+     *
+     * Implementierung:
+     * - lineares Suchen über items; bei kleinen Listen ok
+     * - Bei sehr vielen Elementen: Map<Id, Category> oder Lookup-Struktur
+     */
     public void reselectById(int id) {
         listsView.getItems().stream()
                 .filter(c -> c.getId() == id)
@@ -61,13 +96,25 @@ public class CategoriesController {
     }
 
     /**
-     * öffentliche API für compact Listen-Dropdown:
-     * öffnet exakt denselben Edit-Popup wie der "…" Button in der ListCell.
+     * Öffentliche API für compact Listen-Dropdown:
+     * Öffnet exakt denselben Edit-Popup wie der "⋯" Button in der ListCell.
+     *
+     * @param category Kategorie, die bearbeitet werden soll
+     * @param anchor   UI-Node als Bezugspunkt (hier: nur für
+     *                 ownerNode-Szene/Fenster)
      */
     public void showEditFor(Category category, Node anchor) {
         showEditPopup(anchor, category);
     }
 
+    /**
+     * Baut den Inhalt des Edit-Popups auf und setzt die Event-Handler.
+     *
+     * Wichtige UI-Details:
+     * - AutoHide: Klick ausserhalb schliesst Popup
+     * - OnShown: Stylesheets/Themes übernehmen + Fokus setzen (Platform.runLater
+     * wegen Layout)
+     */
     private void setupEditPopup() {
         editPopup.setAutoHide(true);
         editPopup.setHideOnEscape(true);
@@ -84,6 +131,7 @@ public class CategoriesController {
         Button btnCancel = new Button("Abbrechen");
         Button btnDelete = new Button("Löschen");
 
+        // CSS-Klassen für konsistentes Styling
         btnSave.getStyleClass().add("category-popup-btn-save");
         btnCancel.getStyleClass().add("category-popup-btn-cancel");
         btnDelete.getStyleClass().add("category-popup-btn-danger");
@@ -98,8 +146,15 @@ public class CategoriesController {
         editorBox.setPadding(new Insets(12));
         editorBox.getChildren().setAll(lblName, nameEditor, iconGrid, buttonsRow);
 
+        // PopupControl nutzt eine eigene Scene → Root setzen
         editPopup.getScene().setRoot(editorBox);
+
         editPopup.setOnShown(e -> {
+            /*
+             * Styling/Theme-Synchronisierung:
+             * - übernimmt Stylesheets der Haupt-Scene
+             * - kopiert Theme-Klassen ("dim"/"light") vom Main-Root auf Popup-Root
+             */
             var owner = listsView.getScene();
             if (owner != null) {
                 editPopup.getScene().getStylesheets().setAll(owner.getStylesheets());
@@ -114,6 +169,12 @@ public class CategoriesController {
                     popupRoot.getStyleClass().add("light");
             }
 
+            /*
+             * Fokus erst nach dem Anzeigen/Layout:
+             * - requestFocus() direkt im Handler kann zu früh sein, wenn das Popup noch
+             * nicht "ready" ist
+             * - runLater stellt sicher, dass die Node im Scenegraph finalisiert ist
+             */
             Platform.runLater(() -> {
                 nameEditor.requestFocus();
                 nameEditor.selectAll();
@@ -121,10 +182,20 @@ public class CategoriesController {
         });
 
         btnCancel.setOnAction(e -> editPopup.hide());
+
+        // commitEdit() kapselt Validierung + Service-Call + Reload/Reselect
         btnSave.setOnAction(e -> commitEdit());
+
+        // Enter im Textfeld speichert ebenfalls
         nameEditor.setOnAction(e -> commitEdit());
 
         btnDelete.setOnAction(e -> {
+            /*
+             * UserData enthält die aktuell bearbeitete Kategorie (gesetzt in
+             * showEditPopup).
+             * Vorteil:
+             * - Kein zusätzlicher Controller-State nötig.
+             */
             Category category = (Category) editPopup.getUserData();
             if (category == null) {
                 editPopup.hide();
@@ -135,6 +206,13 @@ public class CategoriesController {
         });
     }
 
+    /**
+     * Baut das Icon-Auswahlgitter (Buttons).
+     *
+     * UI-Verhalten:
+     * - FocusTraversable=false verhindert Fokus-Ring/Tab-Fokus auf Icon-Buttons
+     * - Klick setzt selectedIcon und markiert visuell über CSS-Klasse "selected"
+     */
     private FlowPane buildIconGrid() {
         FlowPane pane = new FlowPane();
         pane.getStyleClass().add("category-icon-grid");
@@ -154,6 +232,10 @@ public class CategoriesController {
         return pane;
     }
 
+    /**
+     * Setzt/entfernt die CSS-Klasse "selected" auf Icon-Buttons je nach
+     * selectedIcon.
+     */
     private void applyIconSelection() {
         for (Node n : iconGrid.getChildren()) {
             if (n instanceof Button b) {
@@ -168,19 +250,39 @@ public class CategoriesController {
         }
     }
 
+    /**
+     * Öffnet den Edit-Popup, initialisiert Felder und zentriert ihn im
+     * Owner-Fenster.
+     *
+     * Zentrierung:
+     * - Popup wird zuerst gezeigt (damit Breite/Höhe berechnet sind)
+     * - danach in runLater: Position anhand OwnerWindow + PopupWindow Dimensionen
+     * setzen
+     *
+     * @param ownerNode Anchor-Node, um das Owner-Fenster zu bestimmen
+     * @param category  zu bearbeitende Kategorie
+     */
     private void showEditPopup(Node ownerNode, Category category) {
         if (category == null)
             return;
 
+        // Category im Popup speichern (für commitEdit/delete)
         editPopup.setUserData(category);
 
+        // Eingabefelder initialisieren
         nameEditor.setText(category.getName());
         nameEditor.selectAll();
 
+        /*
+         * Icon-Initialisierung:
+         * - Falls Kategorie kein Icon hat, wird erstes Icon aus Liste als Default
+         * gewählt.
+         */
         String icon = category.getIcon();
         selectedIcon = (icon == null || icon.isBlank()) ? ICONS.getFirst() : icon.trim();
         applyIconSelection();
 
+        // Falls bereits offen: schliessen, um Zustand sauber zu resetten
         if (editPopup.isShowing()) {
             editPopup.hide();
         }
@@ -188,6 +290,7 @@ public class CategoriesController {
         // --- ZENTRIERUNG ---
         Window ownerWindow = ownerNode.getScene().getWindow();
 
+        // Popup zeigen, damit es eine Window-Instanz + Dimensionen hat
         editPopup.show(ownerWindow);
 
         Platform.runLater(() -> {
@@ -201,11 +304,27 @@ public class CategoriesController {
             popupWindow.setX(x);
             popupWindow.setY(y);
 
+            // Fokus explizit nach Positionierung/Render
             nameEditor.requestFocus();
             nameEditor.selectAll();
         });
     }
 
+    /**
+     * Setzt die CellFactory für die Category-ListView.
+     *
+     * UI:
+     * - Label zeigt Icon + Name (falls Icon vorhanden)
+     * - "⋯" Button öffnet Edit-Popup
+     *
+     * Verhalten:
+     * - itemProperty Listener schliesst Popup, falls Item wechselt
+     * (z. B. wenn Auswahl wechselt oder Zelle recycled wird)
+     *
+     * Hinweis:
+     * - ListCell wird recycelt; updateItem muss immer vollständig setzen
+     * (setGraphic etc.)
+     */
     private void setupCategoryCells() {
         listsView.setCellFactory(lv -> new ListCell<>() {
 
@@ -229,6 +348,7 @@ public class CategoriesController {
                 });
 
                 itemProperty().addListener((obs, oldV, newV) -> {
+                    // Popup schliessen, wenn Zelle ein anderes Item bekommt (Recycling/Refresh)
                     if (editPopup.isShowing())
                         editPopup.hide();
                 });
@@ -259,6 +379,19 @@ public class CategoriesController {
         });
     }
 
+    /**
+     * Speichert Änderungen aus dem Edit-Popup.
+     *
+     * Ablauf:
+     * - UserData → Kategorie lesen
+     * - Name validieren (nicht leer)
+     * - Service.updateCategory(...) ausführen
+     * - Kategorien neu laden + vorherige Kategorie wieder selektieren
+     *
+     * Hinweis:
+     * - Bei leerem Namen wird aktuell einfach geschlossen (kein Fehlerdialog).
+     * Falls UX gewünscht: UiDialogs.warn + Fokus zurück.
+     */
     private void commitEdit() {
         Category category = (Category) editPopup.getUserData();
         if (category == null) {
@@ -284,6 +417,17 @@ public class CategoriesController {
         }
     }
 
+    /**
+     * Zeigt ein Bestätigungs-Popup und löscht danach die Kategorie.
+     *
+     * Geschäftsregel:
+     * - Service wirft IllegalStateException, wenn noch Todos existieren (siehe
+     * TodoService.deleteCategory)
+     *
+     * UI:
+     * - Nach Löschen wird Liste neu geladen und erste Kategorie selektiert (falls
+     * vorhanden).
+     */
     private void confirmAndDelete(Category category) {
         String msg = "Liste \"" + category.getName() + "\" wirklich löschen?";
 

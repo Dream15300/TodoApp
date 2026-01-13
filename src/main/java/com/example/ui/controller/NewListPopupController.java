@@ -21,28 +21,61 @@ import javafx.scene.layout.VBox;
 import java.util.List;
 import java.util.function.IntConsumer;
 
+/**
+ * Verantwortlichkeiten:
+ * - Popup-Control erstellen/konfigurieren
+ * - Eingaben (Name, Icon) erfassen
+ * - Kategorie via TodoService erstellen
+ * - Callback (onCreated) mit neuer ID auslösen (UI kann danach reload/reselect)
+ *
+ * UI-Verhalten:
+ * - Toggle: öffnet/schliesst das Popup zentriert
+ * - Fokus beim Öffnen auf Name-Feld
+ * - ENTER speichert, ESC schliesst (im Textfeld)
+ */
 public class NewListPopupController {
 
+    // PopupControl = eigenes Window/Scene; gut für "zentriert" und nicht
+    // abgeschnitten
     private final PopupControl popup = new PopupControl();
 
+    // Eingabefeld für Listenname
     private final TextField nameField = new TextField();
 
+    // Owner für Positionierung (Scene/Window) und als Styling-Quelle (Stylesheets)
     private final ListView<Category> ownerListsView;
+
+    // Service-Schicht (Geschäftslogik + Persistenz)
     private final TodoService service;
+
+    // Callback nach erfolgreicher Erstellung (liefert neue Kategorie-ID)
     private final IntConsumer onCreated;
 
+    // aktuell gewähltes Icon (Default)
     private String selectedIcon = "📁";
 
+    // Auswahl-Icons (muss visuell zum restlichen UI passen)
     private static final List<String> ICONS = List.of(
             "📁", "🛒", "💼", "🎓", "🏠",
             "⭐", "💡", "📌", "✅", "🍕", "🎾", "💘");
 
+    /**
+     * @param ownerListsView ListView als Owner/Anchor für Show + Zentrierung
+     * @param service        TodoService
+     * @param onCreated      Callback, der nach dem Insert mit neuer ID aufgerufen
+     *                       wird
+     */
     public NewListPopupController(ListView<Category> ownerListsView, TodoService service, IntConsumer onCreated) {
         this.ownerListsView = ownerListsView;
         this.service = service;
         this.onCreated = onCreated;
     }
 
+    /**
+     * Baut Popup-UI auf und registriert Event-Handler.
+     *
+     * Muss vor toggleShowCentered() aufgerufen werden.
+     */
     public void init() {
         popup.setAutoHide(true);
         popup.setHideOnEscape(true);
@@ -56,9 +89,12 @@ public class NewListPopupController {
 
         nameField.getStyleClass().add("category-popup-input");
 
-        // Label lblIcon = new Label("Icon:");
-        // lblIcon.getStyleClass().add("category-popup-label");
-
+        /*
+         * Icon-Auswahl:
+         * - buildIconGrid() erzeugt Buttons und setzt "selected"-CSS
+         * - iconGrid bekommt zusätzliche Klasse "icon-grid"
+         * (Layout/Spacing/Breakpoints)
+         */
         FlowPane iconGrid = buildIconGrid();
         iconGrid.getStyleClass().add("icon-grid");
 
@@ -68,29 +104,44 @@ public class NewListPopupController {
         Button btnSave = new Button("Speichern");
         btnSave.getStyleClass().add("category-popup-btn-save");
 
+        // Spacer drückt Buttons nach rechts
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         HBox buttons = new HBox(6, spacer, btnCancel, btnSave);
         buttons.setAlignment(Pos.CENTER_RIGHT);
 
-        card.getChildren().addAll(lblName, nameField, iconGrid, buttons); // lblIcon in Klammern setzen, wenn
-                                                                          // Icon-Auswahl wieder rein soll
+        /*
+         * Popup-Inhalt:
+         * - aktuell: Name + IconGrid + Buttons
+         */
+        card.getChildren().addAll(lblName, nameField, iconGrid, buttons);
 
         popup.getScene().setRoot(card);
 
         popup.setOnShown(e -> {
+            /*
+             * Stylesheets übernehmen:
+             * - sorgt für identisches Theme/Design wie Hauptfenster
+             */
             var owner = ownerListsView.getScene();
             if (owner != null) {
                 popup.getScene().getStylesheets().setAll(owner.getStylesheets());
             }
 
+            /*
+             * Wichtig: Zentrierung + Fokus in runLater,
+             * damit w/h des Popups korrekt sind und Fokus zuverlässig greift.
+             */
             Platform.runLater(() -> {
                 centerInOwnerScene();
+
+                // optional: Fokus aufs Popup-Window, dann Feld fokussieren
                 var popupWindow = popup.getScene().getWindow();
                 if (popupWindow != null) {
                     popupWindow.requestFocus();
                 }
+
                 nameField.requestFocus();
                 nameField.selectAll();
             });
@@ -110,6 +161,15 @@ public class NewListPopupController {
         });
     }
 
+    /**
+     * Toggle-Funktion:
+     * - wenn offen: schliessen
+     * - wenn geschlossen: initialisieren (clear/defaults) und öffnen
+     *
+     * Anzeige:
+     * - popup.show(ownerListsView, 0, 0) zeigt initial, Zentrierung erfolgt im
+     * onShown()
+     */
     public void toggleShowCentered() {
         if (ownerListsView == null || ownerListsView.getScene() == null) {
             return;
@@ -120,12 +180,20 @@ public class NewListPopupController {
             return;
         }
 
+        // Zustand zurücksetzen bei jedem Öffnen
         nameField.clear();
         selectedIcon = "📁";
 
         popup.show(ownerListsView, 0, 0);
     }
 
+    /**
+     * Erstellt das Icon-Gitter mit Buttons.
+     *
+     * Verhalten:
+     * - Klick setzt selectedIcon
+     * - "selected" CSS-Klasse wird im Grid aktualisiert
+     */
     private FlowPane buildIconGrid() {
         FlowPane pane = new FlowPane();
         pane.setHgap(8);
@@ -136,6 +204,7 @@ public class NewListPopupController {
             Button b = new Button(icon);
             b.getStyleClass().add("category-icon-btn");
 
+            // Initialer Selected-State (wird beim ersten Aufbau gesetzt)
             if (icon.equals(selectedIcon)) {
                 b.getStyleClass().add("selected");
             }
@@ -157,6 +226,14 @@ public class NewListPopupController {
         return pane;
     }
 
+    /**
+     * Zentriert das Popup relativ zur Owner-Scene im Fenster.
+     *
+     * Grössenproblem:
+     * - popup.getWidth()/getHeight() kann 0 sein, wenn Layout noch nicht berechnet
+     * ist.
+     * - Dann wird CSS/Layout erzwungen und prefWidth/prefHeight verwendet.
+     */
     private void centerInOwnerScene() {
         var ownerScene = ownerListsView.getScene();
         double w = popup.getWidth();
@@ -175,6 +252,20 @@ public class NewListPopupController {
         popup.setY(y);
     }
 
+    /**
+     * Validiert Eingabe und erstellt Kategorie.
+     *
+     * Validierung:
+     * - Name darf nicht leer sein
+     *
+     * Ablauf:
+     * - service.createCategory(...) liefert neue ID
+     * - Popup wird geschlossen
+     * - onCreated.accept(newId) triggert UI-Update (z. B. reload + select)
+     *
+     * Fehler:
+     * - UI-Fehlerdialog via UiDialogs.error(...)
+     */
     private void commit() {
         String name = nameField.getText() == null ? "" : nameField.getText().trim();
         if (name.isEmpty()) {
