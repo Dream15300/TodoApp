@@ -110,9 +110,21 @@ public class PrimaryController {
         newListPopupController.init();
         layout.init();
 
+        Platform.runLater(() -> {
+            var scene = rootSplit.getScene();
+            if (scene == null)
+                return;
+
+            // initial einmal anwenden
+            sizing.apply(layout.isCompactMode());
+
+            // bei jeder Breitenänderung neu anwenden (falls Details offen)
+            scene.widthProperty().addListener((o, oldW, newW) -> sizing.apply(layout.isCompactMode()));
+        });
+
         // Initialzustand
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
         updateHeaderTexts();
 
         // Listener verdrahten (Option 1: Refresh nur über Selektion)
@@ -124,7 +136,7 @@ public class PrimaryController {
             updateHeaderTexts();
             tasksController.showOpen();
             detailsController.close();
-            sizing.apply();
+            sizing.apply(layout.isCompactMode());
             tasksController.refresh();
 
             if (listMenuCtl != null && listMenuCtl.isShowing()) {
@@ -138,7 +150,7 @@ public class PrimaryController {
             } else {
                 detailsController.open(newV);
             }
-            sizing.apply();
+            sizing.apply(layout.isCompactMode());
         });
 
         // Compact List Menu
@@ -202,7 +214,7 @@ public class PrimaryController {
             updateHeaderTexts();
             tasksController.showOpen();
             detailsController.close();
-            sizing.apply();
+            sizing.apply(layout.isCompactMode());
             tasksController.refresh();
 
             if (listMenuCtl != null && listMenuCtl.isShowing()) {
@@ -251,7 +263,7 @@ public class PrimaryController {
     @FXML
     private void onAddTask() {
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
         tasksController.onAddTask();
     }
 
@@ -259,7 +271,7 @@ public class PrimaryController {
     private void onShowHistory() {
         tasksController.showDone();
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
         tasksController.refresh();
     }
 
@@ -267,21 +279,21 @@ public class PrimaryController {
     private void onBackFromHistory() {
         tasksController.showOpen();
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
         tasksController.refresh();
     }
 
     @FXML
     private void onClearDone() {
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
         tasksController.onClearDone();
     }
 
     @FXML
     private void onCloseDetails() {
         detailsController.close();
-        sizing.apply();
+        sizing.apply(layout.isCompactMode());
         tasksController.clearSelectionProgrammatically();
     }
 
@@ -295,7 +307,7 @@ public class PrimaryController {
         boolean ok = detailsController.save();
         if (ok) {
             detailsController.close();
-            sizing.apply();
+            sizing.apply(layout.isCompactMode());
             tasksController.refresh();
             tasksController.clearSelectionProgrammatically();
             tasksView.requestFocus();
