@@ -10,6 +10,7 @@ import com.example.ui.controller.TasksController;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import javafx.geometry.Side;
@@ -43,6 +44,8 @@ public class PrimaryController {
     private DatePicker detailsDueDate;
     @FXML
     private TextArea detailsNotes;
+    @FXML
+    private HBox tasksAndDetailsContainer;
 
     @FXML
     private VBox listsPane;
@@ -114,6 +117,12 @@ public class PrimaryController {
             else
                 detailsController.open(newV);
         });
+
+        detailsPane.prefWidthProperty().bind(
+                tasksAndDetailsContainer.widthProperty().multiply(0.5));
+
+        tasksView.prefWidthProperty().bind(
+                tasksAndDetailsContainer.widthProperty().multiply(0.5));
 
         tasksController.refresh();
 

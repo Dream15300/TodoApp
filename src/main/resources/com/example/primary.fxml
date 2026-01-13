@@ -59,7 +59,7 @@
                       VBox.vgrow="ALWAYS">
 
                     <!-- Tasks + Details (nur innerhalb dieses Containers) -->
-                    <HBox spacing="12.0" VBox.vgrow="ALWAYS">
+                    <HBox fx:id="tasksAndDetailsContainer" spacing="12.0" VBox.vgrow="ALWAYS">
 
                         <ListView fx:id="tasksView"
                                   styleClass="tasks-view"
@@ -70,9 +70,8 @@
                               spacing="10.0"
                               visible="false"
                               managed="false"
-                              prefWidth="360.0"
-                              minWidth="360.0"
-                              maxWidth="360.0"
+                              HBox.hgrow="ALWAYS"
+                              maxWidth="Infinity"
                               styleClass="details-pane">
                             <padding>
                                 <Insets top="12" right="12" bottom="12" left="12"/>
