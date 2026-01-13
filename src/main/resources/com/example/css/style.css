@@ -75,6 +75,14 @@
 }
 
 /* =========================
+   SplitPane Compact Mode (keine sichtbaren Divider)
+   ========================= */
+.split-pane.compact > .split-pane-divider {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+/* =========================
    Karten-Container links/rechts
    ========================= */
 .category-container,
@@ -179,7 +187,7 @@
     -fx-padding: 0;
 }
 
-/* Scrollbars unauffällig (optional) */
+/* Scrollbars unauffällig */
 .details-notes .scroll-pane,
 .details-notes .viewport {
     -fx-background-color: transparent;
@@ -382,6 +390,14 @@
     -fx-border-width: 1;
     -fx-background-radius: 10;
     -fx-border-radius: 10;
+}
+
+/* =========================
+   Overdue Tasks (fällige Aufgaben)
+   ========================= */
+.todo-due.overdue {
+    -fx-text-fill: #e53935;
+    -fx-font-weight: bold;
 }
 
 
@@ -907,12 +923,5 @@
 .root .scroll-bar:hover .thumb { -fx-opacity: 0.55; }
 .root .scroll-bar:pressed .thumb { -fx-opacity: 0.70; }
 
-/* =========================
-   SplitPane Compact Mode (keine sichtbaren Divider)
-   ========================= */
-.split-pane.compact > .split-pane-divider {
-    -fx-padding: 0;
-    -fx-background-color: transparent;
-}
 
 

@@ -294,10 +294,20 @@ public class TasksController {
                 checkBox.setSelected(item.getStatus() == TodoStatus.DONE);
                 title.setText(TodoUiText.breakAnywhere(item.getTitle()));
 
+                // Reset (wichtig wegen Cell-Reuse)
+                due.getStyleClass().remove("overdue");
+
                 if (item.getDueDate() != null) {
                     due.setText("📅 " + item.getDueDate().format(dueFmt));
                     due.setManaged(true);
                     due.setVisible(true);
+
+                    boolean isDone = item.getStatus() == TodoStatus.DONE;
+                    boolean isOverdue = !isDone && item.getDueDate().isBefore(java.time.LocalDate.now());
+
+                    if (isOverdue) {
+                        due.getStyleClass().add("overdue");
+                    }
                 } else {
                     due.setManaged(false);
                     due.setVisible(false);
@@ -310,6 +320,7 @@ public class TasksController {
                 setText(null);
                 setGraphic(root);
             }
+
         });
     }
 }
