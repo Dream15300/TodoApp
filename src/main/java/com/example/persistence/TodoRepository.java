@@ -84,7 +84,6 @@ public class TodoRepository {
      * Lädt offene Todos einer Kategorie.
      *
      * Sortierung:
-     * - Priority DESC: hohe Priorität zuerst
      * - DueDate IS NULL: ohne Datum ans Ende (SQLite: false < true, daher NULLs
      * zuletzt)
      * - DueDate: frühestes Datum zuerst
@@ -92,10 +91,10 @@ public class TodoRepository {
      */
     public List<TodoItem> findOpenByCategory(int categoryId) {
         String sql = """
-                SELECT Id, CategoryId, Title, DueDate, Notes, Status, Priority
+                SELECT Id, CategoryId, Title, DueDate, Notes, Status
                 FROM TodoItems
                 WHERE CategoryId = ? AND Status = ?
-                ORDER BY Priority DESC, DueDate IS NULL, DueDate, Id
+                ORDER BY DueDate IS NULL, DueDate, Id
                 """;
 
         return queryByCategoryAndStatus(sql, categoryId, TodoStatus.OPEN);
@@ -111,7 +110,7 @@ public class TodoRepository {
      */
     public List<TodoItem> findDoneByCategory(int categoryId) {
         String sql = """
-                SELECT Id, CategoryId, Title, DueDate, Notes, Status, Priority
+                SELECT Id, CategoryId, Title, DueDate, Notes, Status
                 FROM TodoItems
                 WHERE CategoryId = ? AND Status = ?
                 ORDER BY DueDate IS NULL, DueDate DESC, Id DESC
@@ -160,7 +159,7 @@ public class TodoRepository {
      */
     public int insert(TodoItem item) {
         String sql = """
-                INSERT INTO TodoItems (CategoryId, Title, DueDate, Notes, Status, Priority)
+                INSERT INTO TodoItems (CategoryId, Title, DueDate, Notes, Status)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
@@ -176,7 +175,6 @@ public class TodoRepository {
 
             preparedStatement.setString(4, item.getNotes());
             preparedStatement.setInt(5, item.getStatus().getDbValue());
-            preparedStatement.setInt(6, item.getPriority());
 
             preparedStatement.executeUpdate();
 
@@ -309,12 +307,11 @@ public class TodoRepository {
         String due = resultSet.getString("DueDate");
         String notes = resultSet.getString("Notes");
         int statusValue = resultSet.getInt("Status");
-        int priority = resultSet.getInt("Priority");
 
         LocalDate dueDate = (due == null || due.isBlank()) ? null : LocalDate.parse(due);
         TodoStatus todoStatus = TodoStatus.fromDbValue(statusValue);
 
-        return new TodoItem(id, catId, title, dueDate, notes, todoStatus, priority);
+        return new TodoItem(id, catId, title, dueDate, notes, todoStatus);
     }
 
     /**

@@ -158,7 +158,6 @@ public class TodoService {
      * Defaultwerte:
      * - notes = null
      * - status = OPEN
-     * - priority = 0
      *
      * @param categoryId Kategorie-ID
      * @param title      Titel (Pflicht)
@@ -176,9 +175,7 @@ public class TodoService {
                 title.trim(),
                 dueDate,
                 null, // Notes initial leer
-                TodoStatus.OPEN,
-                0 // Default-Priority
-        );
+                TodoStatus.OPEN);
 
         return todoRepo.insert(item);
     }
