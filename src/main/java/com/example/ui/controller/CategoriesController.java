@@ -64,19 +64,8 @@ public class CategoriesController {
      * öffentliche API für compact Listen-Dropdown:
      * öffnet exakt denselben Edit-Popup wie der "…" Button in der ListCell.
      */
-    public void showEditFor(Category category, Node stableAnchor) {
-        if (stableAnchor == null)
-            stableAnchor = listsView; // Fallback
-        showEditPopup(stableAnchor, category);
-
-        // sicherstellen, dass editierbar + Fokus
-        Platform.runLater(() -> {
-            nameEditor.setEditable(true);
-            nameEditor.setDisable(false);
-            nameEditor.setMouseTransparent(false);
-            nameEditor.requestFocus();
-            nameEditor.selectAll();
-        });
+    public void showEditFor(Category category, Node anchor) {
+        showEditPopup(anchor, category);
     }
 
     private void setupEditPopup() {
