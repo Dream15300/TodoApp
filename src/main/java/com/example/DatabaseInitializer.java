@@ -22,6 +22,8 @@ import java.sql.ResultSet;
  */
 public final class DatabaseInitializer { // final --> darf nicht vererbt werden
 
+    private static final int DB_VERSION = 2;
+
     private DatabaseInitializer() { // private --> verhindert Instanzierung, Nutzung nur über statische Methoden
     }
 
@@ -34,10 +36,13 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
      * 3) seed_base_data.sql ausführen (Basis-Kategorien etc.)
      */
     public static void init() {
+        // 1) Basis-Schema sicherstellen (idempotent)
         executeSqlResource("db/init_schema.sql");
-        migrateCategoriesAddIconColumn();
 
-        // Seed nur beim ersten Start / leerer DB
+        // 2) Migrationen anhand user_version
+        migrateToLatest();
+
+        // 3) Seed nur wenn leer (nur erste Initialisierung)
         if (isTableEmpty("Categories")) {
             executeSqlResource("db/seed_base_data.sql");
         }
@@ -87,6 +92,45 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
         }
     }
 
+    private static void migrateToLatest() {
+        try (Connection connection = Db.open();
+                Statement statement = connection.createStatement()) {
+
+            int current = readUserVersion(statement);
+
+            if (current < 1) {
+                writeUserVersion(statement, 1);
+                current = 1;
+            }
+
+            while (current < DB_VERSION) {
+                int next = current + 1;
+
+                switch (next) {
+                    case 2 -> migrateCategoriesAddIconColumn(connection);
+                    // case 3 -> migrateX(connection);
+                    default -> throw new IllegalStateException("Keine Migration definiert für Version " + next);
+                }
+
+                writeUserVersion(statement, next);
+                current = next;
+            }
+
+        } catch (Exception exception) {
+            throw new RuntimeException("DB migration failed", exception);
+        }
+    }
+
+    private static int readUserVersion(Statement statement) throws Exception {
+        try (ResultSet rs = statement.executeQuery("PRAGMA user_version")) {
+            return rs.next() ? rs.getInt(1) : 0;
+        }
+    }
+
+    private static void writeUserVersion(Statement statement, int version) throws Exception {
+        statement.execute("PRAGMA user_version = " + version);
+    }
+
     /**
      * Liest eine Resource-Datei aus dem Classpath und gibt ihren Inhalt als String
      * zurück.
@@ -129,9 +173,8 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
      * 3) Falls nicht: ALTER TABLE ... ADD COLUMN Icon TEXT
      * 4) Backfill: Standard-Icons setzen (nur wenn Icon NULL/leer ist)
      */
-    private static void migrateCategoriesAddIconColumn() {
-        try (Connection connection = Db.open();
-                Statement statement = connection.createStatement();
+    private static void migrateCategoriesAddIconColumn(Connection connection) {
+        try (Statement statement = connection.createStatement();
                 var rs = statement.executeQuery("PRAGMA table_info(Categories)")) {
 
             boolean hasIcon = false;
@@ -143,16 +186,11 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
                 }
             }
 
-            // Schema-Upgrade nur wenn nötig
             if (!hasIcon) {
                 statement.execute("ALTER TABLE Categories ADD COLUMN Icon TEXT");
             }
 
-            /*
-             * Backfill:
-             * - setzt Icons für bekannte Standardnamen, aber nur wenn Icon leer/NULL ist
-             * - zuletzt ein generisches Icon für alle restlichen leeren Icons
-             */
+            // Backfill nur wenn leer/NULL
             statement.execute("""
                         UPDATE Categories SET Icon='💼'
                         WHERE (Icon IS NULL OR TRIM(Icon)='') AND Name='Arbeit'
