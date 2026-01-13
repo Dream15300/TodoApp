@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.stream.Collectors;
+import java.sql.ResultSet;
 
 /**
  * Ziele:
@@ -35,7 +36,11 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
     public static void init() {
         executeSqlResource("db/init_schema.sql");
         migrateCategoriesAddIconColumn();
-        executeSqlResource("db/seed_base_data.sql");
+
+        // Seed nur beim ersten Start / leerer DB
+        if (isTableEmpty("Categories")) {
+            executeSqlResource("db/seed_base_data.sql");
+        }
     }
 
     /**
@@ -64,6 +69,21 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
             }
         } catch (Exception exception) {
             throw new RuntimeException("DB init failed for resource: " + resourcePath, exception);
+        }
+    }
+
+    private static boolean isTableEmpty(String table) {
+        String sql = "SELECT 1 FROM " + table + " LIMIT 1";
+
+        try (Connection connection = Db.open();
+                Statement statement = connection.createStatement();
+                ResultSet rs = statement.executeQuery(sql)) {
+
+            return !rs.next();
+
+        } catch (Exception exception) {
+            // Wenn Tabelle nicht existiert o.ä., lieber seeden, damit App funktioniert
+            return true;
         }
     }
 

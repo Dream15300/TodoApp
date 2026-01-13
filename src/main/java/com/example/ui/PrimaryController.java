@@ -224,7 +224,13 @@ public class PrimaryController {
 
         // Initiale Tasks laden (abhängig von initial selektierter Kategorie in
         // categoriesController.init())
-        tasksController.refresh();
+        javafx.application.Platform.runLater(() -> {
+            categoriesController.loadCategories();
+            if (!listsView.getItems().isEmpty()) {
+                listsView.getSelectionModel().selectFirst();
+            }
+            tasksController.refresh();
+        });
 
         // Theme-Menü nur konfigurieren, wenn Toggle existiert (FXML optional)
         if (tglTheme != null)

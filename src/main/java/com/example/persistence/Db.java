@@ -27,8 +27,14 @@ public final class Db {
         String url = getJdbcUrl();
         Connection connection = DriverManager.getConnection(url); // Baut DB-Verbindung auf
         try (Statement statement = connection.createStatement()) {
-            statement.execute("PRAGMA foreign_keys = ON;"); // Foreign Keys erzwingen (SQLite default: OFF)
+            statement.execute("PRAGMA foreign_keys = ON;");
+
+            // Performance/IO: schnellerer Start + schnellere Writes
+            statement.execute("PRAGMA journal_mode = WAL;");
+            statement.execute("PRAGMA synchronous = NORMAL;");
+            statement.execute("PRAGMA temp_store = MEMORY;");
         }
+
         return connection;
     }
 
@@ -106,14 +112,19 @@ public final class Db {
      */
     private static void migrateLegacyDbIfNeeded(Path targetDbPath) {
         try {
-            Path legacy = Paths.get(DB_FILE_NAME); // relativ zum Working Directory
-            if (Files.exists(legacy) && !Files.exists(targetDbPath)) {
+            // Zuerst: wenn Ziel schon existiert, nichts tun (spart I/O)
+            if (Files.exists(targetDbPath)) {
+                return;
+            }
+
+            // Dann erst legacy pruefen (Working Directory)
+            Path legacy = Paths.get(DB_FILE_NAME);
+            if (Files.exists(legacy)) {
                 Files.copy(legacy, targetDbPath);
             }
         } catch (Exception exception) {
-            // Migration ist "best-effort": Wenn das Kopieren scheitert, soll die App
-            // trotzdem starten können
-            // und eine neue DB erzeugen. Darum kein throw.
+            // best-effort: keine Exception werfen
         }
     }
+
 }
