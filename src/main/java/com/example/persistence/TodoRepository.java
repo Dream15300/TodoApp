@@ -160,7 +160,7 @@ public class TodoRepository {
     public int insert(TodoItem item) {
         String sql = """
                 INSERT INTO TodoItems (CategoryId, Title, DueDate, Notes, Status)
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?)
                 """;
 
         try (Connection connection = Db.open();
