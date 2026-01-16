@@ -28,7 +28,7 @@ public class App extends Application {
      * Wird vor start(...) aufgerufen (nicht auf dem JavaFX Application Thread).
      *
      * Zweck:
-     * - Datenbankinitialisierung (z. B. Tabellen erstellen, Defaults einfügen)S
+     * - Datenbankinitialisierung (z. B. Tabellen erstellen, Defaults einfügen)
      */
     @Override
     public void init() {

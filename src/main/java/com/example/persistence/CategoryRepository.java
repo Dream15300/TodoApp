@@ -43,11 +43,11 @@ public class CategoryRepository {
          * - Verhindert Resource-Leaks
          */
         try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                ResultSet resultSet = preparedStatement.executeQuery()) {
+                PreparedStatement ps = connection.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             // Iteration über alle Datensätze des ResultSets
-            while (resultSet.next()) {
+            while (rs.next()) {
 
                 /*
                  * Mapping:
@@ -55,9 +55,9 @@ public class CategoryRepository {
                  * - Spaltennamen entsprechen den Attributen der Tabelle
                  */
                 outputedList.add(new Category(
-                        resultSet.getInt("Id"),
-                        resultSet.getString("Name"),
-                        resultSet.getString("Icon")));
+                        rs.getInt("Id"),
+                        rs.getString("Name"),
+                        rs.getString("Icon")));
             }
 
             return outputedList;
@@ -88,23 +88,23 @@ public class CategoryRepository {
          * - Ermöglicht den Zugriff auf automatisch generierte IDs (Primary Key)
          */
         try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(
+                PreparedStatement ps = connection.prepareStatement(
                         sql, Statement.RETURN_GENERATED_KEYS)) {
 
             // Platzhalter werden sicher befüllt (Schutz vor SQL-Injection)
-            preparedStatement.setString(1, name);
-            preparedStatement.setString(2, icon);
+            ps.setString(1, name);
+            ps.setString(2, icon);
 
             // Führt INSERT aus, Rückgabewert (int) wird hier nicht benötigt
-            preparedStatement.executeUpdate();
+            ps.executeUpdate();
 
             /*
              * Lesen des generierten Primärschlüssels
              * - ResultSet enthält die neu erzeugte ID
              */
-            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
-                if (resultSet.next()) {
-                    return resultSet.getInt(1);
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
                 }
             }
 
@@ -126,13 +126,13 @@ public class CategoryRepository {
         String sql = "UPDATE Categories SET Name = ? WHERE Id = ?";
 
         try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, newName);
-            preparedStatement.setInt(2, id);
+            ps.setString(1, newName);
+            ps.setInt(2, id);
 
             // Führt UPDATE-Anweisung aus
-            preparedStatement.executeUpdate();
+            ps.executeUpdate();
 
         } catch (SQLException exception) {
             throw new RuntimeException("Kategorie umbenennen fehlgeschlagen", exception);
@@ -149,11 +149,11 @@ public class CategoryRepository {
         String sql = "UPDATE Categories SET Icon = ? WHERE Id = ?";
 
         try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, newIcon);
-            preparedStatement.setInt(2, id);
-            preparedStatement.executeUpdate();
+            ps.setString(1, newIcon);
+            ps.setInt(2, id);
+            ps.executeUpdate();
         } catch (SQLException exception) {
             throw new RuntimeException("Kategorie Icon ändern fehlgeschlagen", exception);
         }
@@ -168,12 +168,12 @@ public class CategoryRepository {
         String sql = "DELETE FROM Categories WHERE Id = ?";
 
         try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, id);
+            ps.setInt(1, id);
 
             // Führt DELETE aus
-            preparedStatement.executeUpdate();
+            ps.executeUpdate();
 
         } catch (SQLException exception) {
             throw new RuntimeException("Kategorie löschen fehlgeschlagen", exception);

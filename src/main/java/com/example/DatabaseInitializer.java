@@ -63,13 +63,13 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
         String sql = readResource(resourcePath); // Liest Inhalt als String
         String[] statements = sql.split(";"); // Zerlegt SQL in einzelne Statements
 
-        try (Connection connection = Db.open();
-                Statement statement = connection.createStatement()) {
+        try (Connection c = Db.open();
+                Statement st = c.createStatement()) {
 
             for (String raw : statements) {
                 String s = raw.trim();
                 if (!s.isEmpty()) {
-                    statement.execute(s);
+                    st.execute(s);
                 }
             }
         } catch (Exception exception) {
@@ -80,9 +80,9 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
     private static boolean isTableEmpty(String table) {
         String sql = "SELECT 1 FROM " + table + " LIMIT 1";
 
-        try (Connection connection = Db.open();
-                Statement statement = connection.createStatement();
-                ResultSet rs = statement.executeQuery(sql)) {
+        try (Connection c = Db.open();
+                Statement st = c.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
 
             return !rs.next();
 
@@ -93,13 +93,13 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
     }
 
     private static void migrateToLatest() {
-        try (Connection connection = Db.open();
-                Statement statement = connection.createStatement()) {
+        try (Connection c = Db.open();
+                Statement st = c.createStatement()) {
 
-            int current = readUserVersion(statement);
+            int current = readUserVersion(st);
 
             if (current < 1) {
-                writeUserVersion(statement, 1);
+                writeUserVersion(st, 1);
                 current = 1;
             }
 
@@ -107,12 +107,12 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
                 int next = current + 1;
 
                 switch (next) {
-                    case 2 -> migrateCategoriesAddIconColumn(connection);
-                    // case 3 -> migrateX(connection);
+                    case 2 -> migrateCategoriesAddIconColumn(c);
+                    // case 3 -> migrateX(c);
                     default -> throw new IllegalStateException("Keine Migration definiert für Version " + next);
                 }
 
-                writeUserVersion(statement, next);
+                writeUserVersion(st, next);
                 current = next;
             }
 
@@ -121,14 +121,14 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
         }
     }
 
-    private static int readUserVersion(Statement statement) throws Exception {
-        try (ResultSet rs = statement.executeQuery("PRAGMA user_version")) {
+    private static int readUserVersion(Statement st) throws Exception {
+        try (ResultSet rs = st.executeQuery("PRAGMA user_version")) {
             return rs.next() ? rs.getInt(1) : 0;
         }
     }
 
-    private static void writeUserVersion(Statement statement, int version) throws Exception {
-        statement.execute("PRAGMA user_version = " + version);
+    private static void writeUserVersion(Statement st, int version) throws Exception {
+        st.execute("PRAGMA user_version = " + version);
     }
 
     /**
@@ -173,9 +173,9 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
      * 3) Falls nicht: ALTER TABLE ... ADD COLUMN Icon TEXT
      * 4) Backfill: Standard-Icons setzen (nur wenn Icon NULL/leer ist)
      */
-    private static void migrateCategoriesAddIconColumn(Connection connection) {
-        try (Statement statement = connection.createStatement();
-                var rs = statement.executeQuery("PRAGMA table_info(Categories)")) {
+    private static void migrateCategoriesAddIconColumn(Connection c) {
+        try (Statement st = c.createStatement();
+                var rs = st.executeQuery("PRAGMA table_info(Categories)")) {
 
             boolean hasIcon = false;
             while (rs.next()) {
@@ -187,23 +187,23 @@ public final class DatabaseInitializer { // final --> darf nicht vererbt werden
             }
 
             if (!hasIcon) {
-                statement.execute("ALTER TABLE Categories ADD COLUMN Icon TEXT");
+                st.execute("ALTER TABLE Categories ADD COLUMN Icon TEXT");
             }
 
             // Backfill nur wenn leer/NULL
-            statement.execute("""
+            st.execute("""
                         UPDATE Categories SET Icon='💼'
                         WHERE (Icon IS NULL OR TRIM(Icon)='') AND Name='Arbeit'
                     """);
-            statement.execute("""
+            st.execute("""
                         UPDATE Categories SET Icon='🎓'
                         WHERE (Icon IS NULL OR TRIM(Icon)='') AND Name='Schule'
                     """);
-            statement.execute("""
+            st.execute("""
                         UPDATE Categories SET Icon='🏠'
                         WHERE (Icon IS NULL OR TRIM(Icon)='') AND Name='Privat'
                     """);
-            statement.execute("""
+            st.execute("""
                         UPDATE Categories SET Icon='📁'
                         WHERE (Icon IS NULL OR TRIM(Icon)='')
                     """);

@@ -38,13 +38,13 @@ public class TodoRepository {
     public boolean hasTodos(int categoryId) {
         String sql = "SELECT 1 FROM TodoItems WHERE CategoryId = ? LIMIT 1";
 
-        try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection c = Db.open();
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, categoryId);
+            ps.setInt(1, categoryId);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return resultSet.next(); // true, sobald ein Datensatz vorhanden ist
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next(); // true, sobald ein Datensatz vorhanden ist
             }
 
         } catch (Exception exception) {
@@ -62,15 +62,15 @@ public class TodoRepository {
     public int countByCategoryAndStatus(int categoryId, TodoStatus status) {
         String sql = "SELECT COUNT(*) FROM TodoItems WHERE CategoryId = ? AND Status = ?";
 
-        try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection c = Db.open();
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, categoryId);
-            preparedStatement.setInt(2, status.getDbValue()); // Enum → DB-Integer
+            ps.setInt(1, categoryId);
+            ps.setInt(2, status.getDbValue()); // Enum → DB-Integer
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getInt(1); // COUNT(*) liefert genau eine Zeile
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // COUNT(*) liefert genau eine Zeile
                 }
                 return 0; // defensiver Fallback
             }
@@ -129,15 +129,15 @@ public class TodoRepository {
     private List<TodoItem> queryByCategoryAndStatus(String sql, int categoryId, TodoStatus status) {
         List<TodoItem> output = new ArrayList<>();
 
-        try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection c = Db.open();
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, categoryId);
-            preparedStatement.setInt(2, status.getDbValue());
+            ps.setInt(1, categoryId);
+            ps.setInt(2, status.getDbValue());
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    output.add(map(resultSet)); // zentrale Row→Objekt Abbildung
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    output.add(map(rs)); // zentrale Row→Objekt Abbildung
                 }
             }
 
@@ -163,23 +163,23 @@ public class TodoRepository {
                 VALUES (?, ?, ?, ?, ?)
                 """;
 
-        try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(
+        try (Connection c = Db.open();
+                PreparedStatement ps = c.prepareStatement(
                         sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            preparedStatement.setInt(1, item.getCategoryId());
-            preparedStatement.setString(2, item.getTitle());
+            ps.setInt(1, item.getCategoryId());
+            ps.setString(2, item.getTitle());
 
             // Null-handling: NULL in DB, falls kein Datum vorhanden
-            preparedStatement.setString(3, item.getDueDate() == null ? null : item.getDueDate().toString());
+            ps.setString(3, item.getDueDate() == null ? null : item.getDueDate().toString());
 
-            preparedStatement.setString(4, item.getNotes());
-            preparedStatement.setInt(5, item.getStatus().getDbValue());
+            ps.setString(4, item.getNotes());
+            ps.setInt(5, item.getStatus().getDbValue());
 
-            preparedStatement.executeUpdate();
+            ps.executeUpdate();
 
             // Generated Keys lesen (Primary Key)
-            try (ResultSet keys = preparedStatement.getGeneratedKeys()) {
+            try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
                     return keys.getInt(1);
                 }
@@ -205,13 +205,13 @@ public class TodoRepository {
     public void updateStatus(int todoId, TodoStatus status) {
         String sql = "UPDATE TodoItems SET Status = ? WHERE Id = ?";
 
-        try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection c = Db.open();
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, status.getDbValue());
-            preparedStatement.setInt(2, todoId);
+            ps.setInt(1, status.getDbValue());
+            ps.setInt(2, todoId);
 
-            int affected = preparedStatement.executeUpdate();
+            int affected = ps.executeUpdate();
             if (affected == 0) {
                 throw new IllegalStateException("Todo nicht gefunden: Id=" + todoId);
             }
@@ -235,26 +235,26 @@ public class TodoRepository {
     public void updateTodo(int todoId, String title, LocalDate dueDate, String notes) {
         String sql = "UPDATE TodoItems SET Title = ?, DueDate = ?, Notes = ? WHERE Id = ?";
 
-        try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection c = Db.open();
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, title);
+            ps.setString(1, title);
 
             if (dueDate == null) {
-                preparedStatement.setNull(2, Types.VARCHAR);
+                ps.setNull(2, Types.VARCHAR);
             } else {
-                preparedStatement.setString(2, dueDate.toString());
+                ps.setString(2, dueDate.toString());
             }
 
             if (notes == null || notes.isBlank()) {
-                preparedStatement.setNull(3, Types.VARCHAR);
+                ps.setNull(3, Types.VARCHAR);
             } else {
-                preparedStatement.setString(3, notes);
+                ps.setString(3, notes);
             }
 
-            preparedStatement.setInt(4, todoId);
+            ps.setInt(4, todoId);
 
-            int affected = preparedStatement.executeUpdate();
+            int affected = ps.executeUpdate();
             if (affected == 0) {
                 throw new IllegalStateException("Todo nicht gefunden: Id=" + todoId);
             }
@@ -277,13 +277,13 @@ public class TodoRepository {
                 WHERE Status = ? AND CategoryId = ?
                 """;
 
-        try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection c = Db.open();
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, TodoStatus.DONE.getDbValue());
-            preparedStatement.setInt(2, categoryId);
+            ps.setInt(1, TodoStatus.DONE.getDbValue());
+            ps.setInt(2, categoryId);
 
-            preparedStatement.executeUpdate();
+            ps.executeUpdate();
 
         } catch (Exception exception) {
             throw new RuntimeException("Erledigte Todos löschen fehlgeschlagen", exception);
@@ -297,16 +297,16 @@ public class TodoRepository {
      * - DueDate: String → LocalDate (oder null)
      * - Status: int → TodoStatus (über fromDbValue)
      *
-     * @param resultSet aktuelles ResultSet (steht bereits auf einer Zeile)
+     * @param rs aktuelles ResultSet (steht bereits auf einer Zeile)
      * @return TodoItem Domain-Objekt
      */
-    private TodoItem map(ResultSet resultSet) throws Exception {
-        int id = resultSet.getInt("Id");
-        int catId = resultSet.getInt("CategoryId");
-        String title = resultSet.getString("Title");
-        String due = resultSet.getString("DueDate");
-        String notes = resultSet.getString("Notes");
-        int statusValue = resultSet.getInt("Status");
+    private TodoItem map(ResultSet rs) throws Exception {
+        int id = rs.getInt("Id");
+        int catId = rs.getInt("CategoryId");
+        String title = rs.getString("Title");
+        String due = rs.getString("DueDate");
+        String notes = rs.getString("Notes");
+        int statusValue = rs.getInt("Status");
 
         LocalDate dueDate = (due == null || due.isBlank()) ? null : LocalDate.parse(due);
         TodoStatus todoStatus = TodoStatus.fromDbValue(statusValue);
@@ -329,15 +329,15 @@ public class TodoRepository {
     public int countByDueDateAndStatus(LocalDate dueDate, TodoStatus status) {
         String sql = "SELECT COUNT(*) FROM TodoItems WHERE DueDate = ? AND Status = ?";
 
-        try (Connection connection = Db.open();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection c = Db.open();
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, dueDate.toString()); // yyyy-MM-dd
-            preparedStatement.setInt(2, status.getDbValue());
+            ps.setString(1, dueDate.toString()); // yyyy-MM-dd
+            ps.setInt(2, status.getDbValue());
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getInt(1);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
                 }
                 return 0;
             }

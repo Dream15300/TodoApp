@@ -25,17 +25,18 @@ public final class Db {
 
     public static Connection open() throws SQLException { // Rückgabe: Connection zur DB
         String url = getJdbcUrl();
-        Connection connection = DriverManager.getConnection(url); // Baut DB-Verbindung auf
-        try (Statement statement = connection.createStatement()) {
+        Connection c = DriverManager.getConnection(url); // Baut DB-Verbindung auf
+        try (Statement statement = c.createStatement()) {
             statement.execute("PRAGMA foreign_keys = ON;");
 
             // Performance/IO: schnellerer Start + schnellere Writes
-            statement.execute("PRAGMA journal_mode = WAL;");
-            statement.execute("PRAGMA synchronous = NORMAL;");
-            statement.execute("PRAGMA temp_store = MEMORY;");
+            statement.execute("PRAGMA journal_mode = WAL;"); // Write-Ahead Logging --> Schreiboperationen nicht direkt
+                                                             // in DB-Datei
+            statement.execute("PRAGMA synchronous = NORMAL;"); // weniger Syncs auf Platte
+            statement.execute("PRAGMA temp_store = MEMORY;"); // temporäre Tabellen in RAM
         }
 
-        return connection;
+        return c;
     }
 
     /**
